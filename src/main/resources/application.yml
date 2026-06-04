@@ -3,8 +3,8 @@ spring:
     name: HAUT Survivor
   datasource:
     url: jdbc:mysql://localhost:3306/haut_survivor?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
   sql:
     init:
       mode: always

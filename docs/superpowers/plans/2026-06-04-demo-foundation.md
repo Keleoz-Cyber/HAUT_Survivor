@@ -140,7 +140,7 @@ git commit -m "Add Spring Boot project scaffold"
 - Create: `src/main/resources/schema.sql`
 - Create: `src/main/resources/data.sql`
 
-- [ ] **Step 1: Define demo tables**
+- [x] **Step 1: Define demo tables**
 
 Create SQL tables for:
 
@@ -155,7 +155,7 @@ Create SQL tables for:
 
 Use the field names already defined in `HAUT_Survivor_Requirements.md`.
 
-- [ ] **Step 2: Add seed users**
+- [x] **Step 2: Add seed users**
 
 Seed:
 
@@ -166,7 +166,7 @@ student / student123 / role user
 
 Use a simple SHA-256 password hash or clearly named demo-only hash helper. Do not store plain text passwords in Java code.
 
-- [ ] **Step 3: Add seed campus locations**
+- [x] **Step 3: Add seed campus locations**
 
 Seed Lotus Street campus locations:
 
@@ -174,7 +174,7 @@ Seed Lotus Street campus locations:
 教学楼, 图书馆, 宿舍, 食堂, 操场, 实验室, 社团活动区, 快递站
 ```
 
-- [ ] **Step 4: Add seed events and options**
+- [x] **Step 4: Add seed events and options**
 
 Add at least 12 event records and 3 options per event. Include:
 
@@ -193,17 +193,17 @@ Java 代码报错
 粮食守护者挑战
 ```
 
-- [ ] **Step 5: Verify SQL loads**
+- [x] **Step 5: Verify SQL loads**
 
 Run the app once after Task 1 is complete:
 
 ```bash
-mvn spring-boot:run
+.\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--spring.main.web-application-type=none"
 ```
 
-Expected: application starts on `http://localhost:8080` without SQL initialization errors.
+Expected: application starts without SQL initialization errors and exits because web mode is disabled.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/resources/schema.sql src/main/resources/data.sql
