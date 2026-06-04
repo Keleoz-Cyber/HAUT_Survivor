@@ -348,7 +348,7 @@ git commit -m "Add registration and login"
 - Create: `templates/dashboard/index.html`
 - Modify: auth login success redirect
 
-- [ ] **Step 1: Write player service tests**
+- [x] **Step 1: Write player service tests**
 
 Cover:
 
@@ -357,7 +357,7 @@ Cover:
 - user with profile is routed to dashboard
 - user without profile is routed to player creation
 
-- [ ] **Step 2: Implement profile creation**
+- [x] **Step 2: Implement profile creation**
 
 Default attributes:
 
@@ -371,7 +371,7 @@ Supported growth routes:
 考研路线, 就业路线, 竞赛路线, 六边形路线, 摆烂求生路线
 ```
 
-- [ ] **Step 3: Implement dashboard**
+- [x] **Step 3: Implement dashboard**
 
 Show:
 
@@ -382,7 +382,7 @@ Show:
 - all seven attributes
 - risk warnings for low health, low money, low academic, and high pressure
 
-- [ ] **Step 4: Verify manually**
+- [x] **Step 4: Verify manually**
 
 Expected:
 
@@ -390,7 +390,7 @@ Expected:
 - after creation redirects to `/dashboard`
 - dashboard shows initialized attributes
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor src/main/resources/templates/player src/main/resources/templates/dashboard
