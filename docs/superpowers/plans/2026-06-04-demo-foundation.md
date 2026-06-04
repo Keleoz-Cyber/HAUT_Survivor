@@ -408,7 +408,7 @@ git commit -m "Add player profile and dashboard"
 - Create: `templates/map/index.html`
 - Create: `templates/map/event.html`
 
-- [ ] **Step 1: Write event service tests**
+- [x] **Step 1: Write event service tests**
 
 Cover:
 
@@ -418,7 +418,7 @@ Cover:
 - attribute values stay between 0 and 100 except experience
 - event record is saved
 
-- [ ] **Step 2: Implement map page**
+- [x] **Step 2: Implement map page**
 
 Route:
 
@@ -428,7 +428,7 @@ GET /map
 
 Show location cards for Lotus Street campus.
 
-- [ ] **Step 3: Implement event trigger**
+- [x] **Step 3: Implement event trigger**
 
 Route:
 
@@ -438,7 +438,7 @@ GET /map/location/{locationId}/event
 
 Select a random enabled event for the location.
 
-- [ ] **Step 4: Implement event option selection**
+- [x] **Step 4: Implement event option selection**
 
 Route:
 
@@ -448,7 +448,7 @@ POST /map/event/{eventId}/option/{optionId}
 
 Apply attribute and experience changes, save `event_record`, and show result text.
 
-- [ ] **Step 5: Verify manually**
+- [x] **Step 5: Verify manually**
 
 Expected:
 
@@ -456,7 +456,7 @@ Expected:
 - selecting an option changes dashboard attributes
 - event results are saved in the database
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor src/main/resources/templates/map
