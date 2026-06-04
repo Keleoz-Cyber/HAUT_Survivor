@@ -1,6 +1,6 @@
 INSERT INTO `user` (id, username, password, nickname, role, status, create_time) VALUES
-(1, 'admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', '管理员', 'admin', 1, NOW()),
-(2, 'student', '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', '演示学生', 'user', 1, NOW());
+(1, 'admin', '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9', '管理员', 'ADMIN', 1, NOW()),
+(2, 'student', '703b0a3d6ad75b649a28adde7d83c6251da457549263bc7ff45ec709b0a8448b', '演示学生', 'USER', 1, NOW());
 
 INSERT INTO campus_location (id, location_name, campus, description, status) VALUES
 (1, '教学楼', '莲花街校区', '上课、点名、小测和课堂提问集中发生的区域。', 1),

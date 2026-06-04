@@ -273,7 +273,7 @@ git commit -m "Add domain entities and mappers"
 - Create: `templates/auth/login.html`
 - Create: `templates/auth/register.html`
 
-- [ ] **Step 1: Write user service tests**
+- [x] **Step 1: Write user service tests**
 
 Create tests for:
 
@@ -282,7 +282,7 @@ Create tests for:
 - login succeeds with valid credentials
 - login fails with invalid password
 
-- [ ] **Step 2: Implement `UserService`**
+- [x] **Step 2: Implement `UserService`**
 
 Methods:
 
@@ -293,11 +293,11 @@ User findById(Long id);
 boolean isAdmin(Long userId);
 ```
 
-- [ ] **Step 3: Implement login session**
+- [x] **Step 3: Implement login session**
 
 Store `LOGIN_USER_ID` and `LOGIN_USER_ROLE` in `HttpSession`.
 
-- [ ] **Step 4: Implement auth pages**
+- [x] **Step 4: Implement auth pages**
 
 Routes:
 
@@ -309,7 +309,7 @@ POST /register
 POST /logout
 ```
 
-- [ ] **Step 5: Add login interceptor**
+- [x] **Step 5: Add login interceptor**
 
 Allow:
 
@@ -319,7 +319,7 @@ Allow:
 
 Protect all demo pages behind login.
 
-- [ ] **Step 6: Verify manually**
+- [x] **Step 6: Verify manually**
 
 Run: `mvn spring-boot:run`
 
@@ -329,7 +329,7 @@ Expected:
 - `student / student123` logs in
 - invalid credentials show an error message
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor src/main/resources/templates/auth
