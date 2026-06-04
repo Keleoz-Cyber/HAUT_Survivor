@@ -77,19 +77,21 @@ register/login -> create player -> view dashboard -> open Lotus Street map
 
 **Files:**
 - Create: `pom.xml`
+- Create: `mvnw`
+- Create: `mvnw.cmd`
+- Create: `.mvn/wrapper/maven-wrapper.properties`
 - Create: `src/main/java/cn/haut/survivor/HautSurvivorApplication.java`
 - Create: `src/main/resources/application.yml`
-- Modify: `.gitignore`
 
-- [ ] **Step 1: Create Maven project descriptor**
+- [x] **Step 1: Create Maven project descriptor**
 
 Create `pom.xml` with Spring Boot web, Thymeleaf, validation, MyBatis-Plus, MySQL, Lombok, and test dependencies.
 
-- [ ] **Step 2: Create application entry point**
+- [x] **Step 2: Create application entry point**
 
 Create `HautSurvivorApplication.java` in package `cn.haut.survivor` with `@SpringBootApplication` and a standard `main` method.
 
-- [ ] **Step 3: Create local configuration**
+- [x] **Step 3: Create local configuration**
 
 Create `application.yml` with:
 
@@ -113,16 +115,20 @@ server:
   port: 8080
 ```
 
-- [ ] **Step 4: Verify scaffold**
+- [x] **Step 4: Add Maven Wrapper**
 
-Run: `mvn test`
+Add Maven Wrapper files so the project can build with `.\mvnw.cmd test` even when global Maven is not installed.
+
+- [x] **Step 5: Verify scaffold**
+
+Run: `.\mvnw.cmd test`
 
 Expected: Maven resolves dependencies and the test phase exits with code 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
-git add pom.xml src/main/java/cn/haut/survivor/HautSurvivorApplication.java src/main/resources/application.yml .gitignore
+git add pom.xml mvnw mvnw.cmd .mvn/wrapper/maven-wrapper.properties src/main/java/cn/haut/survivor/HautSurvivorApplication.java src/main/resources/application.yml src/test/java/cn/haut/survivor/HautSurvivorApplicationTests.java docs/superpowers/plans/2026-06-04-demo-foundation.md
 git commit -m "Add Spring Boot project scaffold"
 ```
 

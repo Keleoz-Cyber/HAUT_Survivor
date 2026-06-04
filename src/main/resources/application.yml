@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: HAUT Survivor
+  datasource:
+    url: jdbc:mysql://localhost:3306/haut_survivor?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  sql:
+    init:
+      mode: always
+  thymeleaf:
+    cache: false
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+server:
+  port: 8080
