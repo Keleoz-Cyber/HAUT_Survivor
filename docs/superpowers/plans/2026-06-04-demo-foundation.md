@@ -219,11 +219,11 @@ git commit -m "Add demo database schema and seed data"
 - Create: `src/main/java/cn/haut/survivor/domain/enums/*.java`
 - Create: `src/main/java/cn/haut/survivor/mapper/*.java`
 
-- [ ] **Step 1: Create entity classes**
+- [x] **Step 1: Create entity classes**
 
 Create one entity class per demo table. Use Lombok `@Data`, MyBatis-Plus `@TableName`, and `@TableId(type = IdType.AUTO)`.
 
-- [ ] **Step 2: Create enum classes**
+- [x] **Step 2: Create enum classes**
 
 Create:
 
@@ -239,21 +239,21 @@ public enum TaskStatus {
 }
 ```
 
-- [ ] **Step 3: Create mapper interfaces**
+- [x] **Step 3: Create mapper interfaces**
 
 Each mapper extends `BaseMapper<EntityName>`.
 
-- [ ] **Step 4: Add mapper scanning**
+- [x] **Step 4: Add mapper scanning**
 
 Add `@MapperScan("cn.haut.survivor.mapper")` to `HautSurvivorApplication`.
 
-- [ ] **Step 5: Verify mapper context**
+- [x] **Step 5: Verify mapper context**
 
 Run: `mvn test`
 
 Expected: Spring context loads without mapper bean errors.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor
