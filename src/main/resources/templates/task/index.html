@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>任务管理 - HAUT Survivor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<main class="container py-4">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">任务管理</h1>
+            <p class="text-muted mb-0">记录近期目标，完成后获得经验。</p>
+        </div>
+        <a href="/dashboard" class="btn btn-outline-secondary">返回仪表盘</a>
+    </header>
+
+    <section class="border rounded bg-white p-4 mb-4">
+        <h2 class="h5 mb-3">创建任务</h2>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <form method="post" action="/tasks" class="row g-3">
+            <div class="col-12 col-md-6">
+                <label for="taskName" class="form-label">任务名称</label>
+                <input id="taskName" name="taskName" class="form-control" th:value="${taskName}" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="taskType" class="form-label">任务类型</label>
+                <input id="taskType" name="taskType" class="form-control" th:value="${taskType}" placeholder="课程" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <label for="difficulty" class="form-label">难度</label>
+                <select id="difficulty" name="difficulty" class="form-select" required>
+                    <option th:each="item : ${difficulties}" th:value="${item}" th:text="${item}" th:selected="${item == difficulty}"></option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label for="deadline" class="form-label">截止时间</label>
+                <input id="deadline" name="deadline" type="datetime-local" class="form-control">
+            </div>
+            <div class="col-12">
+                <label for="description" class="form-label">描述</label>
+                <textarea id="description" name="description" class="form-control" rows="2" th:text="${description}"></textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">创建任务</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="border rounded bg-white p-4">
+        <h2 class="h5 mb-3">我的任务</h2>
+        <div th:if="${tasks.isEmpty()}" class="text-muted">暂无任务。</div>
+        <div class="table-responsive" th:unless="${tasks.isEmpty()}">
+            <table class="table align-middle">
+                <thead>
+                <tr>
+                    <th>任务</th>
+                    <th>类型</th>
+                    <th>难度</th>
+                    <th>奖励</th>
+                    <th>状态</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="task : ${tasks}">
+                    <td>
+                        <strong th:text="${task.taskName}">任务</strong>
+                        <div class="text-muted small" th:text="${task.description}">描述</div>
+                    </td>
+                    <td th:text="${task.taskType}">课程</td>
+                    <td th:text="${task.difficulty}">A</td>
+                    <td th:text="${task.rewardExp}">70</td>
+                    <td th:text="${task.status}">PENDING</td>
+                    <td class="text-end">
+                        <form th:if="${task.status != 'DONE'}" method="post" th:action="@{/tasks/{id}/complete(id=${task.id})}">
+                            <button type="submit" class="btn btn-sm btn-success">完成</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

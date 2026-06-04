@@ -473,7 +473,7 @@ git commit -m "Add campus map and random events"
 - Create: `TaskServiceImpl.java`
 - Create: `templates/task/index.html`
 
-- [ ] **Step 1: Write task service tests**
+- [x] **Step 1: Write task service tests**
 
 Cover:
 
@@ -482,7 +482,7 @@ Cover:
 - completing a task grants experience
 - user cannot complete another user's task
 
-- [ ] **Step 2: Implement task list**
+- [x] **Step 2: Implement task list**
 
 Route:
 
@@ -492,7 +492,7 @@ GET /tasks
 
 Show current user's tasks grouped by status.
 
-- [ ] **Step 3: Implement task creation**
+- [x] **Step 3: Implement task creation**
 
 Route:
 
@@ -506,7 +506,7 @@ Fields:
 task_name, task_type, difficulty, deadline, description
 ```
 
-- [ ] **Step 4: Implement task completion**
+- [x] **Step 4: Implement task completion**
 
 Route:
 
@@ -520,7 +520,7 @@ Reward by difficulty:
 C=20, B=40, A=70, S=120
 ```
 
-- [ ] **Step 5: Verify manually**
+- [x] **Step 5: Verify manually**
 
 Expected:
 
@@ -528,7 +528,7 @@ Expected:
 - completing task changes status to `DONE`
 - dashboard experience increases
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor src/main/resources/templates/task
