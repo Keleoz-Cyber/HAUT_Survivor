@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="nav" class="app-nav">
+    <div class="container app-nav__inner">
+        <a class="app-nav__brand" href="/dashboard">HAUT Survivor</a>
+        <div class="app-nav__links">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/map">校园地图</a>
+            <a href="/tasks">任务</a>
+            <a th:if="${session.LOGIN_USER_ROLE == 'ADMIN'}" href="/admin/events">事件管理</a>
+        </div>
+        <form method="post" action="/logout">
+            <button type="submit" class="btn btn-sm btn-outline-secondary">退出</button>
+        </form>
+    </div>
+</nav>
+</body>
+</html>

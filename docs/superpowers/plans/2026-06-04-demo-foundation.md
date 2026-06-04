@@ -605,7 +605,7 @@ git commit -m "Add admin event management"
 - Modify: all Thymeleaf pages
 - Create: `README.md`
 
-- [ ] **Step 1: Add shared layout fragment**
+- [x] **Step 1: Add shared layout fragment**
 
 Include navigation links:
 
@@ -615,11 +615,11 @@ Dashboard, Campus Map, Tasks, Admin Events, Logout
 
 Only show Admin Events for admin users.
 
-- [ ] **Step 2: Add app styling**
+- [x] **Step 2: Add app styling**
 
 Use a restrained dashboard style with readable cards, progress bars, and clear buttons. Avoid decorative complexity.
 
-- [ ] **Step 3: Add README run instructions**
+- [x] **Step 3: Add README run instructions**
 
 Include:
 
@@ -631,7 +631,7 @@ Include:
 5. Demo accounts: admin/admin123, student/student123
 ```
 
-- [ ] **Step 4: Run final checks**
+- [x] **Step 4: Run final checks**
 
 Run:
 
@@ -646,7 +646,7 @@ Expected:
 - application starts
 - demo flow works end to end in browser
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md src/main/resources/templates src/main/resources/static/css/app.css
@@ -657,17 +657,17 @@ git commit -m "Polish demo navigation and docs"
 
 ## Final Verification Checklist
 
-- [ ] `mvn test` passes.
-- [ ] `mvn spring-boot:run` starts the app on port 8080.
-- [ ] Login works for `student / student123`.
-- [ ] Login works for `admin / admin123`.
-- [ ] First-time user can create a player profile.
-- [ ] Dashboard shows attributes and warnings.
-- [ ] Campus map shows Lotus Street locations.
-- [ ] Random event option changes attributes.
-- [ ] User can create and complete a task.
-- [ ] Admin can create, edit, and disable events.
-- [ ] README run instructions match the actual app behavior.
+- [x] `mvn test` passes.
+- [x] `mvn spring-boot:run` starts the app on port 8080.
+- [x] Login works for `student / student123`.
+- [x] Login works for `admin / admin123`.
+- [x] First-time user can create a player profile.
+- [x] Dashboard shows attributes and warnings.
+- [x] Campus map shows Lotus Street locations.
+- [x] Random event option changes attributes.
+- [x] User can create and complete a task.
+- [x] Admin can create, edit, and disable events.
+- [x] README run instructions match the actual app behavior.
 
 ## Scope Deliberately Deferred
 
