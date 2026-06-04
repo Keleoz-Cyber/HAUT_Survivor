@@ -17,6 +17,7 @@ import cn.haut.survivor.service.PlayerService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -130,6 +131,56 @@ public class EventServiceImpl implements EventService {
         return record;
     }
 
+    @Override
+    public List<Event> listAllEvents() {
+        return eventMapper.selectList(new LambdaQueryWrapper<Event>()
+                .orderByAsc(Event::getLocationId)
+                .orderByAsc(Event::getId));
+    }
+
+    @Override
+    public Event findEventById(Long eventId) {
+        if (eventId == null) {
+            return null;
+        }
+        return eventMapper.selectById(eventId);
+    }
+
+    @Override
+    @Transactional
+    public Event createEvent(String eventName, String eventType, Long locationId, String description,
+                             Integer probability, Integer minWeek, Integer maxWeek) {
+        Event event = new Event();
+        fillEvent(event, eventName, eventType, locationId, description, probability, minWeek, maxWeek);
+        event.setStatus(1);
+        eventMapper.insert(event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public Event updateEvent(Long eventId, String eventName, String eventType, Long locationId, String description,
+                             Integer probability, Integer minWeek, Integer maxWeek) {
+        Event event = findEventById(eventId);
+        if (event == null) {
+            throw new IllegalArgumentException("事件不存在");
+        }
+        fillEvent(event, eventName, eventType, locationId, description, probability, minWeek, maxWeek);
+        eventMapper.updateById(event);
+        return event;
+    }
+
+    @Override
+    @Transactional
+    public void disableEvent(Long eventId) {
+        Event event = findEventById(eventId);
+        if (event == null) {
+            throw new IllegalArgumentException("事件不存在");
+        }
+        event.setStatus(0);
+        eventMapper.updateById(event);
+    }
+
     private PlayerProfile requireProfile(Long userId) {
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         if (profile == null) {
@@ -155,5 +206,31 @@ public class EventServiceImpl implements EventService {
 
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
+    }
+
+    private void fillEvent(Event event, String eventName, String eventType, Long locationId, String description,
+                           Integer probability, Integer minWeek, Integer maxWeek) {
+        if (locationId == null) {
+            throw new IllegalArgumentException("地点不能为空");
+        }
+        event.setEventName(requireText(eventName, "事件名称不能为空"));
+        event.setEventType(requireText(eventType, "事件类型不能为空"));
+        event.setLocationId(locationId);
+        event.setDescription(requireText(description, "事件描述不能为空"));
+        event.setProbability(clampProbability(probability));
+        event.setMinWeek(minWeek == null ? 1 : minWeek);
+        event.setMaxWeek(maxWeek == null ? 20 : maxWeek);
+    }
+
+    private int clampProbability(Integer probability) {
+        int value = probability == null ? 50 : probability;
+        return Math.max(1, Math.min(100, value));
+    }
+
+    private String requireText(String value, String message) {
+        if (!StringUtils.hasText(value)) {
+            throw new IllegalArgumentException(message);
+        }
+        return value.trim();
     }
 }

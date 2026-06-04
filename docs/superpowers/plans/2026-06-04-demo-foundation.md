@@ -545,11 +545,11 @@ git commit -m "Add basic task management"
 - Create: `templates/admin/event-form.html`
 - Modify: `EventService.java`
 
-- [ ] **Step 1: Add admin authorization check**
+- [x] **Step 1: Add admin authorization check**
 
 Admin routes must require `LOGIN_USER_ROLE=ADMIN`.
 
-- [ ] **Step 2: Implement event list**
+- [x] **Step 2: Implement event list**
 
 Route:
 
@@ -559,7 +559,7 @@ GET /admin/events
 
 Show event name, type, location, probability, week range, and status.
 
-- [ ] **Step 3: Implement event create and edit**
+- [x] **Step 3: Implement event create and edit**
 
 Routes:
 
@@ -570,7 +570,7 @@ GET /admin/events/{eventId}/edit
 POST /admin/events/{eventId}
 ```
 
-- [ ] **Step 4: Implement event disable**
+- [x] **Step 4: Implement event disable**
 
 Route:
 
@@ -580,7 +580,7 @@ POST /admin/events/{eventId}/disable
 
 Set `status=0`.
 
-- [ ] **Step 5: Verify manually**
+- [x] **Step 5: Verify manually**
 
 Expected:
 
@@ -588,7 +588,7 @@ Expected:
 - student cannot open `/admin/events`
 - admin can add and disable an event
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/main/java/cn/haut/survivor src/main/resources/templates/admin

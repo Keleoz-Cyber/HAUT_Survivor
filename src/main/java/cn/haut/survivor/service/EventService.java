@@ -18,4 +18,16 @@ public interface EventService {
     List<EventOption> listOptions(Long eventId);
 
     EventRecord chooseOption(Long userId, Long eventId, Long optionId);
+
+    List<Event> listAllEvents();
+
+    Event findEventById(Long eventId);
+
+    Event createEvent(String eventName, String eventType, Long locationId, String description,
+                      Integer probability, Integer minWeek, Integer maxWeek);
+
+    Event updateEvent(Long eventId, String eventName, String eventType, Long locationId, String description,
+                      Integer probability, Integer minWeek, Integer maxWeek);
+
+    void disableEvent(Long eventId);
 }
