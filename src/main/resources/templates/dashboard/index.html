@@ -3,111 +3,182 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>仪表盘 - HAUT Survivor</title>
+    <title>寝室 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="bg-light">
-<div th:replace="~{fragments/layout :: nav}"></div>
-<main class="container app-shell">
-    <header class="mb-4">
-        <h1 class="h3 mb-1" th:text="${profile.playerName}">角色名</h1>
-        <p class="text-muted mb-0">
-            <span th:text="${user.nickname}">昵称</span>
-            <span> · </span>
-            <span th:text="${profile.currentTitle}">称号</span>
-        </p>
-    </header>
+<body class="game-shell">
 
-    <!-- 学期结束提示 -->
-    <section th:if="${semesterOver}" class="panel mb-4 text-center">
-        <h2 class="h4 mb-2">学期结束</h2>
-        <p class="text-muted mb-2">你已经度过了 4 周的大学生活。</p>
-        <div class="d-flex justify-content-center gap-2">
-            <a href="/ending" class="btn btn-primary">查看学期结局</a>
-            <form method="post" action="/ending/restart">
-                <button type="submit" class="btn btn-outline-secondary">重开新学期</button>
+<!-- 游戏HUD -->
+<div th:replace="~{fragments/layout :: game-hud}"></div>
+
+<main class="dorm-room">
+
+    <!-- ========== 学期结束卡 ========== -->
+    <section th:if="${semesterOver}" class="dorm-semester-end">
+        <p class="dorm-semester-end__title">📚 学期结束了</p>
+        <p class="dorm-semester-end__desc">4 周的大学生活已经过去，来看看你的学期回忆吧。</p>
+        <div class="dorm-semester-end__actions">
+            <a href="/ending" class="sticky-note__btn sticky-note__btn--primary">📖 查看学期回忆</a>
+            <form method="post" action="/ending/restart" style="display:inline">
+                <button type="submit" class="sticky-note__btn">🔄 再来一学期</button>
             </form>
         </div>
     </section>
 
-    <!-- 周次与行动点 -->
-    <section class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-            <div class="metric">
-                <span class="metric__label">当前周次</span>
-                <strong class="metric__value" th:text="${weekPhaseLabel}">第 1 周</strong>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="metric">
-                <span class="metric__label">行动点</span>
-                <strong class="metric__value">
-                    <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
-                </strong>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="metric">
-                <span class="metric__label">等级</span>
-                <strong class="metric__value" th:text="${profile.level}">1</strong>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="metric">
-                <span class="metric__label">成长路线</span>
-                <strong class="metric__value" th:text="${profile.growthRoute}">路线</strong>
-            </div>
+    <!-- ========== 角色状态卡 ========== -->
+    <section class="dorm-profile">
+        <h1 class="dorm-profile__name" th:text="${profile.playerName}">角色名</h1>
+        <p class="dorm-profile__subtitle">
+            <span th:text="${profile.currentTitle}">称号</span>
+            <span> · </span>
+            <span th:text="${weekPhaseLabel}">第 1 周</span>
+        </p>
+        <div class="dorm-profile__tags">
+            <span class="dorm-profile__tag dorm-profile__tag--route" th:text="${profile.growthRoute}">成长路线</span>
+            <span class="dorm-profile__tag">Lv.<span th:text="${profile.level}">1</span></span>
         </div>
     </section>
 
-    <!-- 结束本周按钮 -->
-    <section th:if="${!semesterOver}" class="mb-4">
-        <form method="post" action="/week/advance" class="d-inline">
-            <button type="submit" class="btn btn-outline-primary btn-sm"
-                    th:disabled="${profile.actionPoints == profile.maxActionPoints}">
-                结束本周，进入下一周
+    <!-- ========== 压力预警 ========== -->
+    <div th:if="${attribute.pressure >= 60}" class="pressure-alert"
+         th:classappend="${attribute.pressure >= 75} ? 'pressure-alert--danger'">
+        <span class="pressure-alert__icon" th:text="${attribute.pressure >= 75} ? '🔴' : '🟡'">🟡</span>
+        <span th:if="${attribute.pressure >= 75}">压力爆表！赶紧减压，不然下周要扣健康了。</span>
+        <span th:if="${attribute.pressure < 75}">压力有点高，注意休息或去操场跑跑。</span>
+    </div>
+
+    <!-- ========== 周推进控制 ========== -->
+    <section th:if="${!semesterOver}" class="dorm-week-control">
+        <span class="dorm-week-control__hint"
+              th:if="${profile.actionPoints == profile.maxActionPoints}">
+            💡 还没行动过，先去校园逛逛吧
+        </span>
+        <span class="dorm-week-control__hint dorm-week-control__hint--urgent"
+              th:if="${profile.actionPoints == 0}">
+            ⚡ 行动点用完了，该熬过这一周了
+        </span>
+        <span class="dorm-week-control__hint"
+              th:if="${profile.actionPoints > 0 and profile.actionPoints < profile.maxActionPoints}">
+            还有 <span th:text="${profile.actionPoints}">2</span> 个行动点可以用
+        </span>
+        <form method="post" action="/week/advance">
+            <button type="submit" class="sticky-note__btn"
+                    th:disabled="${profile.actionPoints == profile.maxActionPoints}"
+                    th:classappend="${profile.actionPoints == 0} ? 'sticky-note__btn--primary' : ''">
+                🌙 熬过这一周
             </button>
         </form>
-        <span class="text-muted ms-2" th:if="${profile.actionPoints == profile.maxActionPoints}">
-            你还没有行动过，先去地图探索吧！
-        </span>
-        <span class="text-muted ms-2" th:if="${profile.actionPoints == 0}">
-            行动点已用完，建议结束本周。
-        </span>
     </section>
 
-    <section th:if="${!warnings.isEmpty()}" class="alert alert-warning">
-        <div th:each="warning : ${warnings}" th:text="${warning}"></div>
-    </section>
+    <!-- ========== 手机桌面入口 ========== -->
+    <div class="phone-home">
+        <a href="/map" class="phone-home__app">
+            <span class="phone-home__app-icon">🗺️</span>
+            <span class="phone-home__app-label">去校园</span>
+        </a>
+        <a href="/exploration" class="phone-home__app">
+            <span class="phone-home__app-icon">🔍</span>
+            <span class="phone-home__app-label">踩点</span>
+        </a>
+        <a href="/dungeons" class="phone-home__app">
+            <span class="phone-home__app-icon">⚔️</span>
+            <span class="phone-home__app-label">挑战</span>
+        </a>
+        <a href="/organizations" class="phone-home__app">
+            <span class="phone-home__app-icon">🎉</span>
+            <span class="phone-home__app-label">社团</span>
+        </a>
+        <a href="/tasks" class="phone-home__app">
+            <span class="phone-home__app-icon">📋</span>
+            <span class="phone-home__app-label">待办</span>
+        </a>
+        <a href="/ending" class="phone-home__app" th:if="${semesterOver}">
+            <span class="phone-home__app-icon">📖</span>
+            <span class="phone-home__app-label">学期回忆</span>
+        </a>
+    </div>
 
-    <section class="panel">
-        <h2 class="h5 mb-3">角色属性</h2>
-        <div class="row g-3">
-            <div class="col-6 col-md-3"><span class="metric__label">学业</span><strong class="d-block" th:text="${attribute.academic}">60</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">健康</span><strong class="d-block" th:text="${attribute.health}">70</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">金钱</span><strong class="d-block" th:text="${attribute.money}">80</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">社交</span><strong class="d-block" th:text="${attribute.social}">50</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">技能</span><strong class="d-block" th:text="${attribute.skill}">40</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">压力</span><strong class="d-block" th:text="${attribute.pressure}">30</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">自律</span><strong class="d-block" th:text="${attribute.discipline}">50</strong></div>
-            <div class="col-6 col-md-3"><span class="metric__label">经验</span><strong class="d-block" th:text="${profile.exp}">0</strong></div>
+    <!-- ========== 属性条 ========== -->
+    <section class="stat-bar">
+        <p class="stat-bar__title">📊 状态</p>
+        <div class="stat-bar__grid">
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">学业</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--academic" th:style="'width:' + ${attribute.academic} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.academic}">60</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">健康</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--health" th:style="'width:' + ${attribute.health} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.health}">70</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">金钱</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--money" th:style="'width:' + ${attribute.money} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.money}">80</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">社交</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--social" th:style="'width:' + ${attribute.social} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.social}">50</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">技能</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--skill" th:style="'width:' + ${attribute.skill} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.skill}">40</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">压力</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--pressure" th:style="'width:' + ${attribute.pressure} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.pressure}">30</span>
+            </div>
+            <div class="stat-bar__item">
+                <span class="stat-bar__item-label">自律</span>
+                <div class="stat-bar__item-track">
+                    <div class="stat-bar__item-fill stat-bar__item-fill--discipline" th:style="'width:' + ${attribute.discipline} + '%'"></div>
+                </div>
+                <span class="stat-bar__item-value" th:text="${attribute.discipline}">50</span>
+            </div>
         </div>
     </section>
 
-    <section class="panel mt-4">
-        <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
-            <div>
-                <h2 class="h5 mb-2">推荐行动</h2>
-                <p class="text-muted mb-0" th:if="${!semesterOver}">探索校园地图、触发随机事件、挑战副本。</p>
-                <p class="text-muted mb-0" th:if="${semesterOver}">学期已结束，后续功能开发中。</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a th:if="${!semesterOver}" class="btn btn-primary align-self-start" href="/map">校园地图</a>
-                <a th:if="${!semesterOver}" class="btn btn-outline-secondary align-self-start" href="/dungeons">副本</a>
-            </div>
+    <!-- ========== 便利贴 / 推荐行动 ========== -->
+    <section class="sticky-note" th:if="${!semesterOver}">
+        <p class="sticky-note__title">📌 本周待办</p>
+        <div class="sticky-note__actions">
+            <a href="/map" class="sticky-note__btn sticky-note__btn--primary">🗺️ 去校园行动</a>
+            <a href="/exploration" class="sticky-note__btn">🔍 踩点探索</a>
+            <a href="/dungeons" class="sticky-note__btn">⚔️ 挑战副本</a>
+            <a href="/organizations" class="sticky-note__btn">🎉 参加社团活动</a>
         </div>
     </section>
+
+    <!-- ========== 警告提示 ========== -->
+    <section th:if="${!warnings.isEmpty()}" style="margin-bottom: 16px;">
+        <div th:each="warning : ${warnings}" class="pressure-alert" style="margin-bottom: 8px;"
+             th:styleappend="${warning.contains('压力') ? '' : 'background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.2); color: #fcd34d;'}">
+            <span class="pressure-alert__icon">⚠️</span>
+            <span th:text="${warning}">警告</span>
+        </div>
+    </section>
+
 </main>
+
+<!-- 手机底栏 -->
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+
 </body>
 </html>

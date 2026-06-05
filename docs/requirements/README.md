@@ -11,6 +11,7 @@
 7. [07-roadmap-and-acceptance.md](07-roadmap-and-acceptance.md) — 路线图、验收标准
 8. [08-content-library.md](08-content-library.md) — 事件/地点/结局文案素材
 9. [09-semester-sim-design.md](09-semester-sim-design.md) — 周回合制模拟器设计（行动点、组织、探索、结局）
+10. [10-ui-2-game-interface-redesign.md](10-ui-2-game-interface-redesign.md) — UI 2.0 游戏化界面重构
 
 ## 配套文档
 

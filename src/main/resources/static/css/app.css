@@ -886,3 +886,541 @@ body {
 .attr-change-item.attr-down em {
     color: #f87171;
 }
+
+/* ============================================================
+   UI 2.0 游戏视觉系统
+   ============================================================ */
+
+/* ---------- 游戏外壳 ---------- */
+
+.game-shell {
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.06), transparent 60%),
+        linear-gradient(180deg, #0c1222 0%, #111b2e 40%, #0f1a2a 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 80px; /* 给底栏留空间 */
+}
+
+/* ---------- 游戏HUD顶部栏 ---------- */
+
+.game-hud {
+    background: rgba(12, 18, 34, 0.92);
+    border-bottom: 1px solid rgba(251, 191, 36, 0.15);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.game-hud__inner {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    max-width: 960px;
+    margin: 0 auto;
+    min-height: 48px;
+    padding: 0 16px;
+}
+
+.game-hud__brand {
+    color: #fbbf24;
+    font-weight: 800;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.game-hud__brand-accent {
+    color: #f59e0b;
+    margin: 0 2px;
+}
+
+.game-hud__status {
+    display: flex;
+    flex: 1;
+    gap: 8px;
+    justify-content: center;
+}
+
+.game-hud__chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    white-space: nowrap;
+}
+
+.game-hud__chip--ap {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.25);
+    background: rgba(251, 191, 36, 0.08);
+}
+
+.game-hud__chip--pressure-warn {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.3);
+    background: rgba(251, 191, 36, 0.1);
+}
+
+.game-hud__chip--pressure-danger {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.35);
+    background: rgba(239, 68, 68, 0.12);
+    animation: pressurePulse 2s ease-in-out infinite;
+}
+
+@keyframes pressurePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.game-hud__logout {
+    margin-left: auto;
+}
+
+.game-hud__logout-btn {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.78rem;
+    padding: 4px 10px;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.game-hud__logout-btn:hover {
+    color: #94a3b8;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---------- 手机底栏 Dock ---------- */
+
+.game-dock {
+    background: rgba(12, 18, 34, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    bottom: 0;
+    display: flex;
+    justify-content: space-around;
+    left: 0;
+    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+    position: fixed;
+    right: 0;
+    z-index: 100;
+}
+
+.game-dock__item {
+    align-items: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7rem;
+    gap: 2px;
+    padding: 4px 12px;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.game-dock__item:hover {
+    color: #fbbf24;
+}
+
+.game-dock__icon {
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+.game-dock__label {
+    font-weight: 600;
+}
+
+/* ---------- 寝室主界面 ---------- */
+
+.dorm-room {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+/* 寝室台灯氛围 */
+.dorm-room::before {
+    content: "";
+    position: fixed;
+    top: -120px;
+    right: -80px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.08), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.dorm-room > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* 角色状态卡 */
+.dorm-profile {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.dorm-profile__name {
+    color: #f8fafc;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.dorm-profile__subtitle {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-top: 4px;
+}
+
+.dorm-profile__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.dorm-profile__tag {
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 6px;
+    color: #fbbf24;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 10px;
+}
+
+.dorm-profile__tag--route {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.25);
+    color: #a5b4fc;
+}
+
+/* 手机桌面入口 */
+.phone-home {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.phone-home__app {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 8px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.phone-home__app:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.phone-home__app:active {
+    transform: scale(0.96);
+}
+
+.phone-home__app-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+}
+
+.phone-home__app-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+/* 属性条 */
+.stat-bar {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-bar__title {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-bar__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.stat-bar__item {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.stat-bar__item-label {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    min-width: 2em;
+    text-align: right;
+}
+
+.stat-bar__item-track {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    flex: 1;
+    height: 8px;
+    overflow: hidden;
+}
+
+.stat-bar__item-fill {
+    border-radius: 4px;
+    height: 100%;
+    transition: width 0.4s ease-out;
+    min-width: 0;
+}
+
+.stat-bar__item-fill--academic { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.stat-bar__item-fill--health { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.stat-bar__item-fill--money { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.stat-bar__item-fill--social { background: linear-gradient(90deg, #ec4899, #f472b6); }
+.stat-bar__item-fill--skill { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+.stat-bar__item-fill--pressure { background: linear-gradient(90deg, #ef4444, #f87171); }
+.stat-bar__item-fill--discipline { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+.stat-bar__item-value {
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-width: 2.2em;
+}
+
+/* 压力预警 */
+.pressure-alert {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    border-radius: 10px;
+    color: #fca5a5;
+    font-size: 0.88rem;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.pressure-alert__icon {
+    margin-right: 6px;
+}
+
+/* 便利贴 / 推荐行动 */
+.sticky-note {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.18);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.sticky-note__title {
+    color: #fbbf24;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.sticky-note__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.sticky-note__btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.sticky-note__btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.sticky-note__btn:active {
+    transform: scale(0.96);
+}
+
+.sticky-note__btn--primary {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.3);
+    color: #fbbf24;
+}
+
+.sticky-note__btn--danger {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(248, 113, 113, 0.25);
+    color: #fca5a5;
+}
+
+/* 学期结束/结算卡 */
+.dorm-semester-end {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.dorm-semester-end__title {
+    color: #c4b5fd;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.dorm-semester-end__desc {
+    color: #94a3b8;
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+}
+
+.dorm-semester-end__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 周推进卡 */
+.dorm-week-control {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.dorm-week-control__hint {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.dorm-week-control__hint--urgent {
+    color: #fbbf24;
+}
+
+/* 场景面板（通用） */
+.scene-panel {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* ---------- 游戏页面动画 ---------- */
+
+.game-shell {
+    animation: gameFadeIn 0.35s ease-out;
+}
+
+@keyframes gameFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.phone-home__app {
+    animation: appPopIn 0.3s ease-out backwards;
+}
+.phone-home__app:nth-child(1) { animation-delay: 0.05s; }
+.phone-home__app:nth-child(2) { animation-delay: 0.1s; }
+.phone-home__app:nth-child(3) { animation-delay: 0.15s; }
+.phone-home__app:nth-child(4) { animation-delay: 0.2s; }
+.phone-home__app:nth-child(5) { animation-delay: 0.25s; }
+.phone-home__app:nth-child(6) { animation-delay: 0.3s; }
+.phone-home__app:nth-child(7) { animation-delay: 0.35s; }
+.phone-home__app:nth-child(8) { animation-delay: 0.4s; }
+
+@keyframes appPopIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- 移动端适配 ---------- */
+
+@media (max-width: 640px) {
+    .game-hud__inner {
+        min-height: 44px;
+    }
+
+    .game-hud__brand {
+        font-size: 0.88rem;
+    }
+
+    .game-hud__chip {
+        font-size: 0.75rem;
+        padding: 3px 7px;
+    }
+
+    .phone-home {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .phone-home__app {
+        padding: 12px 4px;
+    }
+
+    .phone-home__app-icon {
+        font-size: 1.5rem;
+    }
+
+    .stat-bar__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dorm-profile__name {
+        font-size: 1.2rem;
+    }
+}
+
+/* ---------- 管理员页面不应用游戏外壳 ---------- */
+
+body:not(.game-shell) .game-dock {
+    display: none;
+}
+
+body.bg-light .game-hud {
+    display: none;
+}

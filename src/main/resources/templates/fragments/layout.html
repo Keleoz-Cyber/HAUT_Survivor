@@ -1,6 +1,62 @@
 <!doctype html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <body>
+
+<!-- ==================== 管理员导航（保持旧风格） ==================== -->
+<nav th:fragment="admin-nav" class="app-nav">
+    <div class="container app-nav__inner">
+        <a class="app-nav__brand" href="/dashboard">HAUT Survivor</a>
+        <div class="app-nav__links">
+            <a href="/dashboard">仪表盘</a>
+            <a href="/admin/events">事件管理</a>
+        </div>
+        <form method="post" action="/logout">
+            <button type="submit" class="btn btn-sm btn-outline-secondary">退出</button>
+        </form>
+    </div>
+</nav>
+
+<!-- ==================== 玩家游戏 HUD ==================== -->
+<header th:fragment="game-hud" class="game-hud">
+    <div class="game-hud__inner">
+        <a class="game-hud__brand" href="/dashboard">HAUT<span class="game-hud__brand-accent">⌇</span>Survivor</a>
+        <div class="game-hud__status">
+            <span class="game-hud__chip" th:if="${profile != null}" th:text="'第 ' + ${profile.currentWeek} + ' 周'">第 1 周</span>
+            <span class="game-hud__chip game-hud__chip--ap" th:if="${profile != null}">
+                ⚡ <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
+            </span>
+            <span class="game-hud__chip" th:if="${attribute != null and attribute.pressure >= 60}"
+                  th:classappend="${attribute.pressure >= 75} ? 'game-hud__chip--pressure-danger' : 'game-hud__chip--pressure-warn'">
+                😰 <span th:text="${attribute.pressure}">30</span>
+            </span>
+        </div>
+        <form method="post" action="/logout" class="game-hud__logout">
+            <button type="submit" class="game-hud__logout-btn">离开</button>
+        </form>
+    </div>
+</header>
+
+<!-- ==================== 玩家手机底栏 Dock ==================== -->
+<nav th:fragment="game-dock" class="game-dock">
+    <a href="/dashboard" class="game-dock__item">
+        <span class="game-dock__icon">🏠</span>
+        <span class="game-dock__label">寝室</span>
+    </a>
+    <a href="/map" class="game-dock__item">
+        <span class="game-dock__icon">🗺️</span>
+        <span class="game-dock__label">去校园</span>
+    </a>
+    <a href="/dungeons" class="game-dock__item">
+        <span class="game-dock__icon">⚔️</span>
+        <span class="game-dock__label">挑战</span>
+    </a>
+    <a href="/organizations" class="game-dock__item">
+        <span class="game-dock__icon">🎉</span>
+        <span class="game-dock__label">社团</span>
+    </a>
+</nav>
+
+<!-- ==================== 旧导航（向后兼容，管理员页面继续使用） ==================== -->
 <nav th:fragment="nav" class="app-nav">
     <div class="container app-nav__inner">
         <a class="app-nav__brand" href="/dashboard">HAUT Survivor</a>
@@ -18,5 +74,6 @@
         </form>
     </div>
 </nav>
+
 </body>
 </html>
