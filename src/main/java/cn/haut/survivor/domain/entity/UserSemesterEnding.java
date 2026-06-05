@@ -13,6 +13,7 @@ public class UserSemesterEnding {
     private Long userId;
     private Long endingId;
     private String growthRoute;
+    private Integer semesterNumber;
     private Integer academic;
     private Integer health;
     private Integer social;

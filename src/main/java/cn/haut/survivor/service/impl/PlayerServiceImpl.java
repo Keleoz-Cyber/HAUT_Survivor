@@ -6,7 +6,6 @@ import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import cn.haut.survivor.mapper.UserOrganizationMapper;
-import cn.haut.survivor.mapper.UserSemesterEndingMapper;
 import cn.haut.survivor.service.PlayerService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
@@ -25,18 +24,15 @@ public class PlayerServiceImpl implements PlayerService {
     private final PlayerAttributeMapper playerAttributeMapper;
     private final UserLocationExplorationMapper explorationMapper;
     private final UserOrganizationMapper userOrganizationMapper;
-    private final UserSemesterEndingMapper userSemesterEndingMapper;
 
     public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper,
                              PlayerAttributeMapper playerAttributeMapper,
                              UserLocationExplorationMapper explorationMapper,
-                             UserOrganizationMapper userOrganizationMapper,
-                             UserSemesterEndingMapper userSemesterEndingMapper) {
+                             UserOrganizationMapper userOrganizationMapper) {
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.explorationMapper = explorationMapper;
         this.userOrganizationMapper = userOrganizationMapper;
-        this.userSemesterEndingMapper = userSemesterEndingMapper;
     }
 
     @Override
@@ -233,11 +229,13 @@ public class PlayerServiceImpl implements PlayerService {
         PlayerProfile profile = requireProfile(userId);
         String growthRoute = profile.getGrowthRoute();
 
-        // 重置 profile
+        // 重置 profile，学期号 +1
+        int nextSemester = profile.getSemesterNumber() == null ? 2 : profile.getSemesterNumber() + 1;
         profile.setCurrentWeek(1);
         profile.setActionPoints(4);
         profile.setMaxActionPoints(4);
         profile.setSemesterPhase("early");
+        profile.setSemesterNumber(nextSemester);
         playerProfileMapper.updateById(profile);
 
         // 重置属性为默认值 + 成长路线加成
@@ -261,9 +259,7 @@ public class PlayerServiceImpl implements PlayerService {
         userOrganizationMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserOrganization>()
                 .eq(cn.haut.survivor.domain.entity.UserOrganization::getUserId, userId));
 
-        // 清理本学期结局记录（保留历史）
-        userSemesterEndingMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserSemesterEnding>()
-                .eq(cn.haut.survivor.domain.entity.UserSemesterEnding::getUserId, userId));
+        // 保留历史结局记录（不删除），hasSettled 基于学期号判断
     }
 
     private int clamp(int value) {

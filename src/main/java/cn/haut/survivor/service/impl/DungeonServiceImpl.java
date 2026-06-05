@@ -1,5 +1,6 @@
 package cn.haut.survivor.service.impl;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Dungeon;
 import cn.haut.survivor.domain.entity.DungeonTask;
 import cn.haut.survivor.domain.entity.DungeonTaskOption;
@@ -228,6 +229,10 @@ public class DungeonServiceImpl implements DungeonService {
         taskRecord.setScore(option.getScore());
         taskRecord.setExpChange(option.getExpChange());
         taskRecord.setCreateTime(LocalDateTime.now());
+        taskRecord.setAttributeChange(new AttributeChange(
+                option.getAcademicChange(), option.getHealthChange(), option.getMoneyChange(),
+                option.getSocialChange(), option.getSkillChange(), option.getPressureChange(),
+                option.getDisciplineChange(), option.getExpChange()));
         userDungeonTaskRecordMapper.insert(taskRecord);
 
         record.setTotalScore(record.getTotalScore() + option.getScore());
@@ -458,6 +463,10 @@ public class DungeonServiceImpl implements DungeonService {
         taskRecord.setScore(settlement.score);
         taskRecord.setExpChange(settlement.expChange);
         taskRecord.setCreateTime(LocalDateTime.now());
+        taskRecord.setAttributeChange(new AttributeChange(
+                settlement.academicChange, settlement.healthChange, 0,
+                0, settlement.skillChange, settlement.pressureChange,
+                settlement.disciplineChange, settlement.expChange));
         return taskRecord;
     }
 

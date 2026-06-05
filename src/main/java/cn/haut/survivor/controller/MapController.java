@@ -68,16 +68,17 @@ public class MapController {
             return buildMapRedirect(userId, model, "学期已结束，无法继续行动。", true);
         }
 
-        // 消耗行动点
+        // 先检查是否有可触发的事件，没有则不消耗行动点
+        Event event = eventService.triggerRandomEvent(userId, locationId);
+        if (event == null) {
+            return buildMapRedirect(userId, model, "这里暂时没有可触发的事件。", false);
+        }
+
+        // 有事件才消耗行动点
         try {
             playerService.consumeActionPoint(userId);
         } catch (IllegalArgumentException e) {
             return buildMapRedirect(userId, model, e.getMessage(), false);
-        }
-
-        Event event = eventService.triggerRandomEvent(userId, locationId);
-        if (event == null) {
-            return buildMapRedirect(userId, model, "这里暂时没有可触发的事件。", false);
         }
 
         model.addAttribute("event", event);
@@ -92,6 +93,7 @@ public class MapController {
         Long userId = currentUserId(session);
         EventRecord record = eventService.chooseOption(userId, eventId, optionId);
         model.addAttribute("resultText", record.getResultText());
+        model.addAttribute("attributeChange", record.getAttributeChange());
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         model.addAttribute("profile", playerService.findProfileByUserId(userId));
         return "map/event";

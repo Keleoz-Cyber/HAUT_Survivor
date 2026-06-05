@@ -4,6 +4,8 @@ import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.SemesterEnding;
 import cn.haut.survivor.domain.entity.UserSemesterEnding;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
+import cn.haut.survivor.mapper.UserLocationExplorationMapper;
+import cn.haut.survivor.mapper.UserOrganizationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -179,6 +181,85 @@ class SemesterEndingServiceTests {
                 .evaluateCondition("", vars);
         assertThat(result).isTrue();
     }
+
+    // ==================== 路线结局测试 ====================
+
+    @Test
+    void buildSettlementContextReturnsExploreAndOrgData() {
+        SemesterEndingService.SettlementContext ctx = semesterEndingService.buildSettlementContext(2L);
+
+        // 初始探索度为 0，组织贡献为 0
+        assertThat(ctx.labExploreLevel()).isEqualTo(0);
+        assertThat(ctx.libraryExploreLevel()).isEqualTo(0);
+        assertThat(ctx.playgroundExploreLevel()).isEqualTo(0);
+        assertThat(ctx.orgContribution()).isEqualTo(0);
+        assertThat(ctx.dungeon1Completed()).isFalse();
+        assertThat(ctx.dungeon2Completed()).isFalse();
+    }
+
+    @Test
+    void routeEndingMatchesLabExploreWithSkill() {
+        advanceToSemesterEnd();
+
+        // 手动拉高实验室探索度和技能
+        cn.haut.survivor.domain.entity.UserLocationExploration exploration =
+                explorationService.findExploration(2L, 6L);
+        if (exploration == null) {
+            exploration = new cn.haut.survivor.domain.entity.UserLocationExploration();
+            exploration.setUserId(2L);
+            exploration.setLocationId(6L);
+            exploration.setExploreLevel(45);
+            exploration.setExploreCount(1);
+            exploration.setLastExploreWeek(1);
+            explorationMapper.insert(exploration);
+        } else {
+            exploration.setExploreLevel(45);
+            explorationMapper.updateById(exploration);
+        }
+
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setSkill(60);
+        playerAttributeMapper.updateById(attr);
+
+        SemesterEnding ending = semesterEndingService.settleSemester(2L);
+        assertThat(ending.getEndingName()).isEqualTo("实验室编外研究员");
+    }
+
+    @Test
+    void routeEndingMatchesOrgContributionWithSocial() {
+        advanceToSemesterEnd();
+
+        // 手动加入组织并获得贡献
+        cn.haut.survivor.domain.entity.UserOrganization orgRelation = organizationService.findRelation(2L, 1L);
+        if (orgRelation == null) {
+            orgRelation = organizationService.discover(2L, 1L);
+        }
+        orgRelation.setMembershipStatus("member");
+        orgRelation.setContribution(8);
+        orgRelation.setReputation(5);
+        orgRelation.setPositionName("干事");
+        orgRelation.setJoinWeek(1);
+        orgRelationMapper.updateById(orgRelation);
+
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setSocial(70);
+        playerAttributeMapper.updateById(attr);
+
+        SemesterEnding ending = semesterEndingService.settleSemester(2L);
+        assertThat(ending.getEndingName()).isEqualTo("社团风云人物");
+    }
+
+    @Autowired
+    private cn.haut.survivor.service.ExplorationService explorationService;
+
+    @Autowired
+    private cn.haut.survivor.service.OrganizationService organizationService;
+
+    @Autowired
+    private cn.haut.survivor.mapper.UserOrganizationMapper orgRelationMapper;
+
+    @Autowired
+    private cn.haut.survivor.mapper.UserLocationExplorationMapper explorationMapper;
 
     private void advanceToSemesterEnd() {
         playerService.advanceWeek(2L); // week 2

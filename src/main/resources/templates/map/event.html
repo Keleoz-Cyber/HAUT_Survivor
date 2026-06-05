@@ -15,6 +15,20 @@
             <p class="event-card__eyebrow">事件结算</p>
             <h1>行动产生了后果</h1>
             <p class="event-card__story" th:text="${resultText}">结果</p>
+            <!-- 属性变化展示 -->
+            <div th:if="${attributeChange != null and attributeChange.hasAnyChange()}" class="attr-change-panel mb-4">
+                <p class="attr-change-label">属性变化</p>
+                <div class="attr-change-list">
+                    <span th:if="${attributeChange.academicChange != 0}" th:classappend="${attributeChange.academicChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">学业 <em th:text="${attributeChange.academicChange > 0} ? '+' + ${attributeChange.academicChange} : ${attributeChange.academicChange}">+5</em></span>
+                    <span th:if="${attributeChange.healthChange != 0}" th:classappend="${attributeChange.healthChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">健康 <em th:text="${attributeChange.healthChange > 0} ? '+' + ${attributeChange.healthChange} : ${attributeChange.healthChange}">+5</em></span>
+                    <span th:if="${attributeChange.moneyChange != 0}" th:classappend="${attributeChange.moneyChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">金钱 <em th:text="${attributeChange.moneyChange > 0} ? '+' + ${attributeChange.moneyChange} : ${attributeChange.moneyChange}">+5</em></span>
+                    <span th:if="${attributeChange.socialChange != 0}" th:classappend="${attributeChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${attributeChange.socialChange > 0} ? '+' + ${attributeChange.socialChange} : ${attributeChange.socialChange}">+5</em></span>
+                    <span th:if="${attributeChange.skillChange != 0}" th:classappend="${attributeChange.skillChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">技能 <em th:text="${attributeChange.skillChange > 0} ? '+' + ${attributeChange.skillChange} : ${attributeChange.skillChange}">+5</em></span>
+                    <span th:if="${attributeChange.pressureChange != 0}" th:classappend="${attributeChange.pressureChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">压力 <em th:text="${attributeChange.pressureChange > 0} ? '+' + ${attributeChange.pressureChange} : ${attributeChange.pressureChange}">+5</em></span>
+                    <span th:if="${attributeChange.disciplineChange != 0}" th:classappend="${attributeChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${attributeChange.disciplineChange > 0} ? '+' + ${attributeChange.disciplineChange} : ${attributeChange.disciplineChange}">+5</em></span>
+                    <span th:if="${attributeChange.expChange != 0}" th:classappend="${attributeChange.expChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">经验 <em th:text="${attributeChange.expChange > 0} ? '+' + ${attributeChange.expChange} : ${attributeChange.expChange}">+5</em></span>
+                </div>
+            </div>
             <div class="attribute-strip mb-4">
                 <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
                 <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>

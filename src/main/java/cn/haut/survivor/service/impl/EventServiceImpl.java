@@ -1,5 +1,6 @@
 package cn.haut.survivor.service.impl;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.CampusLocation;
 import cn.haut.survivor.domain.entity.Event;
 import cn.haut.survivor.domain.entity.EventOption;
@@ -139,6 +140,17 @@ public class EventServiceImpl implements EventService {
         record.setOptionId(optionId);
         record.setResultText(option.getResultText());
         record.setCreateTime(LocalDateTime.now());
+        // 记录属性变化用于页面展示
+        record.setAttributeChange(new AttributeChange(
+                option.getAcademicChange(),
+                option.getHealthChange(),
+                option.getMoneyChange(),
+                option.getSocialChange(),
+                option.getSkillChange(),
+                option.getPressureChange(),
+                option.getDisciplineChange(),
+                option.getExpChange()
+        ));
         eventRecordMapper.insert(record);
         return record;
     }

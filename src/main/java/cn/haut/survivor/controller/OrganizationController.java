@@ -1,6 +1,7 @@
 package cn.haut.survivor.controller;
 
 import cn.haut.survivor.config.LoginInterceptor;
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Organization;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
@@ -112,12 +113,13 @@ public class OrganizationController {
     public String attendActivity(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
         try {
-            organizationService.attendActivity(userId, id);
+            OrganizationService.OrganizationActivityResult result = organizationService.attendActivityWithChange(userId, id);
+            model.addAttribute("activityChange", result.attributeChange());
+            return detail(id, session, model);
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return detail(id, session, model);
         }
-        return "redirect:/organizations/" + id;
     }
 
     private Long currentUserId(HttpSession session) {

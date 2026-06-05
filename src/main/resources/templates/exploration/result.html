@@ -59,7 +59,21 @@
             <div th:if="${result.exploration.exploreLevel >= 100 and result.exploration.exploreLevel - result.exploreLevelGain < 100}"
                  class="alert alert-warning py-2">🏆 探索度达到 100%！你已完全探索这个地方！</div>
 
-            <!-- 属性变化 -->
+            <!-- 属性变化展示 -->
+            <div th:if="${result != null}" class="attr-change-panel mb-3">
+                <p class="attr-change-label">本次探索</p>
+                <div class="attr-change-list">
+                    <span class="attr-change-item attr-up">探索度 <em th:text="'+' + ${result.exploreLevelGain}">+10</em></span>
+                    <span th:if="${result.academicChange != 0}" th:classappend="${result.academicChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">学业 <em th:text="${result.academicChange > 0} ? '+' + ${result.academicChange} : ${result.academicChange}">+5</em></span>
+                    <span th:if="${result.healthChange != 0}" th:classappend="${result.healthChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">健康 <em th:text="${result.healthChange > 0} ? '+' + ${result.healthChange} : ${result.healthChange}">+5</em></span>
+                    <span th:if="${result.socialChange != 0}" th:classappend="${result.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${result.socialChange > 0} ? '+' + ${result.socialChange} : ${result.socialChange}">+5</em></span>
+                    <span th:if="${result.skillChange != 0}" th:classappend="${result.skillChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">技能 <em th:text="${result.skillChange > 0} ? '+' + ${result.skillChange} : ${result.skillChange}">+5</em></span>
+                    <span th:if="${result.pressureChange != 0}" th:classappend="${result.pressureChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">压力 <em th:text="${result.pressureChange > 0} ? '+' + ${result.pressureChange} : ${result.pressureChange}">+5</em></span>
+                    <span th:if="${result.disciplineChange != 0}" th:classappend="${result.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${result.disciplineChange > 0} ? '+' + ${result.disciplineChange} : ${result.disciplineChange}">+5</em></span>
+                </div>
+            </div>
+
+            <!-- 属性当前值 -->
             <div class="attribute-strip mb-3">
                 <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
                 <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>

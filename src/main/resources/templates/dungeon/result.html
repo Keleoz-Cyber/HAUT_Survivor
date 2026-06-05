@@ -15,6 +15,19 @@
             <p class="event-card__eyebrow">阶段结算</p>
             <h1 th:text="${taskRecord.evaluation}">完成评价</h1>
             <p class="event-card__story" th:text="${taskRecord.resultText}">结果</p>
+            <!-- 属性变化展示 -->
+            <div th:if="${taskRecord.attributeChange != null and taskRecord.attributeChange.hasAnyChange()}" class="attr-change-panel mb-3">
+                <p class="attr-change-label">属性变化</p>
+                <div class="attr-change-list">
+                    <span th:if="${taskRecord.attributeChange.academicChange != 0}" th:classappend="${taskRecord.attributeChange.academicChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">学业 <em th:text="${taskRecord.attributeChange.academicChange > 0} ? '+' + ${taskRecord.attributeChange.academicChange} : ${taskRecord.attributeChange.academicChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.healthChange != 0}" th:classappend="${taskRecord.attributeChange.healthChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">健康 <em th:text="${taskRecord.attributeChange.healthChange > 0} ? '+' + ${taskRecord.attributeChange.healthChange} : ${taskRecord.attributeChange.healthChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.moneyChange != 0}" th:classappend="${taskRecord.attributeChange.moneyChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">金钱 <em th:text="${taskRecord.attributeChange.moneyChange > 0} ? '+' + ${taskRecord.attributeChange.moneyChange} : ${taskRecord.attributeChange.moneyChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.socialChange != 0}" th:classappend="${taskRecord.attributeChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${taskRecord.attributeChange.socialChange > 0} ? '+' + ${taskRecord.attributeChange.socialChange} : ${taskRecord.attributeChange.socialChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.skillChange != 0}" th:classappend="${taskRecord.attributeChange.skillChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">技能 <em th:text="${taskRecord.attributeChange.skillChange > 0} ? '+' + ${taskRecord.attributeChange.skillChange} : ${taskRecord.attributeChange.skillChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.pressureChange != 0}" th:classappend="${taskRecord.attributeChange.pressureChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">压力 <em th:text="${taskRecord.attributeChange.pressureChange > 0} ? '+' + ${taskRecord.attributeChange.pressureChange} : ${taskRecord.attributeChange.pressureChange}">+5</em></span>
+                    <span th:if="${taskRecord.attributeChange.disciplineChange != 0}" th:classappend="${taskRecord.attributeChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${taskRecord.attributeChange.disciplineChange > 0} ? '+' + ${taskRecord.attributeChange.disciplineChange} : ${taskRecord.attributeChange.disciplineChange}">+5</em></span>
+                </div>
+            </div>
             <div class="attribute-strip">
                 <div><span>得分</span><strong th:text="${taskRecord.score}">0</strong></div>
                 <div><span>总分</span><strong th:text="${record.totalScore}">0</strong></div>

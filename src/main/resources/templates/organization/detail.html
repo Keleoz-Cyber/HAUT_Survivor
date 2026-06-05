@@ -21,6 +21,16 @@
 
             <div th:if="${error}" class="alert alert-danger" th:text="${error}">错误</div>
 
+            <!-- 活动属性变化 -->
+            <div th:if="${activityChange != null and activityChange.hasAnyChange()}" class="attr-change-panel mb-3">
+                <p class="attr-change-label">本次活动</p>
+                <div class="attr-change-list">
+                    <span th:if="${activityChange.socialChange != 0}" th:classappend="${activityChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${activityChange.socialChange > 0} ? '+' + ${activityChange.socialChange} : ${activityChange.socialChange}">+3</em></span>
+                    <span th:if="${activityChange.disciplineChange != 0}" th:classappend="${activityChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${activityChange.disciplineChange > 0} ? '+' + ${activityChange.disciplineChange} : ${activityChange.disciplineChange}">+1</em></span>
+                    <span th:if="${activityChange.pressureChange != 0}" th:classappend="${activityChange.pressureChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">压力 <em th:text="${activityChange.pressureChange > 0} ? '+' + ${activityChange.pressureChange} : ${activityChange.pressureChange}">+2</em></span>
+                </div>
+            </div>
+
             <div class="attribute-strip mb-3">
                 <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
                 <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>

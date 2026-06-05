@@ -196,4 +196,15 @@ class EventServiceTests {
                     .isGreaterThanOrEqualTo(2);
         }
     }
+
+    // ==================== 属性变化记录测试 ====================
+
+    @Test
+    void chooseOptionReturnsAttributeChange() {
+        EventRecord record = eventService.chooseOption(2L, 7L, 19L);
+
+        assertThat(record.getAttributeChange()).isNotNull();
+        assertThat(record.getAttributeChange().skillChange()).isNotZero();
+        assertThat(record.getAttributeChange().hasAnyChange()).isTrue();
+    }
 }
