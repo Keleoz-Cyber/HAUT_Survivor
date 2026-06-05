@@ -36,6 +36,9 @@ CREATE TABLE player_profile (
     level INT NOT NULL DEFAULT 1,
     exp INT NOT NULL DEFAULT 0,
     current_week INT NOT NULL DEFAULT 1,
+    action_points INT NOT NULL DEFAULT 4,
+    max_action_points INT NOT NULL DEFAULT 4,
+    semester_phase VARCHAR(20) NOT NULL DEFAULT 'early',
     current_title VARCHAR(50) DEFAULT '新生求生者',
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_player_profile_user FOREIGN KEY (user_id) REFERENCES `user`(id)

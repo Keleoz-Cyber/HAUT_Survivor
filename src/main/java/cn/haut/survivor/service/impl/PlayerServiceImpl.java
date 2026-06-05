@@ -15,6 +15,9 @@ import java.time.LocalDateTime;
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
+    /** Demo 版学期总周数 */
+    private static final int MAX_SEMESTER_WEEKS = 4;
+
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerAttributeMapper playerAttributeMapper;
 
@@ -42,6 +45,9 @@ public class PlayerServiceImpl implements PlayerService {
         profile.setLevel(1);
         profile.setExp(0);
         profile.setCurrentWeek(1);
+        profile.setActionPoints(4);
+        profile.setMaxActionPoints(4);
+        profile.setSemesterPhase("early");
         profile.setCurrentTitle("新生求生者");
         profile.setCreateTime(LocalDateTime.now());
         playerProfileMapper.insert(profile);
@@ -76,6 +82,89 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public boolean hasProfile(Long userId) {
         return findProfileByUserId(userId) != null;
+    }
+
+    @Override
+    @Transactional
+    public PlayerProfile consumeActionPoint(Long userId) {
+        PlayerProfile profile = requireProfile(userId);
+        if (isSemesterOver(userId)) {
+            throw new IllegalArgumentException("学期已结束");
+        }
+        if (profile.getActionPoints() <= 0) {
+            throw new IllegalArgumentException("本周行动点已用完，请结束本周或等待下周");
+        }
+        profile.setActionPoints(profile.getActionPoints() - 1);
+        playerProfileMapper.updateById(profile);
+        return profile;
+    }
+
+    @Override
+    @Transactional
+    public PlayerProfile advanceWeek(Long userId) {
+        PlayerProfile profile = requireProfile(userId);
+        if (isSemesterOver(userId)) {
+            throw new IllegalArgumentException("学期已结束，无法推进周次");
+        }
+
+        int nextWeek = profile.getCurrentWeek() + 1;
+        profile.setCurrentWeek(nextWeek);
+        profile.setActionPoints(profile.getMaxActionPoints());
+
+        // 更新学期阶段
+        if (nextWeek <= 2) {
+            profile.setSemesterPhase("early");
+        } else if (nextWeek <= 3) {
+            profile.setSemesterPhase("mid");
+        } else {
+            profile.setSemesterPhase("final");
+        }
+
+        // 周结算：压力过高扣健康
+        PlayerAttribute attribute = findAttributeByUserId(userId);
+        if (attribute != null) {
+            if (attribute.getPressure() > 80) {
+                attribute.setHealth(clamp(attribute.getHealth() - 3));
+            }
+            if (attribute.getHealth() < 20) {
+                // 健康过低，下周少 1 行动点
+                profile.setMaxActionPoints(Math.max(2, profile.getMaxActionPoints() - 1));
+            }
+            attribute.setPressure(clamp(attribute.getPressure() - 5)); // 每周自然减压
+            attribute.setUpdateTime(LocalDateTime.now());
+            playerAttributeMapper.updateById(attribute);
+        }
+
+        playerProfileMapper.updateById(profile);
+        return profile;
+    }
+
+    @Override
+    public boolean isSemesterOver(Long userId) {
+        PlayerProfile profile = findProfileByUserId(userId);
+        return profile != null && profile.getCurrentWeek() > MAX_SEMESTER_WEEKS;
+    }
+
+    @Override
+    public String getWeekPhaseLabel(PlayerProfile profile) {
+        if (profile == null) return "";
+        int week = profile.getCurrentWeek();
+        if (week > MAX_SEMESTER_WEEKS) return "学期结束";
+        String phase = switch (profile.getSemesterPhase()) {
+            case "early" -> "开学适应期";
+            case "mid" -> "期中节奏期";
+            case "final" -> "DDL 高压期";
+            default -> "学期中";
+        };
+        return "第 " + week + " 周 · " + phase + "（共 " + MAX_SEMESTER_WEEKS + " 周）";
+    }
+
+    private PlayerProfile requireProfile(Long userId) {
+        PlayerProfile profile = findProfileByUserId(userId);
+        if (profile == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        return profile;
     }
 
     private PlayerAttribute createDefaultAttribute(Long userId) {
@@ -123,6 +212,10 @@ public class PlayerServiceImpl implements PlayerService {
             }
             default -> throw new IllegalArgumentException("未知成长路线");
         }
+    }
+
+    private int clamp(int value) {
+        return Math.max(0, Math.min(100, value));
     }
 
     private String requireText(String value, String message) {

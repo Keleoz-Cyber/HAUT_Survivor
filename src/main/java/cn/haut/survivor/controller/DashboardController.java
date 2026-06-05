@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +47,21 @@ public class DashboardController {
         model.addAttribute("user", user);
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
-        model.addAttribute("warnings", buildWarnings(attribute));
+        model.addAttribute("warnings", buildWarnings(attribute, profile));
+        model.addAttribute("weekPhaseLabel", playerService.getWeekPhaseLabel(profile));
+        model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         return "dashboard/index";
+    }
+
+    @PostMapping("/week/advance")
+    public String advanceWeek(HttpSession session) {
+        Long userId = currentUserId(session);
+        try {
+            playerService.advanceWeek(userId);
+        } catch (IllegalArgumentException ignored) {
+            // 学期结束或其他异常，回到仪表盘显示状态
+        }
+        return "redirect:/dashboard";
     }
 
     @GetMapping("/player/create")
@@ -63,10 +75,10 @@ public class DashboardController {
 
     @PostMapping("/player/create")
     public String createPlayer(
-            @RequestParam String playerName,
-            @RequestParam String grade,
-            @RequestParam String majorType,
-            @RequestParam String growthRoute,
+            String playerName,
+            String grade,
+            String majorType,
+            String growthRoute,
             HttpSession session,
             Model model
     ) {
@@ -88,7 +100,7 @@ public class DashboardController {
         return (Long) session.getAttribute(LoginInterceptor.LOGIN_USER_ID);
     }
 
-    private List<String> buildWarnings(PlayerAttribute attribute) {
+    private List<String> buildWarnings(PlayerAttribute attribute, PlayerProfile profile) {
         List<String> warnings = new ArrayList<>();
         if (attribute.getHealth() < 40) {
             warnings.add("健康值偏低，建议安排休息或运动。");
@@ -101,6 +113,9 @@ public class DashboardController {
         }
         if (attribute.getPressure() > 75) {
             warnings.add("压力值过高，建议降低任务强度。");
+        }
+        if (profile.getActionPoints() <= 1 && !playerService.isSemesterOver(profile.getUserId())) {
+            warnings.add("本周行动点即将耗尽，请合理安排剩余行动。");
         }
         return warnings;
     }

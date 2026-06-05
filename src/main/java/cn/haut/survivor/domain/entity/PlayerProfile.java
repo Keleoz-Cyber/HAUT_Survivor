@@ -20,6 +20,9 @@ public class PlayerProfile {
     private Integer level;
     private Integer exp;
     private Integer currentWeek;
+    private Integer actionPoints;
+    private Integer maxActionPoints;
+    private String semesterPhase;
     private String currentTitle;
     private LocalDateTime createTime;
 }

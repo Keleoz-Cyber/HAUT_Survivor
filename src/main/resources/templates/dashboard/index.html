@@ -19,11 +19,26 @@
         </p>
     </header>
 
+    <!-- 学期结束提示 -->
+    <section th:if="${semesterOver}" class="panel mb-4 text-center">
+        <h2 class="h4 mb-2">学期结束</h2>
+        <p class="text-muted">你已经度过了 4 周的大学生活。学期结算功能即将上线。</p>
+    </section>
+
+    <!-- 周次与行动点 -->
     <section class="row g-3 mb-4">
         <div class="col-6 col-lg-3">
             <div class="metric">
-                <span class="metric__label">当前周目</span>
-                <strong class="metric__value" th:text="${profile.currentWeek}">1</strong>
+                <span class="metric__label">当前周次</span>
+                <strong class="metric__value" th:text="${weekPhaseLabel}">第 1 周</strong>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric">
+                <span class="metric__label">行动点</span>
+                <strong class="metric__value">
+                    <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
+                </strong>
             </div>
         </div>
         <div class="col-6 col-lg-3">
@@ -34,16 +49,26 @@
         </div>
         <div class="col-6 col-lg-3">
             <div class="metric">
-                <span class="metric__label">经验</span>
-                <strong class="metric__value" th:text="${profile.exp}">0</strong>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="metric">
                 <span class="metric__label">成长路线</span>
                 <strong class="metric__value" th:text="${profile.growthRoute}">路线</strong>
             </div>
         </div>
+    </section>
+
+    <!-- 结束本周按钮 -->
+    <section th:if="${!semesterOver}" class="mb-4">
+        <form method="post" action="/week/advance" class="d-inline">
+            <button type="submit" class="btn btn-outline-primary btn-sm"
+                    th:disabled="${profile.actionPoints == profile.maxActionPoints}">
+                结束本周，进入下一周
+            </button>
+        </form>
+        <span class="text-muted ms-2" th:if="${profile.actionPoints == profile.maxActionPoints}">
+            你还没有行动过，先去地图探索吧！
+        </span>
+        <span class="text-muted ms-2" th:if="${profile.actionPoints == 0}">
+            行动点已用完，建议结束本周。
+        </span>
     </section>
 
     <section th:if="${!warnings.isEmpty()}" class="alert alert-warning">
@@ -60,16 +85,21 @@
             <div class="col-6 col-md-3"><span class="metric__label">技能</span><strong class="d-block" th:text="${attribute.skill}">40</strong></div>
             <div class="col-6 col-md-3"><span class="metric__label">压力</span><strong class="d-block" th:text="${attribute.pressure}">30</strong></div>
             <div class="col-6 col-md-3"><span class="metric__label">自律</span><strong class="d-block" th:text="${attribute.discipline}">50</strong></div>
+            <div class="col-6 col-md-3"><span class="metric__label">经验</span><strong class="d-block" th:text="${profile.exp}">0</strong></div>
         </div>
     </section>
 
     <section class="panel mt-4">
         <div class="d-flex flex-column flex-md-row justify-content-between gap-3">
             <div>
-                <h2 class="h5 mb-2">今晚推荐行动</h2>
-                <p class="text-muted mb-0">Java 课设：DDL 前夜已经开放，适合演示选择、属性和阶段结算。</p>
+                <h2 class="h5 mb-2">推荐行动</h2>
+                <p class="text-muted mb-0" th:if="${!semesterOver}">探索校园地图、触发随机事件、挑战副本。</p>
+                <p class="text-muted mb-0" th:if="${semesterOver}">学期已结束，后续功能开发中。</p>
             </div>
-            <a class="btn btn-primary align-self-start" href="/dungeons">进入副本</a>
+            <div class="d-flex gap-2">
+                <a th:if="${!semesterOver}" class="btn btn-primary align-self-start" href="/map">校园地图</a>
+                <a th:if="${!semesterOver}" class="btn btn-outline-secondary align-self-start" href="/dungeons">副本</a>
+            </div>
         </div>
     </section>
 </main>

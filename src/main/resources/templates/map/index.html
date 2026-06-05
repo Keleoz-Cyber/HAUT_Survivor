@@ -14,8 +14,12 @@
         <div>
             <p class="campus-hero__eyebrow">莲花街校区行动地图</p>
             <h1 class="campus-hero__title">今晚去哪儿续命？</h1>
-            <p class="campus-hero__copy" th:text="|${profile.playerName}，每次行动都可能改变你的课设命运。|">
-                玩家，每次行动都可能改变你的课设命运。
+            <p class="campus-hero__copy" th:if="${!semesterOver}"
+               th:text="|${profile.playerName}，剩余 ${profile.actionPoints} 次行动。|">
+                玩家，剩余行动。
+            </p>
+            <p class="campus-hero__copy" th:if="${semesterOver}">
+                学期已结束，感谢你度过的大学时光。
             </p>
         </div>
         <div class="campus-status">
@@ -25,7 +29,7 @@
 
     <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
 
-    <section class="action-map">
+    <section class="action-map" th:if="${!semesterOver}">
         <div class="action-map__backdrop"></div>
         <article class="location-node"
                  th:each="location : ${locations}"
@@ -36,9 +40,13 @@
                 <p class="location-node__campus" th:text="${location.campus}">莲花街校区</p>
                 <h2 th:text="${location.locationName}">地点</h2>
                 <p th:text="${location.description}">描述</p>
-                <p class="location-node__event-hint" th:text="|可能有事件发生|">可能有事件发生</p>
+                <p class="location-node__event-hint" th:if="${profile.actionPoints > 0}">消耗 1 行动点</p>
+                <p class="location-node__event-hint" th:if="${profile.actionPoints == 0}" style="color:#fca5a5">行动点不足</p>
             </div>
-            <a class="location-node__action" th:href="@{/map/location/{id}/event(id=${location.id})}">行动</a>
+            <a class="location-node__action"
+               th:if="${profile.actionPoints > 0}"
+               th:href="@{/map/location/{id}/event(id=${location.id})}">行动</a>
+            <span class="location-node__action" th:if="${profile.actionPoints == 0}" style="opacity:0.5;cursor:default">行动</span>
         </article>
         <aside class="dungeon-hook">
             <p>核心副本</p>

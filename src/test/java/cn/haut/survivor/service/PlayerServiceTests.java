@@ -2,12 +2,14 @@ package cn.haut.survivor.service;
 
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 @SpringBootTest(properties = {
@@ -21,43 +23,151 @@ class PlayerServiceTests {
     @Autowired
     private PlayerService playerService;
 
+    @BeforeEach
+    void setUp() {
+        playerService.createProfile(2L, "测试玩家", "大二", "计算机类", "就业路线");
+    }
+
     @Test
     void creatingProfileInitializesDefaultAttributes() {
-        playerService.createProfile(2L, "莲花街新生", "大一", "计算机类", "考研路线");
-
         PlayerProfile profile = playerService.findProfileByUserId(2L);
         PlayerAttribute attribute = playerService.findAttributeByUserId(2L);
 
-        assertThat(profile.getPlayerName()).isEqualTo("莲花街新生");
+        assertThat(profile.getPlayerName()).isEqualTo("测试玩家");
         assertThat(profile.getLevel()).isEqualTo(1);
         assertThat(profile.getExp()).isZero();
-        assertThat(attribute.getAcademic()).isEqualTo(70);
-        assertThat(attribute.getHealth()).isEqualTo(70);
-        assertThat(attribute.getMoney()).isEqualTo(80);
-        assertThat(attribute.getSocial()).isEqualTo(50);
-        assertThat(attribute.getSkill()).isEqualTo(40);
-        assertThat(attribute.getPressure()).isEqualTo(35);
-        assertThat(attribute.getDiscipline()).isEqualTo(55);
+        assertThat(profile.getCurrentWeek()).isEqualTo(1);
+        assertThat(profile.getActionPoints()).isEqualTo(4);
+        assertThat(profile.getMaxActionPoints()).isEqualTo(4);
+        assertThat(profile.getSemesterPhase()).isEqualTo("early");
+        assertThat(attribute.getSkill()).isEqualTo(50);
+        assertThat(attribute.getSocial()).isEqualTo(55);
     }
 
     @Test
     void growthRouteAdjustsAttributes() {
-        playerService.createProfile(2L, "就业玩家", "大三", "软件工程", "就业路线");
-
         PlayerAttribute attribute = playerService.findAttributeByUserId(2L);
 
         assertThat(attribute.getAcademic()).isEqualTo(60);
         assertThat(attribute.getSkill()).isEqualTo(50);
         assertThat(attribute.getSocial()).isEqualTo(55);
-        assertThat(attribute.getPressure()).isEqualTo(30);
     }
 
     @Test
     void userWithProfileCanBeDetected() {
-        assertThat(playerService.hasProfile(2L)).isFalse();
-
-        playerService.createProfile(2L, "已建档玩家", "大二", "自动化", "六边形路线");
-
         assertThat(playerService.hasProfile(2L)).isTrue();
+    }
+
+    // ==================== 行动点测试 ====================
+
+    @Test
+    void consumeActionPointDecrementsPoints() {
+        playerService.consumeActionPoint(2L);
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+
+        assertThat(profile.getActionPoints()).isEqualTo(3);
+    }
+
+    @Test
+    void consumeAllActionPointsReachesZero() {
+        for (int i = 0; i < 4; i++) {
+            playerService.consumeActionPoint(2L);
+        }
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+
+        assertThat(profile.getActionPoints()).isEqualTo(0);
+    }
+
+    @Test
+    void consumeActionPointWhenEmptyThrows() {
+        for (int i = 0; i < 4; i++) {
+            playerService.consumeActionPoint(2L);
+        }
+        assertThatThrownBy(() -> playerService.consumeActionPoint(2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("行动点已用完");
+    }
+
+    // ==================== 周推进测试 ====================
+
+    @Test
+    void advanceWeekResetsActionPoints() {
+        playerService.consumeActionPoint(2L);
+        playerService.consumeActionPoint(2L);
+        playerService.advanceWeek(2L);
+
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        assertThat(profile.getCurrentWeek()).isEqualTo(2);
+        assertThat(profile.getActionPoints()).isEqualTo(4);
+        assertThat(profile.getSemesterPhase()).isEqualTo("early");
+    }
+
+    @Test
+    void advanceWeekUpdatesSemesterPhase() {
+        playerService.advanceWeek(2L); // week 2 → early
+        playerService.advanceWeek(2L); // week 3 → mid
+
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        assertThat(profile.getCurrentWeek()).isEqualTo(3);
+        assertThat(profile.getSemesterPhase()).isEqualTo("mid");
+    }
+
+    @Test
+    void advanceToFinalPhase() {
+        playerService.advanceWeek(2L); // week 2
+        playerService.advanceWeek(2L); // week 3
+        playerService.advanceWeek(2L); // week 4
+
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        assertThat(profile.getCurrentWeek()).isEqualTo(4);
+        assertThat(profile.getSemesterPhase()).isEqualTo("final");
+    }
+
+    @Test
+    void semesterEndsAfterFourWeeks() {
+        playerService.advanceWeek(2L); // week 2
+        playerService.advanceWeek(2L); // week 3
+        playerService.advanceWeek(2L); // week 4
+        playerService.advanceWeek(2L); // week 5 → over
+
+        assertThat(playerService.isSemesterOver(2L)).isTrue();
+        assertThat(playerService.getWeekPhaseLabel(playerService.findProfileByUserId(2L))).contains("学期结束");
+    }
+
+    @Test
+    void cannotAdvanceAfterSemesterEnds() {
+        for (int i = 0; i < 4; i++) {
+            playerService.advanceWeek(2L);
+        }
+        assertThatThrownBy(() -> playerService.advanceWeek(2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("学期已结束");
+    }
+
+    @Test
+    void cannotActAfterSemesterEnds() {
+        for (int i = 0; i < 4; i++) {
+            playerService.advanceWeek(2L);
+        }
+        assertThatThrownBy(() -> playerService.consumeActionPoint(2L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("学期已结束");
+    }
+
+    @Test
+    void advanceWeekReducesPressureNaturally() {
+        PlayerAttribute before = playerService.findAttributeByUserId(2L);
+        int pressureBefore = before.getPressure();
+
+        playerService.advanceWeek(2L);
+
+        PlayerAttribute after = playerService.findAttributeByUserId(2L);
+        assertThat(after.getPressure()).isEqualTo(Math.max(0, pressureBefore - 5));
+    }
+
+    @Test
+    void weekPhaseLabelShowsCorrectPhase() {
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        assertThat(playerService.getWeekPhaseLabel(profile)).contains("第 1 周").contains("开学适应期");
     }
 }

@@ -40,6 +40,7 @@ public class MapController {
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("statusLines", buildStatusLines(profile, attribute));
+        model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         return "map/index";
     }
 
@@ -50,10 +51,41 @@ public class MapController {
             return "redirect:/player/create";
         }
 
+        // 检查学期是否结束
+        if (playerService.isSemesterOver(userId)) {
+            model.addAttribute("locations", eventService.listEnabledLocations());
+            model.addAttribute("message", "学期已结束，无法继续行动。");
+            PlayerProfile profile = playerService.findProfileByUserId(userId);
+            model.addAttribute("profile", profile);
+            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
+            model.addAttribute("semesterOver", true);
+            return "map/index";
+        }
+
+        // 消耗行动点
+        try {
+            playerService.consumeActionPoint(userId);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("locations", eventService.listEnabledLocations());
+            model.addAttribute("message", e.getMessage());
+            PlayerProfile profile = playerService.findProfileByUserId(userId);
+            model.addAttribute("profile", profile);
+            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
+            model.addAttribute("semesterOver", false);
+            return "map/index";
+        }
+
         Event event = eventService.triggerRandomEvent(userId, locationId);
         if (event == null) {
             model.addAttribute("locations", eventService.listEnabledLocations());
             model.addAttribute("message", "这里暂时没有可触发的事件。");
+            PlayerProfile profile = playerService.findProfileByUserId(userId);
+            model.addAttribute("profile", profile);
+            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
+            model.addAttribute("semesterOver", false);
             return "map/index";
         }
 
@@ -89,12 +121,13 @@ public class MapController {
     private List<String> buildStatusLines(PlayerProfile profile, PlayerAttribute attribute) {
         String pressureLine = attribute.getPressure() >= 75 ? "压力警报" : "压力可控";
         String healthLine = attribute.getHealth() < 45 ? "健康偏低" : "还能行动";
-        String ddlLine = profile.getCurrentWeek() >= 12 ? "DDL 高发期" : "日常探索";
+        String actionLine = profile.getActionPoints() + "/" + profile.getMaxActionPoints() + " 行动点";
+        String weekLine = playerService.getWeekPhaseLabel(profile);
         return List.of(
-                "第 " + profile.getCurrentWeek() + " 周",
+                weekLine,
+                actionLine,
                 pressureLine + " " + attribute.getPressure(),
-                healthLine + " " + attribute.getHealth(),
-                ddlLine
+                healthLine + " " + attribute.getHealth()
         );
     }
 }

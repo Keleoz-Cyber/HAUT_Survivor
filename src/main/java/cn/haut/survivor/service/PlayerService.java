@@ -12,4 +12,16 @@ public interface PlayerService {
     PlayerAttribute findAttributeByUserId(Long userId);
 
     boolean hasProfile(Long userId);
+
+    /** 扣减行动点，返回更新后的 profile。如果没有剩余行动点则抛异常。 */
+    PlayerProfile consumeActionPoint(Long userId);
+
+    /** 结束当前周，推进到下一周，恢复行动点，执行周结算。 */
+    PlayerProfile advanceWeek(Long userId);
+
+    /** 检查学期是否结束（Demo 版 4 周）。 */
+    boolean isSemesterOver(Long userId);
+
+    /** 获取学期阶段描述。 */
+    String getWeekPhaseLabel(PlayerProfile profile);
 }
