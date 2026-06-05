@@ -347,7 +347,8 @@ INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, 
 -- 组织种子数据
 INSERT INTO organization (id, org_name, org_type, description, unlock_location_id, unlock_explore_level, recommended_attribute, weekly_ap_cost, theme_color) VALUES
 (1, '学生会', '学生会', '校园活动的组织者和协调者。加入学生会能快速积累社交和声望，但活动会占用大量时间。', 7, 20, '社交', 1, '#f59e0b'),
-(2, '实验室项目组', '实验室', '跟着老师做项目的硬核路线。需要一定的技能基础，但能快速提升技术和自律。', 6, 20, '技能', 1, '#8b5cf6');
+(2, '实验室项目组', '实验室', '跟着老师做项目的硬核路线。需要一定的技能基础，但能快速提升技术和自律。', 6, 20, '技能', 1, '#8b5cf6'),
+(3, '篮球社', '社团', '每周固定训练和友谊赛，是提升健康和社交的好去处。打得好还能参加院系联赛。', 5, 20, '健康', 1, '#16a34a');
 
 -- ============================================================
 -- 学期结局种子数据
@@ -360,4 +361,9 @@ INSERT INTO semester_ending (id, ending_name, ending_type, description, conditio
 (4, '实验室编外研究员', '学业', '你虽然不是正式成员，但在实验室花的时间比大多数组员还多。技能和自律都很强，项目进度推进明显。', 'skill>=65 AND discipline>=55 AND academic>=50', 22, '#8b5cf6', '🔬'),
 (5, 'DDL 幸存者', '生活', '你在高压中一路硬撑，所有关键任务勉强完成。压力值很高，但你活下来了。', 'pressure>=60 AND academic>=40 AND health>=40', 15, '#dc2626', '⏰'),
 (6, '快乐摆烂人', '生活', '你选择了快乐路线。压力很低，自律也很低，学业只是还行。但谁说这不是一种活法呢？', 'pressure<30 AND discipline<40 AND academic<50', 18, '#f59e0b', '😎'),
-(7, '六边形工大学子', '均衡', '你的各项属性都比较均衡，没有明显短板，也没有极端优势。你是一个合格的工大学子。', 'academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60', 10, '#2563eb', '⚖️');
+(7, '六边形工大学子', '均衡', '你的各项属性都比较均衡，没有明显短板，也没有极端优势。你是一个合格的工大学子。', 'academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60', 10, '#2563eb', '⚖️'),
+-- 隐藏趣味结局
+(8, '端口占用受害者', '隐藏', '你的项目本地跑得好好的，结果部署时发现 8080 端口被占用了。你花了整个下午排查，最后发现是上次没关的进程。你决定以后每次都用 kill -9。', 'skill>=60 AND pressure>=70 AND discipline<50', 35, '#ef4444', '🔌'),
+(9, 'PPT 比代码先跑', '隐藏', '答辩时你的代码跑不起来，但 PPT 做得实在太好了。老师被你的演示文稿感动了，最终给了你一个及格分。你悟出了一个道理：展示能力也是一种能力。', 'social>=65 AND skill<45 AND academic>=40', 32, '#f59e0b', '📊'),
+(10, 'AI 辅助大师', '隐藏', '这学期你学会了如何高效使用 AI 工具辅助学习和开发。虽然有人质疑，但你的效率和产出确实上去了。你成为班上第一个会用 prompt engineering 的人。', 'skill>=70 AND social>=55 AND academic>=50', 28, '#8b5cf6', '🤖'),
+(11, '操场哲学家', '隐藏', '你在操场跑了太多圈，脑子里冒出了各种人生感悟。你开始在朋友圈发深度好文，室友说你被体测改变了人生观。', 'health>=80 AND academic<50 AND pressure<40', 27, '#16a34a', '🏃');
