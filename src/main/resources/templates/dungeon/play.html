@@ -68,8 +68,9 @@
             </form>
 
             <!-- Bug 定位小游戏表单 -->
-            <form th:if="${isBugHuntTask}" class="relation-game bug-hunt-game" method="post"
-                  th:action="@{/dungeons/demo/task/{taskId}/bughunt(taskId=${task.id})}">
+            <form th:if="${isBugHuntTask}" id="bugHuntForm" class="relation-game bug-hunt-game" method="post"
+                  th:action="@{/dungeons/demo/task/{taskId}/bughunt(taskId=${task.id})}"
+                  onsubmit="return prepareBugHunt()">
                 <input id="bhElapsed" type="hidden" name="elapsedSeconds" value="0">
                 <div class="relation-game__top">
                     <strong>阅读 Bug 现象，选择最可能的原因</strong>
@@ -82,11 +83,13 @@
                     </p>
                     <div class="bug-options">
                         <label th:each="opt, optStat : ${q.options}" class="bug-option">
-                            <input type="radio" th:name="'answers[' + ${qStat.index} + ']'" th:value="${optStat.index}" required>
+                            <input type="radio" th:name="'radio_' + ${qStat.index}" th:value="${optStat.index}" required>
                             <span th:text="${opt}">选项</span>
                         </label>
                     </div>
-                    <input type="hidden" th:name="'questionIds[' + ${qStat.index} + ']'" th:value="${q.id}">
+                    <!-- 提交时由 JS 填充 -->
+                    <input type="hidden" class="bh-answer" th:data-index="${qStat.index}">
+                    <input type="hidden" class="bh-qid" name="questionIds" th:value="${q.id}">
                 </div>
                 <button class="btn btn-light mt-3" type="submit">提交 Bug 定位</button>
             </form>
@@ -118,6 +121,19 @@
             elapsedEl.value = String(elapsed);
             timerEl.textContent = `剩余 ${remaining} 秒`;
         }, 500);
+    }
+
+    function prepareBugHunt() {
+        const form = document.getElementById('bugHuntForm');
+        // 收集每题选中的 radio 值，写入隐藏字段
+        form.querySelectorAll('.bh-answer').forEach(function (hidden) {
+            const idx = hidden.dataset.index;
+            const selected = form.querySelector('input[name="radio_' + idx + '"]:checked');
+            if (!selected) return;
+            hidden.name = 'answers';
+            hidden.value = selected.value;
+        });
+        return true;
     }
 </script>
 </body>
