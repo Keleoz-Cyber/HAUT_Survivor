@@ -12,9 +12,11 @@ DROP TABLE IF EXISTS task;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
 DROP TABLE IF EXISTS player_profile;
+DROP TABLE IF EXISTS user_organization;
+DROP TABLE IF EXISTS organization;
 DROP TABLE IF EXISTS `user`;
 
-SET FOREIGN_KEY_CHECKS = 1;
+
 
 CREATE TABLE `user` (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -221,3 +223,31 @@ CREATE TABLE user_dungeon_task_record (
     CONSTRAINT fk_user_dungeon_task_record_task FOREIGN KEY (dungeon_task_id) REFERENCES dungeon_task(id),
     CONSTRAINT fk_user_dungeon_task_record_option FOREIGN KEY (selected_option_id) REFERENCES dungeon_task_option(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE organization (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    org_name VARCHAR(50) NOT NULL,
+    org_type VARCHAR(30) NOT NULL,
+    description TEXT,
+    unlock_location_id BIGINT,
+    unlock_explore_level INT NOT NULL DEFAULT 20,
+    recommended_attribute VARCHAR(30),
+    weekly_ap_cost INT NOT NULL DEFAULT 1,
+    theme_color VARCHAR(20) NOT NULL DEFAULT '#2563eb',
+    status INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE user_organization (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    organization_id BIGINT NOT NULL,
+    membership_status VARCHAR(20) NOT NULL DEFAULT 'discovered',
+    position_name VARCHAR(30) NOT NULL DEFAULT '成员',
+    contribution INT NOT NULL DEFAULT 0,
+    reputation INT NOT NULL DEFAULT 0,
+    join_week INT,
+    CONSTRAINT fk_user_org_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_user_org_org FOREIGN KEY (organization_id) REFERENCES organization(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+SET FOREIGN_KEY_CHECKS = 1;

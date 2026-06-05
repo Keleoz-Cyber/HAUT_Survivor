@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>组织详情 - HAUT Survivor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body class="survivor-body">
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="container app-shell">
+    <section class="event-stage" th:style="'background:linear-gradient(135deg,' + ${org.themeColor} + '22, rgba(15,23,42,0.92))'">
+        <div class="event-card">
+            <div class="event-card__meta">
+                <span th:text="${org.orgType}">类型</span>
+                <span th:text="${org.themeColor}">主题</span>
+            </div>
+            <h1 th:text="${org.orgName}">组织名</h1>
+            <p class="event-card__story" th:text="${org.description}">描述</p>
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}">错误</div>
+
+            <div class="attribute-strip mb-3">
+                <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
+                <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
+                <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
+                <div><span>行动点</span><strong th:text="${profile.actionPoints}">4</strong></div>
+            </div>
+
+            <!-- 未发现状态 -->
+            <div th:if="${relation == null}">
+                <form method="post" th:action="@{/organizations/{id}/discover(id=${org.id})}">
+                    <button type="submit" class="btn btn-light">发现这个组织</button>
+                </form>
+            </div>
+
+            <!-- 已发现但未加入 -->
+            <div th:if="${relation != null and relation.membershipStatus == 'discovered'}">
+                <p class="mb-2">你已经发现了 <span th:text="${org.orgName}">组织</span>。加入需要社交值 ≥ 40。</p>
+                <form method="post" th:action="@{/organizations/{id}/join(id=${org.id})}">
+                    <button type="submit" class="btn btn-light"
+                            th:disabled="${semesterOver or attribute.social < 40}"
+                            th:classappend="${attribute.social < 40 ? 'disabled' : ''}">
+                        申请加入
+                    </button>
+                </form>
+                <span th:if="${attribute.social < 40}" class="text-warning ms-2">社交不足，多参加社交活动吧！</span>
+            </div>
+
+            <!-- 已加入 -->
+            <div th:if="${relation != null and (relation.membershipStatus == 'member' or relation.membershipStatus == 'core_member')}">
+                <div class="mb-3">
+                    <span class="badge bg-success" th:text="${relation.positionName}">职位</span>
+                    <span class="ms-2" th:text="'贡献 ' + ${relation.contribution} + ' · 声望 ' + ${relation.reputation}">数据</span>
+                </div>
+                <p class="text-muted mb-3">参加活动消耗 1 行动点，获得社交 +3、自律 +1、压力 +2、贡献 +3、声望 +2。贡献 ≥ 10 自动晋升为部长。</p>
+                <form method="post" th:action="@{/organizations/{id}/activity(id=${org.id})}">
+                    <button type="submit" class="btn btn-light"
+                            th:disabled="${semesterOver or profile.actionPoints <= 0}">
+                        参加本周活动
+                    </button>
+                </form>
+                <span th:if="${profile.actionPoints <= 0 and !semesterOver}" class="text-warning ms-2">行动点不足</span>
+            </div>
+
+            <div class="mt-3">
+                <a href="/organizations" class="btn btn-outline-light">返回组织列表</a>
+                <a href="/map" class="btn btn-outline-light ms-2">回地图</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

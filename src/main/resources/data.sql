@@ -245,3 +245,8 @@ INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, 
 (1, 1, 'strategy', '先压缩范围，只保留能演示的校园生存闭环', 1, 100, '你砍掉了花哨但来不及的内容，把课设目标收回到"地图-事件-副本"这条主线。', '优秀完成', 85, 4, 0, 0, 0, 6, -4, 5, 35, 2, 1),
 (2, 1, 'strategy', '继续堆功能，看看最后能不能都跑起来', 0, 100, '功能列表变长了，但每个模块都像半成品。你感觉答辩风险正在上升。', '勉强完成', 42, 2, -2, 0, 0, 2, 8, -2, 12, 2, 1),
 (3, 1, 'strategy', '先写报告，代码明天再抢救', 0, 100, '报告目录变整齐了，项目本体却还没准备好面对老师的鼠标。', '普通完成', 55, 3, 0, 0, 0, 1, 4, 1, 18, 2, 1);
+
+-- 组织种子数据
+INSERT INTO organization (id, org_name, org_type, description, unlock_location_id, unlock_explore_level, recommended_attribute, weekly_ap_cost, theme_color) VALUES
+(1, '学生会', '学生会', '校园活动的组织者和协调者。加入学生会能快速积累社交和声望，但活动会占用大量时间。', 7, 20, '社交', 1, '#f59e0b'),
+(2, '实验室项目组', '实验室', '跟着老师做项目的硬核路线。需要一定的技能基础，但能快速提升技术和自律。', 6, 20, '技能', 1, '#8b5cf6');
