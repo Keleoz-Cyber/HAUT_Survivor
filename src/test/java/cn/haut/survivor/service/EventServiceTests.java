@@ -207,4 +207,28 @@ class EventServiceTests {
         assertThat(record.getAttributeChange().skillChange()).isNotZero();
         assertThat(record.getAttributeChange().hasAnyChange()).isTrue();
     }
+
+    @Test
+    void chooseOptionAttributeChangeReflectsActualClamp() {
+        // 设置压力为 0，选择一个压力减少的选项，验证实际变化为 0 而非负数
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setPressure(0);
+        playerAttributeMapper.updateById(attr);
+
+        // 选项 19 对应事件 7：需要查看其属性变化
+        // 先查看选项 19 的数据
+        EventOption option19 = eventService.listOptions(7L).stream()
+                .filter(o -> o.getId().equals(19L)).findFirst().orElse(null);
+        assertThat(option19).isNotNull();
+
+        EventRecord record = eventService.chooseOption(2L, 7L, 19L);
+
+        // 验证属性变化反映的是 clamp 后的实际变化
+        PlayerAttribute after = playerService.findAttributeByUserId(2L);
+        assertThat(after.getPressure()).isEqualTo(0); // 压力已经是 0，clamp 后还是 0
+        // 如果选项减少压力，实际变化应为 0 而非负数
+        if (option19.getPressureChange() < 0) {
+            assertThat(record.getAttributeChange().pressureChange()).isEqualTo(0);
+        }
+    }
 }

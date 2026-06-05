@@ -294,10 +294,23 @@ class SemesterEndingServiceTests {
         advanceToSemesterEnd();
 
         // 默认就业路线属性：skill=50, social=55, academic=60, discipline=50, pressure=30, health=70, money=80
-        // 不满足任何路线结局条件，回退到属性匹配
-        // health>=60 AND pressure<=50 → 体测幸存者（priority=16）
-        // academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60 → 六边形（priority=10）
-        // 体测幸存者优先级更高，会命中
+        // 不满足任何路线结局条件
+        // 体测幸存者需要 health>=75 AND pressure<=40，当前 health=70 不满足
+        // 六边形工大学子：academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60 → 满足
+        SemesterEnding ending = semesterEndingService.settleSemester(2L);
+        assertThat(ending.getEndingName()).isEqualTo("六边形工大学子");
+    }
+
+    @Test
+    void highHealthLowPressureMatchesSurvivorEnding() {
+        advanceToSemesterEnd();
+
+        // 手动设置高健康低压力，满足体测幸存者条件
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setHealth(80);
+        attr.setPressure(35);
+        playerAttributeMapper.updateById(attr);
+
         SemesterEnding ending = semesterEndingService.settleSemester(2L);
         assertThat(ending.getEndingName()).isEqualTo("体测幸存者");
     }

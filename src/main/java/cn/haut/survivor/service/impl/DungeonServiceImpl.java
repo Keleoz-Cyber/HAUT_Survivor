@@ -215,7 +215,16 @@ public class DungeonServiceImpl implements DungeonService {
         DungeonTask task = requireTask(taskId);
         DungeonTaskOption option = requireOption(taskId, optionId);
 
+        // 记录旧值用于计算实际变化
+        PlayerAttribute beforeAttr = playerService.findAttributeByUserId(userId);
+        int oldAcademic = beforeAttr.getAcademic(), oldHealth = beforeAttr.getHealth();
+        int oldMoney = beforeAttr.getMoney(), oldSocial = beforeAttr.getSocial();
+        int oldSkill = beforeAttr.getSkill(), oldPressure = beforeAttr.getPressure();
+        int oldDiscipline = beforeAttr.getDiscipline();
+
         applyRewards(userId, option);
+
+        PlayerAttribute afterAttr = playerService.findAttributeByUserId(userId);
 
         UserDungeonTaskRecord taskRecord = new UserDungeonTaskRecord();
         taskRecord.setUserDungeonRecordId(record.getId());
@@ -229,10 +238,12 @@ public class DungeonServiceImpl implements DungeonService {
         taskRecord.setScore(option.getScore());
         taskRecord.setExpChange(option.getExpChange());
         taskRecord.setCreateTime(LocalDateTime.now());
+        // 使用实际变化值，避免 clamp 边界不准
         taskRecord.setAttributeChange(new AttributeChange(
-                option.getAcademicChange(), option.getHealthChange(), option.getMoneyChange(),
-                option.getSocialChange(), option.getSkillChange(), option.getPressureChange(),
-                option.getDisciplineChange(), option.getExpChange()));
+                afterAttr.getAcademic() - oldAcademic, afterAttr.getHealth() - oldHealth,
+                afterAttr.getMoney() - oldMoney, afterAttr.getSocial() - oldSocial,
+                afterAttr.getSkill() - oldSkill, afterAttr.getPressure() - oldPressure,
+                afterAttr.getDiscipline() - oldDiscipline, option.getExpChange()));
         userDungeonTaskRecordMapper.insert(taskRecord);
 
         record.setTotalScore(record.getTotalScore() + option.getScore());
@@ -259,11 +270,25 @@ public class DungeonServiceImpl implements DungeonService {
         }
 
         MinigameSettlement settlement = settleDatabaseLinks(userId, record, selectedRelations, elapsedSeconds);
+
+        // 记录旧值用于计算实际变化
+        PlayerAttribute beforeAttr = playerService.findAttributeByUserId(userId);
+        int oldAcademic = beforeAttr.getAcademic(), oldHealth = beforeAttr.getHealth();
+        int oldSkill = beforeAttr.getSkill(), oldPressure = beforeAttr.getPressure();
+        int oldDiscipline = beforeAttr.getDiscipline();
+
         applyDynamicRewards(userId, settlement);
+
+        PlayerAttribute afterAttr = playerService.findAttributeByUserId(userId);
 
         UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
                 "relations=" + String.join("|", selectedRelations == null ? List.of() : selectedRelations)
                         + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
+        // 替换为实际变化值
+        taskRecord.setAttributeChange(new AttributeChange(
+                afterAttr.getAcademic() - oldAcademic, afterAttr.getHealth() - oldHealth, 0,
+                0, afterAttr.getSkill() - oldSkill, afterAttr.getPressure() - oldPressure,
+                afterAttr.getDiscipline() - oldDiscipline, settlement.expChange));
         userDungeonTaskRecordMapper.insert(taskRecord);
 
         record.setTotalScore(record.getTotalScore() + settlement.score);
@@ -298,10 +323,24 @@ public class DungeonServiceImpl implements DungeonService {
         }
 
         MinigameSettlement settlement = settleBugHunt(userId, record, questionIds, answers, elapsedSeconds);
+
+        // 记录旧值用于计算实际变化
+        PlayerAttribute beforeAttr2 = playerService.findAttributeByUserId(userId);
+        int oldAcademic2 = beforeAttr2.getAcademic(), oldHealth2 = beforeAttr2.getHealth();
+        int oldSkill2 = beforeAttr2.getSkill(), oldPressure2 = beforeAttr2.getPressure();
+        int oldDiscipline2 = beforeAttr2.getDiscipline();
+
         applyDynamicRewards(userId, settlement);
+
+        PlayerAttribute afterAttr2 = playerService.findAttributeByUserId(userId);
 
         UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
                 "correct=" + settlement.score + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
+        // 替换为实际变化值
+        taskRecord.setAttributeChange(new AttributeChange(
+                afterAttr2.getAcademic() - oldAcademic2, afterAttr2.getHealth() - oldHealth2, 0,
+                0, afterAttr2.getSkill() - oldSkill2, afterAttr2.getPressure() - oldPressure2,
+                afterAttr2.getDiscipline() - oldDiscipline2, settlement.expChange));
         userDungeonTaskRecordMapper.insert(taskRecord);
 
         record.setTotalScore(record.getTotalScore() + settlement.score);

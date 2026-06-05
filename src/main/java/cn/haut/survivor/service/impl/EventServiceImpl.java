@@ -121,6 +121,13 @@ public class EventServiceImpl implements EventService {
         PlayerProfile profile = requireProfile(userId);
         EventOption option = requireOption(eventId, optionId);
 
+        // 记录旧值用于计算实际变化
+        int oldAcademic = attribute.getAcademic(), oldHealth = attribute.getHealth();
+        int oldMoney = attribute.getMoney(), oldSocial = attribute.getSocial();
+        int oldSkill = attribute.getSkill(), oldPressure = attribute.getPressure();
+        int oldDiscipline = attribute.getDiscipline();
+        int oldExp = profile.getExp();
+
         attribute.setAcademic(clamp(attribute.getAcademic() + option.getAcademicChange()));
         attribute.setHealth(clamp(attribute.getHealth() + option.getHealthChange()));
         attribute.setMoney(clamp(attribute.getMoney() + option.getMoneyChange()));
@@ -140,16 +147,16 @@ public class EventServiceImpl implements EventService {
         record.setOptionId(optionId);
         record.setResultText(option.getResultText());
         record.setCreateTime(LocalDateTime.now());
-        // 记录属性变化用于页面展示
+        // 记录实际属性变化（考虑 clamp 边界）
         record.setAttributeChange(new AttributeChange(
-                option.getAcademicChange(),
-                option.getHealthChange(),
-                option.getMoneyChange(),
-                option.getSocialChange(),
-                option.getSkillChange(),
-                option.getPressureChange(),
-                option.getDisciplineChange(),
-                option.getExpChange()
+                attribute.getAcademic() - oldAcademic,
+                attribute.getHealth() - oldHealth,
+                attribute.getMoney() - oldMoney,
+                attribute.getSocial() - oldSocial,
+                attribute.getSkill() - oldSkill,
+                attribute.getPressure() - oldPressure,
+                attribute.getDiscipline() - oldDiscipline,
+                profile.getExp() - oldExp
         ));
         eventRecordMapper.insert(record);
         return record;

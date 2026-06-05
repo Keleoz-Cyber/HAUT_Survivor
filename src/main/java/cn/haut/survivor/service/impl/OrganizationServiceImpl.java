@@ -122,6 +122,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         // 按组织类型差异化属性结算
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
+
         switch (org.getOrgType()) {
             case "学生会" -> {
                 // 学生会偏社交/自律，活动繁忙增加压力
@@ -190,12 +191,21 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public OrganizationActivityResult attendActivityWithChange(Long userId, Long organizationId) {
         Organization org = requireOrg(organizationId);
+        // 保存旧值用于计算实际变化
+        PlayerAttribute before = playerService.findAttributeByUserId(userId);
+        int oldAcademic = before.getAcademic(), oldHealth = before.getHealth();
+        int oldSocial = before.getSocial(), oldSkill = before.getSkill();
+        int oldPressure = before.getPressure(), oldDiscipline = before.getDiscipline();
+
         UserOrganization relation = attendActivity(userId, organizationId);
+
+        // 读取更新后的值，计算实际变化
+        PlayerAttribute after = playerService.findAttributeByUserId(userId);
         AttributeChange change = switch (org.getOrgType()) {
-            case "学生会" -> new AttributeChange(0, 0, 0, 3, 0, 2, 2, 0);
-            case "实验室" -> new AttributeChange(2, 0, 0, 0, 3, 3, 0, 0);
-            case "社团"  -> new AttributeChange(0, 3, 0, 1, 0, -2, 0, 0);
-            default      -> new AttributeChange(0, 0, 0, 3, 0, 2, 1, 0);
+            case "学生会" -> new AttributeChange(after.getAcademic() - oldAcademic, 0, 0, after.getSocial() - oldSocial, 0, after.getPressure() - oldPressure, after.getDiscipline() - oldDiscipline, 0);
+            case "实验室" -> new AttributeChange(after.getAcademic() - oldAcademic, 0, 0, 0, after.getSkill() - oldSkill, after.getPressure() - oldPressure, 0, 0);
+            case "社团"  -> new AttributeChange(0, after.getHealth() - oldHealth, 0, after.getSocial() - oldSocial, 0, after.getPressure() - oldPressure, 0, 0);
+            default      -> new AttributeChange(0, 0, 0, after.getSocial() - oldSocial, 0, after.getPressure() - oldPressure, after.getDiscipline() - oldDiscipline, 0);
         };
         return new OrganizationActivityResult(relation, change);
     }
