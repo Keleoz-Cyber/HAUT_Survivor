@@ -14,18 +14,20 @@
         <div class="event-card">
             <div class="event-card__meta">
                 <span th:text="${location.locationName}">地点</span>
-                <span class="badge" th:style="'background:' + ${location.themeColor}"
-                      th:text="${result.resultType == 'discover' ? '发现' :
-                                result.resultType == 'hidden' ? '隐藏' :
-                                result.resultType == 'secret' ? '秘密' :
-                                result.resultType == 'legendary' ? '传说' :
-                                result.resultType == 'social' ? '社交' :
-                                result.resultType == 'skill_gain' ? '技能' :
-                                result.resultType == 'npc' ? 'NPC' :
-                                result.resultType == 'event_hint' ? '线索' :
-                                result.resultType == 'route_unlock' ? '路线' :
-                                result.resultType == 'title_hint' ? '称号' :
-                                result.resultType == 'setback' ? '挫折' : '平淡'">结果</span>
+                <span class="badge" th:style="'background:' + ${location.themeColor}" th:switch="${result.resultType}">
+                    <span th:case="discover">发现</span>
+                    <span th:case="hidden">隐藏</span>
+                    <span th:case="secret">秘密</span>
+                    <span th:case="legendary">传说</span>
+                    <span th:case="social">社交</span>
+                    <span th:case="skill_gain">技能</span>
+                    <span th:case="npc">NPC</span>
+                    <span th:case="event_hint">线索</span>
+                    <span th:case="route_unlock">路线</span>
+                    <span th:case="title_hint">称号</span>
+                    <span th:case="setback">挫折</span>
+                    <span th:case="*">平淡</span>
+                </span>
             </div>
 
             <h1>探索结果</h1>

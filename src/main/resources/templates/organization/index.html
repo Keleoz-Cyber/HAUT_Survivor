@@ -26,7 +26,7 @@
 
     <section class="row g-3">
         <article class="col-md-6" th:each="org : ${orgs}">
-            <div class="panel" th:style="--border-color: ${org.themeColor}; border-left: 4px solid var(--border-color)">
+            <div class="panel" th:style="'border-left: 4px solid ' + ${org.themeColor}">
                 <h3 class="h5" th:text="${org.orgName}">组织名</h3>
                 <p class="text-muted mb-2">
                     <span class="badge" th:style="'background:' + ${org.themeColor}" th:text="${org.orgType}">类型</span>
@@ -36,7 +36,7 @@
                     <span class="text-muted" th:if="${org.recommendedAttribute}"
                           th:text="'推荐属性：' + ${org.recommendedAttribute}">推荐属性</span>
                 </p>
-                <div th:with="rel=${relations.stream().filter(r -> r.organizationId == org.id).findFirst().orElse(null)}">
+                <div th:with="rel=${relationMap.get(org.id)}">
                     <span th:if="${rel == null}" class="badge bg-secondary">未发现</span>
                     <span th:if="${rel != null and rel.membershipStatus == 'discovered'}" class="badge bg-info">已发现</span>
                     <span th:if="${rel != null and rel.membershipStatus == 'member'}" class="badge bg-success"

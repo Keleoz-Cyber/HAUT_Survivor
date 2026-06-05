@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Controller
 public class OrganizationController {
@@ -37,9 +40,11 @@ public class OrganizationController {
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
         List<Organization> orgs = organizationService.listAll();
         List<UserOrganization> relations = organizationService.listUserOrganizations(userId);
+        Map<Long, UserOrganization> relationMap = relations.stream()
+                .collect(Collectors.toMap(UserOrganization::getOrganizationId, Function.identity()));
 
         model.addAttribute("orgs", orgs);
-        model.addAttribute("relations", relations);
+        model.addAttribute("relationMap", relationMap);
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
