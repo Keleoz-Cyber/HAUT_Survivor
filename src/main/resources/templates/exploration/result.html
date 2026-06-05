@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>探索结果 - HAUT Survivor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body class="survivor-body">
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="container app-shell">
+    <section class="event-stage" th:style="'background:linear-gradient(135deg,' + ${location.themeColor} + '22, rgba(15,23,42,0.92))'">
+        <div class="event-card">
+            <div class="event-card__meta">
+                <span th:text="${location.locationName}">地点</span>
+                <span class="badge" th:style="'background:' + ${location.themeColor}"
+                      th:text="${result.resultType == 'discover' ? '发现' :
+                                result.resultType == 'hidden' ? '隐藏' :
+                                result.resultType == 'secret' ? '秘密' :
+                                result.resultType == 'legendary' ? '传说' :
+                                result.resultType == 'social' ? '社交' :
+                                result.resultType == 'skill_gain' ? '技能' :
+                                result.resultType == 'npc' ? 'NPC' :
+                                result.resultType == 'event_hint' ? '线索' :
+                                result.resultType == 'route_unlock' ? '路线' :
+                                result.resultType == 'title_hint' ? '称号' :
+                                result.resultType == 'setback' ? '挫折' : '平淡'">结果</span>
+            </div>
+
+            <h1>探索结果</h1>
+            <p class="event-card__story" th:text="${result.description}">描述</p>
+
+            <!-- 探索度变化 -->
+            <div class="mb-3">
+                <span class="text-info" th:text="'探索度 +' + ${result.exploreLevelGain}">+10</span>
+                <span class="ms-3" th:text="'当前探索度 ' + ${result.exploration.exploreLevel} + '%'">50%</span>
+            </div>
+
+            <!-- 探索度进度条 -->
+            <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar" role="progressbar"
+                     th:style="'width:' + ${result.exploration.exploreLevel} + '%; background:' + ${location.themeColor}"
+                     th:aria-valuenow="${result.exploration.exploreLevel}"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+
+            <!-- 解锁提示 -->
+            <div th:if="${result.exploration.exploreLevel >= 20 and result.exploration.exploreLevel - result.exploreLevelGain < 20}"
+                 class="alert alert-success py-2">🎉 探索度达到 20%！解锁普通事件池。</div>
+            <div th:if="${result.exploration.exploreLevel >= 40 and result.exploration.exploreLevel - result.exploreLevelGain < 40}"
+                 class="alert alert-success py-2">🎉 探索度达到 40%！解锁隐藏内容。</div>
+            <div th:if="${result.exploration.exploreLevel >= 60 and result.exploration.exploreLevel - result.exploreLevelGain < 60}"
+                 class="alert alert-success py-2">🎉 探索度达到 60%！解锁组织入口。</div>
+            <div th:if="${result.exploration.exploreLevel >= 80 and result.exploration.exploreLevel - result.exploreLevelGain < 80}"
+                 class="alert alert-success py-2">🎉 探索度达到 80%！解锁特殊副本。</div>
+            <div th:if="${result.exploration.exploreLevel >= 100 and result.exploration.exploreLevel - result.exploreLevelGain < 100}"
+                 class="alert alert-warning py-2">🏆 探索度达到 100%！你已完全探索这个地方！</div>
+
+            <!-- 属性变化 -->
+            <div class="attribute-strip mb-3">
+                <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
+                <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
+                <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
+                <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
+                <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
+                <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
+                <div><span>行动点</span><strong th:text="${profile.actionPoints}">3</strong></div>
+            </div>
+
+            <div class="mt-3">
+                <a href="/exploration" class="btn btn-outline-light">继续探索</a>
+                <a href="/map" class="btn btn-outline-light ms-2">返回地图</a>
+                <a href="/dashboard" class="btn btn-outline-light ms-2">仪表盘</a>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>

@@ -6,7 +6,9 @@ import cn.haut.survivor.domain.entity.Event;
 import cn.haut.survivor.domain.entity.EventRecord;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.service.EventService;
+import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -15,17 +17,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class MapController {
 
     private final EventService eventService;
     private final PlayerService playerService;
+    private final ExplorationService explorationService;
 
-    public MapController(EventService eventService, PlayerService playerService) {
+    public MapController(EventService eventService, PlayerService playerService, ExplorationService explorationService) {
         this.eventService = eventService;
         this.playerService = playerService;
+        this.explorationService = explorationService;
     }
 
     @GetMapping("/map")
@@ -36,9 +42,15 @@ public class MapController {
         }
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
-        model.addAttribute("locations", eventService.listEnabledLocations());
+        List<CampusLocation> locations = eventService.listEnabledLocations();
+
+        // 获取探索度映射
+        Map<Long, Integer> exploreLevels = buildExploreLevelMap(userId);
+
+        model.addAttribute("locations", locations);
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
+        model.addAttribute("exploreLevels", exploreLevels);
         model.addAttribute("statusLines", buildStatusLines(profile, attribute));
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         return "map/index";
@@ -53,40 +65,19 @@ public class MapController {
 
         // 检查学期是否结束
         if (playerService.isSemesterOver(userId)) {
-            model.addAttribute("locations", eventService.listEnabledLocations());
-            model.addAttribute("message", "学期已结束，无法继续行动。");
-            PlayerProfile profile = playerService.findProfileByUserId(userId);
-            model.addAttribute("profile", profile);
-            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
-            model.addAttribute("semesterOver", true);
-            return "map/index";
+            return buildMapRedirect(userId, model, "学期已结束，无法继续行动。", true);
         }
 
         // 消耗行动点
         try {
             playerService.consumeActionPoint(userId);
         } catch (IllegalArgumentException e) {
-            model.addAttribute("locations", eventService.listEnabledLocations());
-            model.addAttribute("message", e.getMessage());
-            PlayerProfile profile = playerService.findProfileByUserId(userId);
-            model.addAttribute("profile", profile);
-            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
-            model.addAttribute("semesterOver", false);
-            return "map/index";
+            return buildMapRedirect(userId, model, e.getMessage(), false);
         }
 
         Event event = eventService.triggerRandomEvent(userId, locationId);
         if (event == null) {
-            model.addAttribute("locations", eventService.listEnabledLocations());
-            model.addAttribute("message", "这里暂时没有可触发的事件。");
-            PlayerProfile profile = playerService.findProfileByUserId(userId);
-            model.addAttribute("profile", profile);
-            model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-            model.addAttribute("statusLines", buildStatusLines(profile, playerService.findAttributeByUserId(userId)));
-            model.addAttribute("semesterOver", false);
-            return "map/index";
+            return buildMapRedirect(userId, model, "这里暂时没有可触发的事件。", false);
         }
 
         model.addAttribute("event", event);
@@ -104,6 +95,28 @@ public class MapController {
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         model.addAttribute("profile", playerService.findProfileByUserId(userId));
         return "map/event";
+    }
+
+    private String buildMapRedirect(Long userId, Model model, String message, boolean semesterOver) {
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
+        model.addAttribute("locations", eventService.listEnabledLocations());
+        model.addAttribute("message", message);
+        model.addAttribute("profile", profile);
+        model.addAttribute("attribute", attribute);
+        model.addAttribute("exploreLevels", buildExploreLevelMap(userId));
+        model.addAttribute("statusLines", buildStatusLines(profile, attribute));
+        model.addAttribute("semesterOver", semesterOver);
+        return "map/index";
+    }
+
+    private Map<Long, Integer> buildExploreLevelMap(Long userId) {
+        List<UserLocationExploration> explorations = explorationService.listUserExplorations(userId);
+        Map<Long, Integer> exploreLevels = new HashMap<>();
+        for (UserLocationExploration e : explorations) {
+            exploreLevels.put(e.getLocationId(), e.getExploreLevel());
+        }
+        return exploreLevels;
     }
 
     private CampusLocation findLocation(Long locationId) {

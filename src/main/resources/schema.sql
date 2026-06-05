@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS task;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
 DROP TABLE IF EXISTS player_profile;
+DROP TABLE IF EXISTS user_location_exploration;
 DROP TABLE IF EXISTS user_organization;
 DROP TABLE IF EXISTS organization;
 DROP TABLE IF EXISTS `user`;
@@ -248,6 +249,18 @@ CREATE TABLE user_organization (
     join_week INT,
     CONSTRAINT fk_user_org_user FOREIGN KEY (user_id) REFERENCES `user`(id),
     CONSTRAINT fk_user_org_org FOREIGN KEY (organization_id) REFERENCES organization(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE user_location_exploration (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    location_id BIGINT NOT NULL,
+    explore_level INT NOT NULL DEFAULT 0,
+    explore_count INT NOT NULL DEFAULT 0,
+    last_explore_week INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_ule_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_ule_location FOREIGN KEY (location_id) REFERENCES campus_location(id),
+    UNIQUE KEY uk_user_location (user_id, location_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

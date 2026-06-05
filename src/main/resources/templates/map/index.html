@@ -40,6 +40,14 @@
                 <p class="location-node__campus" th:text="${location.campus}">莲花街校区</p>
                 <h2 th:text="${location.locationName}">地点</h2>
                 <p th:text="${location.description}">描述</p>
+                <!-- 探索度条 -->
+                <div class="progress mb-1" style="height: 4px;">
+                    <div class="progress-bar" role="progressbar"
+                         th:style="'width:' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%; background:' + ${location.themeColor}"
+                         th:aria-valuenow="${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0}"
+                         aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <p class="small text-muted mb-1" th:text="'探索度 ' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%'">探索度 0%</p>
                 <p class="location-node__event-hint" th:if="${profile.actionPoints > 0}">消耗 1 行动点</p>
                 <p class="location-node__event-hint" th:if="${profile.actionPoints == 0}" style="color:#fca5a5">行动点不足</p>
             </div>
