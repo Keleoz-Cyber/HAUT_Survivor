@@ -13,6 +13,7 @@ import cn.haut.survivor.mapper.EventRecordMapper;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.service.EventService;
+import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ public class EventServiceImpl implements EventService {
     private final PlayerAttributeMapper playerAttributeMapper;
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerService playerService;
+    private final ExplorationService explorationService;
 
     public EventServiceImpl(
             CampusLocationMapper campusLocationMapper,
@@ -42,7 +44,8 @@ public class EventServiceImpl implements EventService {
             EventRecordMapper eventRecordMapper,
             PlayerAttributeMapper playerAttributeMapper,
             PlayerProfileMapper playerProfileMapper,
-            PlayerService playerService
+            PlayerService playerService,
+            ExplorationService explorationService
     ) {
         this.campusLocationMapper = campusLocationMapper;
         this.eventMapper = eventMapper;
@@ -51,6 +54,7 @@ public class EventServiceImpl implements EventService {
         this.playerAttributeMapper = playerAttributeMapper;
         this.playerProfileMapper = playerProfileMapper;
         this.playerService = playerService;
+        this.explorationService = explorationService;
     }
 
     @Override
@@ -62,12 +66,19 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<Event> listEnabledEventsForLocation(Long locationId, Integer currentWeek) {
+        return listEnabledEventsForLocation(locationId, currentWeek, 0);
+    }
+
+    @Override
+    public List<Event> listEnabledEventsForLocation(Long locationId, Integer currentWeek, Integer exploreLevel) {
         int week = currentWeek == null ? 1 : currentWeek;
+        int level = exploreLevel == null ? 0 : exploreLevel;
         return eventMapper.selectList(new LambdaQueryWrapper<Event>()
                 .eq(Event::getStatus, 1)
                 .eq(Event::getLocationId, locationId)
                 .le(Event::getMinWeek, week)
                 .ge(Event::getMaxWeek, week)
+                .le(Event::getMinExploreLevel, level)
                 .orderByDesc(Event::getProbability)
                 .orderByAsc(Event::getId));
     }
@@ -75,7 +86,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event triggerRandomEvent(Long userId, Long locationId) {
         PlayerProfile profile = requireProfile(userId);
-        List<Event> events = listEnabledEventsForLocation(locationId, profile.getCurrentWeek());
+        int exploreLevel = explorationService.getExploreLevel(userId, locationId);
+        List<Event> events = listEnabledEventsForLocation(locationId, profile.getCurrentWeek(), exploreLevel);
         if (events.isEmpty()) {
             return null;
         }

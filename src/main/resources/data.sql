@@ -53,6 +53,77 @@ INSERT INTO `event` (id, event_name, event_type, location_id, description, proba
 (26, '囤货决策', '金钱', 8, '购物节到了，购物车里塞满了东西，你需要决定买多少。', 50, 1, 20, 1);
 
 -- ============================================================
+-- 隐藏事件：需要探索度才能触发
+-- ============================================================
+
+INSERT INTO `event` (id, event_name, event_type, location_id, description, probability, min_week, max_week, min_explore_level, status) VALUES
+-- 图书馆隐藏事件
+(27, '隐藏自习角', '学习', 2, '你在书架深处发现了一个几乎无人知晓的自习角落，安静得不可思议。', 50, 1, 20, 40, 1),
+(28, '考研资料库', '学习', 2, '你在图书馆角落发现了一套完整的考研复习资料，看起来是某位学长留下的。', 40, 1, 20, 80, 1),
+-- 实验室隐藏事件
+(29, '竞赛队招募', '技能', 6, '实验室里的竞赛队正在秘密招新，你无意间看到了他们的训练计划。', 50, 1, 20, 40, 1),
+(30, 'AI 工具争议', '技能', 6, '你听到几个同学在激烈讨论该不该用 AI 写代码，这引发了你自己的思考。', 45, 1, 20, 60, 1),
+-- 食堂隐藏事件
+(31, '隐藏美食窗口', '健康', 4, '你发现食堂二楼有个窗口从不排队，饭菜却出奇地好吃。', 55, 1, 20, 40, 1),
+(32, '预算危机', '金钱', 4, '你算了算这个月的开销，发现如果不控制，月底可能真的要吃泡面了。', 45, 1, 20, 60, 1),
+-- 社团活动区隐藏事件
+(33, '学生会内推', '社交', 7, '一个在学生会的朋友私下告诉你，有个部门在找人，推荐你去试试。', 50, 1, 20, 40, 1),
+(34, '活动救火', '社交', 7, '社团活动突然出了状况，主持人临时缺席，大家把目光投向了你。', 40, 1, 20, 80, 1);
+
+-- 隐藏事件选项
+INSERT INTO event_option (id, event_id, option_text, result_text, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change) VALUES
+-- 27: 隐藏自习角
+(79, 27, '在这里安顿下来学习', '安静的环境让你效率翻倍，学业明显提升。', 8, 2, 0, 0, 0, -3, 4, 28),
+(80, 27, '记住位置下次再来', '你悄悄记下了这个角落的位置，以后就是你的秘密基地了。', 3, 0, 0, 0, 0, -2, 2, 14),
+-- 28: 考研资料库
+(81, 28, '系统学习这些资料', '资料内容非常全面，你的学业基础扎实了不少。', 12, -2, 0, 0, 2, 2, 6, 35),
+(82, 28, '拍照分享给同学', '同学们都很感谢你，社交和学业双赢。', 5, 0, 0, 6, 0, -1, 3, 22),
+-- 29: 竞赛队招募
+(83, 29, '报名参加选拔', '你通过了初筛，开始接受竞赛训练，技能飞速提升。', 3, -1, 0, 2, 10, 4, 5, 32),
+(84, 29, '先观摩再说', '你在旁边看了一节训练课，学到了不少新思路。', 1, 0, 0, 1, 5, 0, 2, 16),
+-- 30: AI 工具争议
+(85, 30, '理性看待，辅助学习', '你决定用 AI 辅助理解而非替代思考，技能提升明显。', 3, 0, 0, 2, 6, -1, 3, 24),
+(86, 30, '坚持手写代码', '纯手写训练让你的基本功更扎实。', 2, 0, 0, 0, 4, 1, 5, 18),
+-- 31: 隐藏美食窗口
+(87, 31, '成为常客', '好吃又不贵，你的健康和心情都有改善。', 0, 4, -3, 2, 0, -3, 0, 16),
+(88, 31, '推荐给室友', '室友感激不尽，你在宿舍的话语权上升了。', 0, 2, -6, 5, 0, -2, 1, 14),
+-- 32: 预算危机
+(89, 32, '制定严格预算', '你开始认真记账，自律值上升，钱包安全了。', 0, 0, 10, 0, 0, -1, 6, 22),
+(90, 32, '找兼职补贴', '兼职虽然费时，但确实缓解了经济压力。', -3, -2, 12, 2, 2, 3, 3, 20),
+-- 33: 学生会内推
+(91, 33, '接受推荐去面试', '内推让你跳过了初筛，面试表现不错。', 0, 0, 0, 8, 0, 2, 2, 24),
+(92, 33, '感谢朋友但婉拒', '朋友理解你的选择，你的社交圈更稳固了。', 0, 0, 0, 3, 0, -1, 1, 10),
+-- 34: 活动救火
+(93, 34, '挺身而出主持活动', '你临时上阵，虽然紧张但效果意外地好！', 0, -1, 0, 10, 2, 4, 3, 30),
+(94, 34, '帮忙做幕后支持', '你在幕后处理了设备问题，活动顺利完成。', 0, 0, 0, 5, 3, 1, 2, 18);
+
+-- 隐藏事件氛围
+UPDATE `event` SET scene_image = 'scene-library', mood_tag = '秘境' WHERE id = 27;
+UPDATE `event` SET scene_image = 'scene-library', mood_tag = '宝藏' WHERE id = 28;
+UPDATE `event` SET scene_image = 'scene-lab', mood_tag = '机遇' WHERE id = 29;
+UPDATE `event` SET scene_image = 'scene-lab', mood_tag = '思辨' WHERE id = 30;
+UPDATE `event` SET scene_image = 'scene-canteen', mood_tag = '发现' WHERE id = 31;
+UPDATE `event` SET scene_image = 'scene-canteen', mood_tag = '危机' WHERE id = 32;
+UPDATE `event` SET scene_image = 'scene-club', mood_tag = '内推' WHERE id = 33;
+UPDATE `event` SET scene_image = 'scene-club', mood_tag = '紧急' WHERE id = 34;
+
+-- 隐藏事件选项风险等级
+UPDATE event_option SET preview_text = '高效学习', risk_level = 'low' WHERE id = 79;
+UPDATE event_option SET preview_text = '稳妥收藏', risk_level = 'low' WHERE id = 80;
+UPDATE event_option SET preview_text = '高强度提升', risk_level = 'medium' WHERE id = 81;
+UPDATE event_option SET preview_text = '社交共享', risk_level = 'low' WHERE id = 82;
+UPDATE event_option SET preview_text = '全力冲刺', risk_level = 'medium' WHERE id = 83;
+UPDATE event_option SET preview_text = '谨慎观望', risk_level = 'low' WHERE id = 84;
+UPDATE event_option SET preview_text = '理性辅助', risk_level = 'low' WHERE id = 85;
+UPDATE event_option SET preview_text = '坚守传统', risk_level = 'medium' WHERE id = 86;
+UPDATE event_option SET preview_text = '美食常客', risk_level = 'low' WHERE id = 87;
+UPDATE event_option SET preview_text = '分享发现', risk_level = 'low' WHERE id = 88;
+UPDATE event_option SET preview_text = '自律节流', risk_level = 'low' WHERE id = 89;
+UPDATE event_option SET preview_text = '兼职开源', risk_level = 'medium' WHERE id = 90;
+UPDATE event_option SET preview_text = '抓住机会', risk_level = 'medium' WHERE id = 91;
+UPDATE event_option SET preview_text = '礼貌婉拒', risk_level = 'low' WHERE id = 92;
+UPDATE event_option SET preview_text = '临危受命', risk_level = 'high' WHERE id = 93;
+UPDATE event_option SET preview_text = '幕后英雄', risk_level = 'low' WHERE id = 94;
 -- 事件选项：每个事件 2-3 个选项，体现取舍
 -- ============================================================
 

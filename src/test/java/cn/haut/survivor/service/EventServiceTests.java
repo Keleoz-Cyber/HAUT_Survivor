@@ -148,13 +148,52 @@ class EventServiceTests {
 
     @Test
     void allEventsHaveAtLeastTwoOptions() {
-        for (long eventId = 1; eventId <= 26; eventId++) {
+        for (long eventId = 1; eventId <= 34; eventId++) {
             List<EventOption> options = eventService.listOptions(eventId);
             if (!options.isEmpty()) {
                 assertThat(options.size())
                         .as("事件 id=%d 应至少有 2 个选项", eventId)
                         .isGreaterThanOrEqualTo(2);
             }
+        }
+    }
+
+    // ==================== 探索度过滤测试 ====================
+
+    @Test
+    void lowExploreLevelExcludesHiddenEvents() {
+        // 探索度 0 时，图书馆（地点 2）不应有隐藏事件（id>=27, min_explore_level>=40）
+        List<Event> events = eventService.listEnabledEventsForLocation(2L, 1, 0);
+
+        assertThat(events).allMatch(event -> event.getMinExploreLevel() == null || event.getMinExploreLevel() == 0);
+        assertThat(events).extracting(Event::getEventName)
+                .doesNotContain("隐藏自习角", "考研资料库");
+    }
+
+    @Test
+    void sufficientExploreLevelIncludesHiddenEvents() {
+        // 探索度 50 时，图书馆（地点 2）应包含"隐藏自习角"（min_explore_level=40）但不包含"考研资料库"（min_explore_level=80）
+        List<Event> events = eventService.listEnabledEventsForLocation(2L, 1, 50);
+
+        assertThat(events).extracting(Event::getEventName).contains("隐藏自习角");
+        assertThat(events).extracting(Event::getEventName).doesNotContain("考研资料库");
+    }
+
+    @Test
+    void maxExploreLevelIncludesAllHiddenEvents() {
+        // 探索度 100 时，图书馆（地点 2）应包含所有隐藏事件
+        List<Event> events = eventService.listEnabledEventsForLocation(2L, 1, 100);
+
+        assertThat(events).extracting(Event::getEventName).contains("隐藏自习角", "考研资料库");
+    }
+
+    @Test
+    void hiddenEventsAlsoHaveAtLeastTwoOptions() {
+        for (long eventId = 27; eventId <= 34; eventId++) {
+            List<EventOption> options = eventService.listOptions(eventId);
+            assertThat(options.size())
+                    .as("隐藏事件 id=%d 应至少有 2 个选项", eventId)
+                    .isGreaterThanOrEqualTo(2);
         }
     }
 }

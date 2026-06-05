@@ -19,5 +19,6 @@ public class Event {
     private Integer probability;
     private Integer minWeek;
     private Integer maxWeek;
+    private Integer minExploreLevel;
     private Integer status;
 }

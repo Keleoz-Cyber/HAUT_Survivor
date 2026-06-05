@@ -30,8 +30,12 @@
 
             <!-- 未发现状态 -->
             <div th:if="${relation == null}">
+                <div th:if="${!exploreUnlocked}" class="alert alert-warning py-2 mb-3">
+                    🔒 探索度不足！需要先去探索对应地点，达到 <span th:text="${org.unlockExploreLevel}">20</span>% 探索度才能发现此组织。
+                </div>
                 <form method="post" th:action="@{/organizations/{id}/discover(id=${org.id})}">
-                    <button type="submit" class="btn btn-light">发现这个组织</button>
+                    <button type="submit" class="btn btn-light"
+                            th:disabled="${!exploreUnlocked or semesterOver}">发现这个组织</button>
                 </form>
             </div>
 

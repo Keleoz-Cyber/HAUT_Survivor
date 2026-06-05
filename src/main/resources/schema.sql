@@ -85,6 +85,7 @@ CREATE TABLE `event` (
     probability INT NOT NULL DEFAULT 50,
     min_week INT NOT NULL DEFAULT 1,
     max_week INT NOT NULL DEFAULT 20,
+    min_explore_level INT NOT NULL DEFAULT 0,
     status INT NOT NULL DEFAULT 1,
     CONSTRAINT fk_event_location FOREIGN KEY (location_id) REFERENCES campus_location(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

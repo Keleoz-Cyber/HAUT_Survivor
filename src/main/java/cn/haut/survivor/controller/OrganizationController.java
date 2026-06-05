@@ -5,6 +5,7 @@ import cn.haut.survivor.domain.entity.Organization;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserOrganization;
+import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.OrganizationService;
 import cn.haut.survivor.service.PlayerService;
 import jakarta.servlet.http.HttpSession;
@@ -24,10 +25,12 @@ public class OrganizationController {
 
     private final OrganizationService organizationService;
     private final PlayerService playerService;
+    private final ExplorationService explorationService;
 
-    public OrganizationController(OrganizationService organizationService, PlayerService playerService) {
+    public OrganizationController(OrganizationService organizationService, PlayerService playerService, ExplorationService explorationService) {
         this.organizationService = organizationService;
         this.playerService = playerService;
+        this.explorationService = explorationService;
     }
 
     @GetMapping("/organizations")
@@ -67,12 +70,28 @@ public class OrganizationController {
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
+
+        // 探索度门槛信息
+        boolean exploreUnlocked = true;
+        if (org.getUnlockLocationId() != null && org.getUnlockExploreLevel() != null && org.getUnlockExploreLevel() > 0) {
+            exploreUnlocked = explorationService.isUnlocked(userId, org.getUnlockLocationId(), org.getUnlockExploreLevel());
+        }
+        model.addAttribute("exploreUnlocked", exploreUnlocked);
         return "organization/detail";
     }
 
     @PostMapping("/organizations/{id}/discover")
-    public String discover(@PathVariable Long id, HttpSession session) {
+    public String discover(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        // 检查探索度门槛
+        Organization org = organizationService.listAll().stream()
+                .filter(o -> o.getId().equals(id)).findFirst().orElse(null);
+        if (org != null && org.getUnlockLocationId() != null && org.getUnlockExploreLevel() != null && org.getUnlockExploreLevel() > 0) {
+            if (!explorationService.isUnlocked(userId, org.getUnlockLocationId(), org.getUnlockExploreLevel())) {
+                model.addAttribute("error", "探索度不足，无法发现此组织。继续探索对应地点吧！");
+                return detail(id, session, model);
+            }
+        }
         organizationService.discover(userId, id);
         return "redirect:/organizations/" + id;
     }

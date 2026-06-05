@@ -13,6 +13,8 @@ public interface EventService {
 
     List<Event> listEnabledEventsForLocation(Long locationId, Integer currentWeek);
 
+    List<Event> listEnabledEventsForLocation(Long locationId, Integer currentWeek, Integer exploreLevel);
+
     Event triggerRandomEvent(Long userId, Long locationId);
 
     List<EventOption> listOptions(Long eventId);
