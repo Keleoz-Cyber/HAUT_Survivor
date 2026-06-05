@@ -148,7 +148,7 @@ class EventServiceTests {
 
     @Test
     void allEventsHaveAtLeastTwoOptions() {
-        for (long eventId = 1; eventId <= 34; eventId++) {
+        for (long eventId = 1; eventId <= 42; eventId++) {
             List<EventOption> options = eventService.listOptions(eventId);
             if (!options.isEmpty()) {
                 assertThat(options.size())
@@ -189,7 +189,7 @@ class EventServiceTests {
 
     @Test
     void hiddenEventsAlsoHaveAtLeastTwoOptions() {
-        for (long eventId = 27; eventId <= 34; eventId++) {
+        for (long eventId = 27; eventId <= 42; eventId++) {
             List<EventOption> options = eventService.listOptions(eventId);
             assertThat(options.size())
                     .as("隐藏事件 id=%d 应至少有 2 个选项", eventId)

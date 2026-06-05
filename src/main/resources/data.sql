@@ -97,6 +97,51 @@ INSERT INTO event_option (id, event_id, option_text, result_text, academic_chang
 (93, 34, '挺身而出主持活动', '你临时上阵，虽然紧张但效果意外地好！', 0, -1, 0, 10, 2, 4, 3, 30),
 (94, 34, '帮忙做幕后支持', '你在幕后处理了设备问题，活动顺利完成。', 0, 0, 0, 5, 3, 1, 2, 18);
 
+-- ============================================================
+-- 更多隐藏事件：高探索度稀有发现
+-- ============================================================
+
+INSERT INTO `event` (id, event_name, event_type, location_id, description, probability, min_week, max_week, min_explore_level, status) VALUES
+-- 宿舍隐藏事件
+(35, '室友的秘密技能', '社交', 3, '你发现室友居然会修电脑，而且技术还不差。以后电脑出问题再也不用求人了。', 45, 1, 20, 40, 1),
+(36, '宿舍深夜哲学讨论', '社交', 3, '凌晨两点，你和室友聊起了人生、理想和宇宙的终极意义。虽然明天有早八，但这种对话太难得了。', 40, 1, 20, 60, 1),
+-- 操场隐藏事件
+(37, '操场上的流浪猫', '健康', 5, '你在操场角落发现了一只流浪猫，它居然主动蹭你的腿。你决定以后每天带点零食来喂它。', 50, 1, 20, 40, 1),
+(38, '校园跑团招募', '社交', 5, '你在操场遇到了一群每天坚持跑步的同学，他们邀请你加入跑团。有组织地跑步比一个人跑更有动力。', 40, 1, 20, 60, 1),
+-- 快递站隐藏事件
+(39, '快递站的二手市场', '金钱', 8, '快递站旁边有人摆了个小摊，卖各种二手好物。你淘到了一个几乎全新的蓝牙耳机。', 45, 1, 20, 40, 1),
+(40, '神秘包裹', '生活', 8, '你收到了一个包裹，上面没有寄件人信息。打开一看，是一本编程经典书籍，扉页写着"加油"两个字。', 30, 1, 20, 80, 1),
+-- 教学楼隐藏事件
+(41, '教室里的涂鸦', '技能', 1, '你在课桌抽屉里发现了一张写满算法笔记的纸，字迹工整，讲解清晰。这是哪位学长留下的宝藏。', 40, 1, 20, 40, 1),
+(42, '旁听高年级课', '学习', 1, '你无意间走进了一个高年级的专业课教室，老师讲的内容你居然能听懂一半。你决定以后常来蹭课。', 35, 1, 20, 60, 1);
+
+-- 隐藏事件选项
+INSERT INTO event_option (id, event_id, option_text, result_text, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change) VALUES
+-- 35: 室友的秘密技能
+(95, 35, '请室友帮忙修电脑', '室友三两下就解决了你的电脑问题，你们的友谊更近了一步。', 0, 0, 3, 5, 3, -2, 0, 16),
+(96, 35, '交换技能，你教他你的专长', '你们达成了互助协议，以后互相帮助。社交和技能双赢。', 0, 0, 0, 3, 4, -1, 2, 22),
+-- 36: 宿舍深夜哲学讨论
+(97, 36, '畅聊到天亮', '虽然第二天上课打瞌睡，但你们几个人的关系变得特别好。', -3, -4, 0, 8, 0, -5, -2, 20),
+(98, 36, '聊到一半就去睡了', '你及时止损，既享受了聊天的乐趣，又保住了睡眠。', -1, -1, 0, 4, 0, -2, 1, 12),
+-- 37: 操场上的流浪猫
+(99, 37, '蹲下来撸猫', '撸猫是世界上最好的减压方式。你感到内心得到了治愈。', 0, 3, 0, 2, 0, -5, 0, 14),
+(100, 37, '决定以后每天来喂它', '你开始关心这个小生命，自律和健康都提升了。', 0, 2, -2, 2, 0, -3, 4, 20),
+-- 38: 校园跑团招募
+(101, 38, '加入跑团', '有了跑团的监督，你的跑步计划终于能执行了。', 0, 6, 0, 5, 0, -2, 5, 24),
+(102, 38, '先试跑一次再说', '你跟着跑了一次，感觉还不错，决定继续参加。', 0, 3, 0, 2, 0, -1, 2, 14),
+-- 39: 快递站的二手市场
+(103, 39, '淘个好东西', '你花很少的钱买到了很实用的东西，这波不亏。', 0, 0, -5, 0, 0, -2, 1, 16),
+(104, 39, '把自己的闲置也拿来卖', '你把不用的东西卖了出去，钱包鼓了一点。', 0, 0, 8, 2, 0, -1, 3, 22),
+-- 40: 神秘包裹
+(105, 40, '认真读完这本书', '这本书的内容让你受益匪浅，学业和技能都提升了。', 6, 0, 0, 0, 5, 1, 4, 30),
+(106, 40, '拍照发朋友圈', '朋友们纷纷点赞，有人猜到了是谁送的。', 1, 0, 0, 5, 0, -1, 0, 12),
+-- 41: 教室里的涂鸦
+(107, 41, '认真研究笔记内容', '笔记上的算法解析很到位，你的技能提升了。', 3, 0, 0, 0, 6, 0, 3, 24),
+(108, 41, '在旁边补充自己的理解', '你把自己的笔记也留在了那里，可能帮助到下一个有缘人。', 2, 0, 0, 2, 3, -1, 4, 20),
+-- 42: 旁听高年级课
+(109, 42, '认真听完整节课', '虽然有些地方听不懂，但你记下了很多要点。', 8, -1, 0, 2, 2, 2, 4, 28),
+(110, 42, '偷偷录音回去复习', '你录下了关键内容，以后可以慢慢消化。', 5, 0, 0, 0, 3, 1, 3, 22);
+
 -- 隐藏事件氛围
 UPDATE `event` SET scene_image = 'scene-library', mood_tag = '秘境' WHERE id = 27;
 UPDATE `event` SET scene_image = 'scene-library', mood_tag = '宝藏' WHERE id = 28;
@@ -106,6 +151,15 @@ UPDATE `event` SET scene_image = 'scene-canteen', mood_tag = '发现' WHERE id =
 UPDATE `event` SET scene_image = 'scene-canteen', mood_tag = '危机' WHERE id = 32;
 UPDATE `event` SET scene_image = 'scene-club', mood_tag = '内推' WHERE id = 33;
 UPDATE `event` SET scene_image = 'scene-club', mood_tag = '紧急' WHERE id = 34;
+-- 新隐藏事件氛围
+UPDATE `event` SET scene_image = 'scene-dorm', mood_tag = '室友' WHERE id = 35;
+UPDATE `event` SET scene_image = 'scene-dorm', mood_tag = '深夜' WHERE id = 36;
+UPDATE `event` SET scene_image = 'scene-track', mood_tag = '治愈' WHERE id = 37;
+UPDATE `event` SET scene_image = 'scene-track', mood_tag = '社团' WHERE id = 38;
+UPDATE `event` SET scene_image = 'scene-package', mood_tag = '淘宝' WHERE id = 39;
+UPDATE `event` SET scene_image = 'scene-package', mood_tag = '神秘' WHERE id = 40;
+UPDATE `event` SET scene_image = 'scene-classroom', mood_tag = '宝藏' WHERE id = 41;
+UPDATE `event` SET scene_image = 'scene-classroom', mood_tag = '蹭课' WHERE id = 42;
 
 -- 隐藏事件选项风险等级
 UPDATE event_option SET preview_text = '高效学习', risk_level = 'low' WHERE id = 79;
