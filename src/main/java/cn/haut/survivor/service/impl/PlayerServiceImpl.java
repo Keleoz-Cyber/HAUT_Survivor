@@ -4,6 +4,9 @@ import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.PlayerProfileMapper;
+import cn.haut.survivor.mapper.UserLocationExplorationMapper;
+import cn.haut.survivor.mapper.UserOrganizationMapper;
+import cn.haut.survivor.mapper.UserSemesterEndingMapper;
 import cn.haut.survivor.service.PlayerService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
@@ -20,10 +23,20 @@ public class PlayerServiceImpl implements PlayerService {
 
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerAttributeMapper playerAttributeMapper;
+    private final UserLocationExplorationMapper explorationMapper;
+    private final UserOrganizationMapper userOrganizationMapper;
+    private final UserSemesterEndingMapper userSemesterEndingMapper;
 
-    public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper, PlayerAttributeMapper playerAttributeMapper) {
+    public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper,
+                             PlayerAttributeMapper playerAttributeMapper,
+                             UserLocationExplorationMapper explorationMapper,
+                             UserOrganizationMapper userOrganizationMapper,
+                             UserSemesterEndingMapper userSemesterEndingMapper) {
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
+        this.explorationMapper = explorationMapper;
+        this.userOrganizationMapper = userOrganizationMapper;
+        this.userSemesterEndingMapper = userSemesterEndingMapper;
     }
 
     @Override
@@ -212,6 +225,45 @@ public class PlayerServiceImpl implements PlayerService {
             }
             default -> throw new IllegalArgumentException("未知成长路线");
         }
+    }
+
+    @Override
+    @Transactional
+    public void resetSemester(Long userId) {
+        PlayerProfile profile = requireProfile(userId);
+        String growthRoute = profile.getGrowthRoute();
+
+        // 重置 profile
+        profile.setCurrentWeek(1);
+        profile.setActionPoints(4);
+        profile.setMaxActionPoints(4);
+        profile.setSemesterPhase("early");
+        playerProfileMapper.updateById(profile);
+
+        // 重置属性为默认值 + 成长路线加成
+        PlayerAttribute attribute = findAttributeByUserId(userId);
+        attribute.setAcademic(60);
+        attribute.setHealth(70);
+        attribute.setMoney(80);
+        attribute.setSocial(50);
+        attribute.setSkill(40);
+        attribute.setPressure(30);
+        attribute.setDiscipline(50);
+        applyGrowthRoute(attribute, growthRoute);
+        attribute.setUpdateTime(LocalDateTime.now());
+        playerAttributeMapper.updateById(attribute);
+
+        // 清理探索记录
+        explorationMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserLocationExploration>()
+                .eq(cn.haut.survivor.domain.entity.UserLocationExploration::getUserId, userId));
+
+        // 清理组织关系
+        userOrganizationMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserOrganization>()
+                .eq(cn.haut.survivor.domain.entity.UserOrganization::getUserId, userId));
+
+        // 清理本学期结局记录（保留历史）
+        userSemesterEndingMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserSemesterEnding>()
+                .eq(cn.haut.survivor.domain.entity.UserSemesterEnding::getUserId, userId));
     }
 
     private int clamp(int value) {

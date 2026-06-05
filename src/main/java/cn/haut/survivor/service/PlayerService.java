@@ -24,4 +24,7 @@ public interface PlayerService {
 
     /** 获取学期阶段描述。 */
     String getWeekPhaseLabel(PlayerProfile profile);
+
+    /** 重置学期：恢复周次和属性，清理探索度和组织关系，保留结局历史。 */
+    void resetSemester(Long userId);
 }

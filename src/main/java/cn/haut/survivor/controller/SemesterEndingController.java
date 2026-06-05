@@ -68,6 +68,13 @@ public class SemesterEndingController {
         return "redirect:/ending";
     }
 
+    @PostMapping("/ending/restart")
+    public String restartSemester(HttpSession session) {
+        Long userId = currentUserId(session);
+        playerService.resetSemester(userId);
+        return "redirect:/dashboard";
+    }
+
     private Long currentUserId(HttpSession session) {
         return (Long) session.getAttribute(LoginInterceptor.LOGIN_USER_ID);
     }
