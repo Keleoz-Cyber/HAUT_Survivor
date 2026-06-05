@@ -6,18 +6,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("event")
-public class Event {
+@TableName("dungeon")
+public class Dungeon {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String eventName;
-    private String eventType;
-    private Long locationId;
+    private String dungeonName;
+    private String dungeonType;
     private String description;
-    private String sceneImage;
-    private String moodTag;
-    private Integer probability;
-    private Integer minWeek;
-    private Integer maxWeek;
+    private String coverImage;
+    private String themeStyle;
+    private Integer estimatedMinutes;
+    private String difficultyLabel;
+    private Integer rewardExp;
+    private String rewardTitle;
     private Integer status;
 }

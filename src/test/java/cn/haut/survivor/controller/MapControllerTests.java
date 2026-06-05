@@ -42,7 +42,7 @@ class MapControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("map/index"))
-                .andExpect(model().attributeExists("locations"));
+                .andExpect(model().attributeExists("locations", "profile", "attribute", "statusLines"));
     }
 
     @Test
@@ -52,7 +52,7 @@ class MapControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("map/event"))
-                .andExpect(model().attributeExists("event", "options"));
+                .andExpect(model().attributeExists("event", "options", "attribute"));
     }
 
     @Test

@@ -2,9 +2,17 @@ body {
     color: #1f2933;
 }
 
+.survivor-body {
+    background:
+        radial-gradient(circle at top left, rgba(20, 184, 166, 0.22), transparent 28rem),
+        linear-gradient(135deg, #101827 0%, #152235 42%, #203026 100%);
+    min-height: 100vh;
+}
+
 .app-nav {
-    background: #ffffff;
-    border-bottom: 1px solid #d9e2ec;
+    background: rgba(255, 255, 255, 0.94);
+    border-bottom: 1px solid rgba(217, 226, 236, 0.8);
+    backdrop-filter: blur(16px);
 }
 
 .app-nav__inner {
@@ -45,6 +53,460 @@ body {
     padding: 20px;
 }
 
+.campus-hero {
+    align-items: end;
+    color: #ffffff;
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.campus-hero__eyebrow,
+.event-card__eyebrow {
+    color: #a7f3d0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-bottom: 8px;
+}
+
+.campus-hero__title {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    margin: 0;
+}
+
+.campus-hero__copy {
+    color: #dbeafe;
+    margin: 12px 0 0;
+    max-width: 620px;
+}
+
+.campus-status {
+    display: grid;
+    gap: 8px;
+    min-width: 220px;
+}
+
+.campus-status span {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 9px 12px;
+}
+
+.action-map {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    position: relative;
+}
+
+.action-map__backdrop {
+    background:
+        linear-gradient(120deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.02)),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 26px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    grid-column: 1 / -1;
+    height: 140px;
+}
+
+.location-node,
+.dungeon-hook,
+.event-card {
+    border-radius: 8px;
+    box-shadow: 0 18px 48px rgba(2, 6, 23, 0.24);
+}
+
+.location-node {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--node-color), #ffffff 8%), rgba(15, 23, 42, 0.92));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    min-height: 230px;
+    overflow: hidden;
+    padding: 16px;
+    position: relative;
+}
+
+.location-node::before {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    content: "";
+    height: 120px;
+    position: absolute;
+    right: -42px;
+    top: -44px;
+    width: 120px;
+}
+
+.location-node__icon {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 8px;
+    display: flex;
+    font-weight: 800;
+    height: 42px;
+    justify-content: center;
+    margin-bottom: 26px;
+    width: 42px;
+}
+
+.location-node__content {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+}
+
+.location-node__campus {
+    color: #bfdbfe;
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+}
+
+.location-node h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.location-node p {
+    color: rgba(255, 255, 255, 0.82);
+    margin-bottom: 0;
+}
+
+.location-node__action {
+    align-self: flex-start;
+    background: #ffffff;
+    border-radius: 8px;
+    color: #0f172a;
+    font-weight: 700;
+    margin-top: 18px;
+    padding: 8px 14px;
+    position: relative;
+    text-decoration: none;
+    z-index: 1;
+}
+
+.dungeon-hook {
+    background: linear-gradient(135deg, #f97316, #7c3aed 54%, #0f172a);
+    color: #ffffff;
+    grid-column: span 2;
+    padding: 22px;
+}
+
+.dungeon-hook p {
+    color: #ffedd5;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.dungeon-hook h2 {
+    font-weight: 800;
+}
+
+.dungeon-hook span {
+    color: rgba(255, 255, 255, 0.86);
+    display: block;
+    margin-bottom: 16px;
+}
+
+.dungeon-cover {
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.18), rgba(15, 23, 42, 0.92)),
+        repeating-linear-gradient(90deg, rgba(251, 146, 60, 0.16) 0 2px, transparent 2px 36px),
+        linear-gradient(135deg, #7c2d12, #312e81 48%, #111827);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    color: #ffffff;
+    min-height: 420px;
+    padding: 36px;
+}
+
+.dungeon-cover h1 {
+    font-size: clamp(2.2rem, 5vw, 4.6rem);
+    font-weight: 850;
+    line-height: 1.05;
+    max-width: 780px;
+}
+
+.dungeon-cover p {
+    color: #ffedd5;
+    font-size: 1.05rem;
+    max-width: 720px;
+}
+
+.dungeon-cover__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 22px 0;
+}
+
+.dungeon-cover__meta span,
+.dungeon-target {
+    background: rgba(255, 255, 255, 0.13);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    color: #f8fafc;
+    padding: 8px 12px;
+}
+
+.dungeon-timeline {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.dungeon-timeline article {
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.94);
+    border-radius: 8px;
+    display: flex;
+    gap: 14px;
+    padding: 18px;
+}
+
+.dungeon-timeline article > span {
+    align-items: center;
+    background: #111827;
+    border-radius: 8px;
+    color: #ffffff;
+    display: flex;
+    flex: 0 0 36px;
+    font-weight: 800;
+    height: 36px;
+    justify-content: center;
+}
+
+.dungeon-timeline h2 {
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.dungeon-timeline p {
+    color: #475569;
+    margin-bottom: 0;
+}
+
+.minigame-board {
+    background: rgba(15, 23, 42, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    margin: 22px 0;
+    padding: 16px;
+}
+
+.minigame-board p {
+    color: #a7f3d0;
+    font-weight: 800;
+    margin-bottom: 12px;
+}
+
+.minigame-board div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.minigame-board span {
+    background: #ffffff;
+    border-radius: 8px;
+    color: #111827;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-weight: 700;
+    padding: 8px 10px;
+}
+
+.relation-game {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+}
+
+.relation-game__top {
+    align-items: center;
+    color: #ffffff;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.relation-game__top span {
+    background: rgba(239, 68, 68, 0.24);
+    border: 1px solid rgba(248, 113, 113, 0.34);
+    border-radius: 8px;
+    color: #fecaca;
+    font-weight: 800;
+    padding: 6px 10px;
+}
+
+.relation-choice {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.94);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    color: #0f172a;
+    cursor: pointer;
+    display: flex;
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-weight: 800;
+    gap: 10px;
+    padding: 12px;
+}
+
+.relation-choice:has(input:checked) {
+    background: #dcfce7;
+    border-color: #22c55e;
+}
+
+.relation-choice input {
+    accent-color: #16a34a;
+    height: 18px;
+    width: 18px;
+}
+
+.event-stage {
+    align-items: center;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.9)),
+        radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.35), transparent 26rem),
+        radial-gradient(circle at 85% 12%, rgba(249, 115, 22, 0.3), transparent 20rem);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    display: flex;
+    min-height: 680px;
+    padding: 36px;
+}
+
+.event-stage.scene-lab {
+    background:
+        linear-gradient(135deg, rgba(17, 24, 39, 0.24), rgba(17, 24, 39, 0.92)),
+        repeating-linear-gradient(90deg, rgba(167, 139, 250, 0.12) 0 2px, transparent 2px 38px),
+        linear-gradient(135deg, #312e81, #111827 65%, #134e4a);
+}
+
+.event-stage.scene-library {
+    background:
+        linear-gradient(135deg, rgba(12, 74, 110, 0.36), rgba(15, 23, 42, 0.92)),
+        linear-gradient(120deg, #0f766e, #1e293b);
+}
+
+.event-stage--result {
+    background: linear-gradient(135deg, #0f766e, #1d4ed8 48%, #111827);
+}
+
+.event-card {
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    max-width: 760px;
+    padding: 28px;
+    width: 100%;
+}
+
+.event-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.event-card__meta span {
+    background: rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    color: #dbeafe;
+    font-size: 0.86rem;
+    padding: 6px 10px;
+}
+
+.event-card h1 {
+    font-size: clamp(1.8rem, 4vw, 3.4rem);
+    font-weight: 850;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.event-card__story {
+    color: #e0f2fe;
+    font-size: 1.08rem;
+    line-height: 1.8;
+}
+
+.attribute-strip {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 24px 0;
+}
+
+.attribute-strip div {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.attribute-strip span {
+    color: #bae6fd;
+    display: block;
+    font-size: 0.8rem;
+}
+
+.attribute-strip strong {
+    color: #ffffff;
+    display: block;
+    font-size: 1.28rem;
+}
+
+.event-options {
+    display: grid;
+    gap: 12px;
+}
+
+.event-option {
+    background: rgba(255, 255, 255, 0.96);
+    border: 0;
+    border-left: 6px solid #64748b;
+    border-radius: 8px;
+    color: #0f172a;
+    padding: 14px 16px;
+    text-align: left;
+    width: 100%;
+}
+
+.event-option strong,
+.event-option span {
+    display: block;
+}
+
+.event-option span {
+    color: #475569;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+.event-option.risk-low {
+    border-left-color: #22c55e;
+}
+
+.event-option.risk-medium {
+    border-left-color: #f59e0b;
+}
+
+.event-option.risk-high {
+    border-left-color: #ef4444;
+}
+
 .metric {
     background: #ffffff;
     border: 1px solid #d9e2ec;
@@ -75,5 +537,35 @@ body {
         gap: 10px;
         padding-bottom: 12px;
         padding-top: 12px;
+    }
+}
+
+@media (max-width: 992px) {
+    .campus-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .action-map {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dungeon-timeline {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .action-map,
+    .attribute-strip {
+        grid-template-columns: 1fr;
+    }
+
+    .dungeon-hook {
+        grid-column: span 1;
+    }
+
+    .event-stage {
+        min-height: auto;
+        padding: 16px;
     }
 }

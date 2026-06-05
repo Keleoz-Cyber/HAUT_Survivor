@@ -3,6 +3,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS event_record;
 DROP TABLE IF EXISTS event_option;
 DROP TABLE IF EXISTS `event`;
+DROP TABLE IF EXISTS user_dungeon_task_record;
+DROP TABLE IF EXISTS user_dungeon_record;
+DROP TABLE IF EXISTS dungeon_task_option;
+DROP TABLE IF EXISTS dungeon_task;
+DROP TABLE IF EXISTS dungeon;
 DROP TABLE IF EXISTS task;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
@@ -55,6 +60,9 @@ CREATE TABLE campus_location (
     location_name VARCHAR(50) NOT NULL,
     campus VARCHAR(50) NOT NULL,
     description TEXT,
+    icon_key VARCHAR(50) NOT NULL DEFAULT 'map-pin',
+    background_image VARCHAR(100) NOT NULL DEFAULT 'scene-campus',
+    theme_color VARCHAR(20) NOT NULL DEFAULT '#2563eb',
     status INT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -64,6 +72,8 @@ CREATE TABLE `event` (
     event_type VARCHAR(50) NOT NULL,
     location_id BIGINT NOT NULL,
     description TEXT NOT NULL,
+    scene_image VARCHAR(100) NOT NULL DEFAULT 'scene-campus',
+    mood_tag VARCHAR(50) NOT NULL DEFAULT '日常',
     probability INT NOT NULL DEFAULT 50,
     min_week INT NOT NULL DEFAULT 1,
     max_week INT NOT NULL DEFAULT 20,
@@ -75,6 +85,8 @@ CREATE TABLE event_option (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     event_id BIGINT NOT NULL,
     option_text VARCHAR(255) NOT NULL,
+    preview_text VARCHAR(255) NOT NULL DEFAULT '结果未知',
+    risk_level VARCHAR(20) NOT NULL DEFAULT 'medium',
     result_text TEXT NOT NULL,
     academic_change INT NOT NULL DEFAULT 0,
     health_change INT NOT NULL DEFAULT 0,
@@ -112,4 +124,97 @@ CREATE TABLE task (
     create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     finish_time DATETIME,
     CONSTRAINT fk_task_user FOREIGN KEY (user_id) REFERENCES `user`(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE dungeon (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    dungeon_name VARCHAR(100) NOT NULL,
+    dungeon_type VARCHAR(50) NOT NULL,
+    description TEXT NOT NULL,
+    cover_image VARCHAR(100) NOT NULL DEFAULT 'scene-lab',
+    theme_style VARCHAR(50) NOT NULL DEFAULT 'DDL',
+    estimated_minutes INT NOT NULL DEFAULT 8,
+    difficulty_label VARCHAR(50) NOT NULL DEFAULT '普通',
+    reward_exp INT NOT NULL DEFAULT 0,
+    reward_title VARCHAR(50),
+    status INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE dungeon_task (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    dungeon_id BIGINT NOT NULL,
+    task_name VARCHAR(100) NOT NULL,
+    task_type VARCHAR(50) NOT NULL,
+    task_order INT NOT NULL,
+    scene_text TEXT NOT NULL,
+    target_text TEXT NOT NULL,
+    background_image VARCHAR(100) NOT NULL DEFAULT 'scene-lab',
+    minigame_type VARCHAR(50) NOT NULL DEFAULT 'none',
+    minigame_config TEXT,
+    timer_seconds INT,
+    settlement_rule TEXT,
+    random_enabled INT NOT NULL DEFAULT 0,
+    attribute_check_rule VARCHAR(255),
+    pass_condition VARCHAR(255),
+    required INT NOT NULL DEFAULT 1,
+    status INT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_dungeon_task_dungeon FOREIGN KEY (dungeon_id) REFERENCES dungeon(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE dungeon_task_option (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    dungeon_task_id BIGINT NOT NULL,
+    option_type VARCHAR(50) NOT NULL,
+    option_text VARCHAR(255) NOT NULL,
+    is_correct INT NOT NULL DEFAULT 0,
+    trigger_probability INT NOT NULL DEFAULT 100,
+    result_text TEXT NOT NULL,
+    evaluation VARCHAR(50) NOT NULL,
+    score INT NOT NULL DEFAULT 0,
+    academic_change INT NOT NULL DEFAULT 0,
+    health_change INT NOT NULL DEFAULT 0,
+    money_change INT NOT NULL DEFAULT 0,
+    social_change INT NOT NULL DEFAULT 0,
+    skill_change INT NOT NULL DEFAULT 0,
+    pressure_change INT NOT NULL DEFAULT 0,
+    discipline_change INT NOT NULL DEFAULT 0,
+    exp_change INT NOT NULL DEFAULT 0,
+    next_task_id BIGINT,
+    status INT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_dungeon_task_option_task FOREIGN KEY (dungeon_task_id) REFERENCES dungeon_task(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE user_dungeon_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    dungeon_id BIGINT NOT NULL,
+    current_task_id BIGINT,
+    status VARCHAR(20) NOT NULL DEFAULT 'IN_PROGRESS',
+    total_score INT NOT NULL DEFAULT 0,
+    risk_flags TEXT,
+    final_evaluation VARCHAR(100),
+    start_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    finish_time DATETIME,
+    CONSTRAINT fk_user_dungeon_record_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_user_dungeon_record_dungeon FOREIGN KEY (dungeon_id) REFERENCES dungeon(id),
+    CONSTRAINT fk_user_dungeon_record_task FOREIGN KEY (current_task_id) REFERENCES dungeon_task(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE user_dungeon_task_record (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_dungeon_record_id BIGINT NOT NULL,
+    dungeon_task_id BIGINT NOT NULL,
+    task_type VARCHAR(50) NOT NULL,
+    selected_option_id BIGINT,
+    random_result_id BIGINT,
+    minigame_result TEXT,
+    attribute_check_result VARCHAR(50),
+    result_text TEXT NOT NULL,
+    evaluation VARCHAR(50) NOT NULL,
+    score INT NOT NULL DEFAULT 0,
+    exp_change INT NOT NULL DEFAULT 0,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_user_dungeon_task_record_record FOREIGN KEY (user_dungeon_record_id) REFERENCES user_dungeon_record(id),
+    CONSTRAINT fk_user_dungeon_task_record_task FOREIGN KEY (dungeon_task_id) REFERENCES dungeon_task(id),
+    CONSTRAINT fk_user_dungeon_task_record_option FOREIGN KEY (selected_option_id) REFERENCES dungeon_task_option(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

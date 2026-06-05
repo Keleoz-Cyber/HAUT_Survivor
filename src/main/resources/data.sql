@@ -63,3 +63,47 @@ INSERT INTO event_option (id, event_id, option_text, result_text, academic_chang
 (34, 12, '按需取餐并完成节粮打卡', '你完成了节粮挑战，也更理解粮食来之不易。', 2, 0, 0, 0, 3, -1, 6, 24),
 (35, 12, '发布节粮倡议', '你的倡议被同学看到，影响力小小扩散。', 1, 0, 0, 5, 2, 0, 4, 20),
 (36, 12, '视而不见', '你没有额外行动，系统默默记下了这次选择。', 0, 0, 0, 0, 0, 0, -1, 2);
+
+UPDATE campus_location SET icon_key = 'building', background_image = 'scene-classroom', theme_color = '#2563eb' WHERE id = 1;
+UPDATE campus_location SET icon_key = 'book-open', background_image = 'scene-library', theme_color = '#0f766e' WHERE id = 2;
+UPDATE campus_location SET icon_key = 'bed', background_image = 'scene-dorm', theme_color = '#9333ea' WHERE id = 3;
+UPDATE campus_location SET icon_key = 'utensils', background_image = 'scene-canteen', theme_color = '#dc2626' WHERE id = 4;
+UPDATE campus_location SET icon_key = 'activity', background_image = 'scene-track', theme_color = '#16a34a' WHERE id = 5;
+UPDATE campus_location SET icon_key = 'code', background_image = 'scene-lab', theme_color = '#7c3aed' WHERE id = 6;
+UPDATE campus_location SET icon_key = 'users', background_image = 'scene-club', theme_color = '#ea580c' WHERE id = 7;
+UPDATE campus_location SET icon_key = 'package', background_image = 'scene-package', theme_color = '#0891b2' WHERE id = 8;
+
+UPDATE `event` SET scene_image = 'scene-classroom', mood_tag = '危机' WHERE id IN (1, 2);
+UPDATE `event` SET scene_image = 'scene-library', mood_tag = '紧张' WHERE id = 3;
+UPDATE `event` SET scene_image = 'scene-dorm', mood_tag = 'DDL' WHERE id IN (4, 11);
+UPDATE `event` SET scene_image = 'scene-canteen', mood_tag = '诱惑' WHERE id IN (5, 12);
+UPDATE `event` SET scene_image = 'scene-track', mood_tag = '挑战' WHERE id = 6;
+UPDATE `event` SET scene_image = 'scene-lab', mood_tag = '调试' WHERE id IN (7, 8);
+UPDATE `event` SET scene_image = 'scene-club', mood_tag = '社交' WHERE id = 9;
+UPDATE `event` SET scene_image = 'scene-package', mood_tag = '生活支线' WHERE id = 10;
+
+UPDATE event_option SET preview_text = '高压冲刺，保住学业', risk_level = 'medium' WHERE id = 1;
+UPDATE event_option SET preview_text = '依赖社交，风险较低', risk_level = 'low' WHERE id = 2;
+UPDATE event_option SET preview_text = '短期舒服，长期吃亏', risk_level = 'high' WHERE id = 3;
+UPDATE event_option SET preview_text = '稳妥定位，技能收益高', risk_level = 'low' WHERE id = 19;
+UPDATE event_option SET preview_text = '快但理解有限', risk_level = 'medium' WHERE id = 20;
+UPDATE event_option SET preview_text = '压力下降，进度坠落', risk_level = 'high' WHERE id = 21;
+
+INSERT INTO dungeon (id, dungeon_name, dungeon_type, description, cover_image, theme_style, estimated_minutes, difficulty_label, reward_exp, reward_title, status) VALUES
+(1, 'Java 课设：DDL 前夜', '课设', '答辩前夜，系统还差关键设计、数据库关系和 Bug 修复。你需要在压力爆表前让项目活下来。', 'scene-lab', 'DDL', 8, '普通', 180, 'DDL 幸存者', 1);
+
+INSERT INTO dungeon_task (id, dungeon_id, task_name, task_type, task_order, scene_text, target_text, background_image, minigame_type, minigame_config, timer_seconds, settlement_rule, random_enabled, attribute_check_rule, pass_condition, required, status) VALUES
+(1, 1, '需求风暴', 'single_choice', 1, '老师突然强调：系统不能只是普通任务管理，要体现校园特色、数据库设计和选择后果。你的项目说明文档还停留在“功能列表”阶段。', '选择一个课设救场策略。', 'scene-lab', 'none', NULL, NULL, '根据策略影响后续 Bug 风险和技能收益。', 0, NULL, 'score>=40', 1, 1),
+(2, 1, '数据库拼图', 'minigame', 2, '凌晨 1:17，实验室灯还亮着。用户、属性、事件、选项和副本任务之间的关系像被揉皱的草稿纸。', '用最少的混乱把核心表关系串起来。', 'scene-lab', 'db_link', 'user->player_attribute,event->event_option,dungeon->dungeon_task', 45, '根据选择的关系设计给出评分。技能高时收益更明显。', 0, 'skill>=50', 'score>=50', 1, 1),
+(3, 1, 'Bug 暴走', 'key_task', 3, '控制台连续报错，DDL 还剩最后一晚。你需要判断先修什么，否则页面可能在答辩现场沉默。', '在压力和技能之间做一次关键判断。', 'scene-lab', 'bug_hunt', 'mapper,template,sql', 60, '根据修复策略结算最终评价。', 1, 'pressure<85', 'score>=50', 1, 1);
+
+INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, is_correct, trigger_probability, result_text, evaluation, score, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change, next_task_id, status) VALUES
+(1, 1, 'strategy', '先压缩范围，只保留能演示的校园生存闭环', 1, 100, '你砍掉了花哨但来不及的内容，把课设目标收回到“地图-事件-副本”这条主线。', '优秀完成', 85, 4, 0, 0, 0, 6, -4, 5, 35, 2, 1),
+(2, 1, 'strategy', '继续堆功能，看看最后能不能都跑起来', 0, 100, '功能列表变长了，但每个模块都像半成品。你感觉答辩风险正在上升。', '勉强完成', 42, 2, -2, 0, 0, 2, 8, -2, 12, 2, 1),
+(3, 1, 'strategy', '先写报告，代码明天再抢救', 0, 100, '报告目录变整齐了，项目本体却还没准备好面对老师的鼠标。', '普通完成', 55, 3, 0, 0, 0, 1, 4, 1, 18, 2, 1),
+(4, 2, 'minigame_choice', 'user 连接 player_attribute，event 连接 event_option，dungeon 连接 dungeon_task', 1, 100, '核心关系终于顺了，后续页面和结算都有了落点。', '结构清晰', 90, 5, 0, 0, 0, 10, -5, 6, 45, 3, 1),
+(5, 2, 'minigame_choice', '所有表都先连 user，方便以后查询', 0, 100, '你得到了一个巨大中心表宇宙，查询好像方便了，但关系解释开始变得吃力。', '勉强完成', 45, 1, 0, 0, 0, 3, 6, -2, 15, 3, 1),
+(6, 2, 'minigame_choice', '先不管关系，页面能显示再说', 0, 100, '页面暂时能糊出来，但后续每个功能都在问你“我的数据从哪来”。', '表关系迷雾', 30, 0, -2, 0, 0, 1, 10, -4, 8, 3, 1),
+(7, 3, 'key_choice', '先看 SQL 和 Mapper，再看页面', 1, 100, '你定位到字段映射问题，控制台安静了很多。课设终于像一个项目了。', '课设战神预备役', 95, 6, -1, 0, 0, 12, -7, 5, 55, NULL, 1),
+(8, 3, 'key_choice', '先改页面样式，让它看起来像能跑', 0, 100, '页面变好看了，但控制台还在提醒你不要只装修入口。', '外观抢救成功', 62, 2, -1, 0, 0, 4, 2, 1, 28, NULL, 1),
+(9, 3, 'key_choice', '重启电脑，寄希望于玄学修复', 0, 100, '电脑重启了，Bug 也醒了。你获得了短暂的平静和更长的沉默。', '答辩沉默风险', 20, -3, 0, 0, 0, -2, 12, -5, 5, NULL, 1);

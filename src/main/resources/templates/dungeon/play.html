@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>副本进行中 - HAUT Survivor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body class="survivor-body">
+<div th:replace="~{fragments/layout :: nav}"></div>
+<main class="container app-shell">
+    <section class="event-stage scene-lab">
+        <div class="event-card">
+            <div class="event-card__meta">
+                <span th:text="${dungeon.dungeonName}">副本</span>
+                <span th:text="|阶段 ${task.taskOrder}|">阶段</span>
+                <span th:if="${task.timerSeconds}" th:text="|倒计时 ${task.timerSeconds} 秒|">倒计时</span>
+            </div>
+            <h1 th:text="${task.taskName}">阶段任务</h1>
+            <p class="event-card__story" th:text="${task.sceneText}">情境</p>
+            <p class="dungeon-target" th:text="${task.targetText}">目标</p>
+
+            <div class="minigame-board" th:if="${isMinigameTask}">
+                <p>数据库拼图</p>
+                <div>
+                    <span>user</span>
+                    <span>player_attribute</span>
+                    <span>event</span>
+                    <span>event_option</span>
+                    <span>dungeon_task</span>
+                </div>
+            </div>
+
+            <div class="attribute-strip">
+                <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
+                <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
+                <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
+                <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
+            </div>
+
+            <form th:if="${isMinigameTask}" class="relation-game" method="post"
+                  th:action="@{/dungeons/demo/task/{taskId}/minigame(taskId=${task.id})}">
+                <input id="elapsedSeconds" type="hidden" name="elapsedSeconds" value="0">
+                <div class="relation-game__top">
+                    <strong>选择你认为正确的表关系</strong>
+                    <span id="timerText" th:text="|剩余 ${task.timerSeconds} 秒|">剩余 45 秒</span>
+                </div>
+                <label th:each="relation : ${relationChoices}" class="relation-choice">
+                    <input type="checkbox" name="selectedRelations" th:value="${relation}">
+                    <span th:text="${relation}">user-&gt;player_attribute</span>
+                </label>
+                <button class="btn btn-light mt-3" type="submit">提交数据库设计</button>
+            </form>
+
+            <div class="event-options" th:unless="${isMinigameTask}">
+                <form th:each="option : ${options}" method="post" th:action="@{/dungeons/demo/task/{taskId}/option/{optionId}(taskId=${task.id}, optionId=${option.id})}">
+                    <input type="hidden" name="minigameResult" th:value="|task=${task.minigameType};option=${option.id}|">
+                    <button type="submit" class="event-option" th:classappend="${option.isCorrect == 1 ? 'risk-low' : 'risk-medium'}">
+                        <strong th:text="${option.optionText}">选项</strong>
+                        <span th:text="|${option.evaluation} / ${option.score} 分|">评价</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+</main>
+<script th:if="${isMinigameTask}" th:inline="javascript">
+    const limitSeconds = /*[[${task.timerSeconds}]]*/ 45;
+    const startTime = Date.now();
+    const timerText = document.getElementById('timerText');
+    const elapsedInput = document.getElementById('elapsedSeconds');
+
+    window.setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const remaining = Math.max(0, limitSeconds - elapsed);
+        elapsedInput.value = String(elapsed);
+        timerText.textContent = `剩余 ${remaining} 秒`;
+    }, 500);
+</script>
+</body>
+</html>

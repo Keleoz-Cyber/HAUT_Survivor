@@ -6,15 +6,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("event_option")
-public class EventOption {
+@TableName("dungeon_task_option")
+public class DungeonTaskOption {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private Long eventId;
+    private Long dungeonTaskId;
+    private String optionType;
     private String optionText;
-    private String previewText;
-    private String riskLevel;
+    private Integer isCorrect;
+    private Integer triggerProbability;
     private String resultText;
+    private String evaluation;
+    private Integer score;
     private Integer academicChange;
     private Integer healthChange;
     private Integer moneyChange;
@@ -23,4 +26,6 @@ public class EventOption {
     private Integer pressureChange;
     private Integer disciplineChange;
     private Integer expChange;
+    private Long nextTaskId;
+    private Integer status;
 }

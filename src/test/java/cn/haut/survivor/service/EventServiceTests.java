@@ -2,6 +2,7 @@ package cn.haut.survivor.service;
 
 import cn.haut.survivor.domain.entity.CampusLocation;
 import cn.haut.survivor.domain.entity.Event;
+import cn.haut.survivor.domain.entity.EventOption;
 import cn.haut.survivor.domain.entity.EventRecord;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
@@ -53,6 +54,19 @@ class EventServiceTests {
 
         assertThat(locations).hasSize(8);
         assertThat(locations).extracting(CampusLocation::getLocationName).contains("教学楼", "实验室", "快递站");
+        assertThat(locations).extracting(CampusLocation::getIconKey).contains("building", "code", "package");
+        assertThat(locations).extracting(CampusLocation::getBackgroundImage).allMatch(value -> value.startsWith("scene-"));
+        assertThat(locations).extracting(CampusLocation::getThemeColor).contains("#2563eb", "#7c3aed", "#0891b2");
+    }
+
+    @Test
+    void eventOptionsExposePreviewAndRiskMetadata() {
+        List<EventOption> options = eventService.listOptions(7L);
+
+        assertThat(options).extracting(EventOption::getPreviewText)
+                .contains("稳妥定位，技能收益高");
+        assertThat(options).extracting(EventOption::getRiskLevel)
+                .contains("low", "medium", "high");
     }
 
     @Test

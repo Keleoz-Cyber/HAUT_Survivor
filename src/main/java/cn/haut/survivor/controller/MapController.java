@@ -4,6 +4,8 @@ import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.CampusLocation;
 import cn.haut.survivor.domain.entity.Event;
 import cn.haut.survivor.domain.entity.EventRecord;
+import cn.haut.survivor.domain.entity.PlayerAttribute;
+import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.PlayerService;
 import jakarta.servlet.http.HttpSession;
@@ -32,7 +34,12 @@ public class MapController {
         if (!playerService.hasProfile(userId)) {
             return "redirect:/player/create";
         }
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
         model.addAttribute("locations", eventService.listEnabledLocations());
+        model.addAttribute("profile", profile);
+        model.addAttribute("attribute", attribute);
+        model.addAttribute("statusLines", buildStatusLines(profile, attribute));
         return "map/index";
     }
 
@@ -53,6 +60,7 @@ public class MapController {
         model.addAttribute("event", event);
         model.addAttribute("options", eventService.listOptions(event.getId()));
         model.addAttribute("location", findLocation(locationId));
+        model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         return "map/event";
     }
 
@@ -76,5 +84,17 @@ public class MapController {
 
     private Long currentUserId(HttpSession session) {
         return (Long) session.getAttribute(LoginInterceptor.LOGIN_USER_ID);
+    }
+
+    private List<String> buildStatusLines(PlayerProfile profile, PlayerAttribute attribute) {
+        String pressureLine = attribute.getPressure() >= 75 ? "压力警报" : "压力可控";
+        String healthLine = attribute.getHealth() < 45 ? "健康偏低" : "还能行动";
+        String ddlLine = profile.getCurrentWeek() >= 12 ? "DDL 高发期" : "日常探索";
+        return List.of(
+                "第 " + profile.getCurrentWeek() + " 周",
+                pressureLine + " " + attribute.getPressure(),
+                healthLine + " " + attribute.getHealth(),
+                ddlLine
+        );
     }
 }

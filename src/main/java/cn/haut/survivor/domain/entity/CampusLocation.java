@@ -13,5 +13,8 @@ public class CampusLocation {
     private String locationName;
     private String campus;
     private String description;
+    private String iconKey;
+    private String backgroundImage;
+    private String themeColor;
     private Integer status;
 }
