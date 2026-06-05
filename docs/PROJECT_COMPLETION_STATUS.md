@@ -7,7 +7,7 @@
 
 当前项目已经完成一个可运行、可演示的 HAUT Survivor Demo，并完成了一轮“可玩性增强”。它已经不只是普通 CRUD 项目，核心演示流程包含校园地图、随机事件、角色属性、副本挑战、数据库拼图小游戏、过程标签和最终评价。
 
-但它还没有达到“内容丰富、可反复游玩”的完整游戏化系统。下一阶段重点应继续补地图随机性、Bug 定位小游戏、视觉素材、结局图鉴和内容密度。
+但它还没有达到“内容丰富、可反复游玩”的完整游戏化系统。产品方向现已升级为“周回合制大学生模拟器”：下一阶段重点应建立行动点、组织、探索、随机事件、Bug 定位小游戏、视觉素材和多路线结局。
 
 ## 当前运行状态
 
@@ -257,22 +257,15 @@ docs/requirements/05-data-and-technical-design.md
 docs/requirements/06-ui-ux-and-visual-design.md
 docs/requirements/07-roadmap-and-acceptance.md
 docs/requirements/08-content-library.md
+docs/requirements/09-semester-sim-design.md
 docs/PROJECT_COMPLETION_STATUS.md
 docs/NEXT_AI_HANDOFF.md
 ```
 
-已新增本次任务追踪文件：
+原始大文档已归档保留：
 
 ```text
-task_plan.md
-findings.md
-progress.md
-```
-
-原始大文档仍保留：
-
-```text
-HAUT_Survivor_Requirements.md
+docs/archive/HAUT_Survivor_Requirements.full.md
 ```
 
 建议后续开发优先读 `docs/requirements/README.md`，不要再把根目录大文档作为唯一上下文入口。
@@ -281,16 +274,16 @@ HAUT_Survivor_Requirements.md
 
 按优先级排序：
 
-1. 地图事件随机化和事件池扩充；
-2. Bug 暴走升级为 Bug 定位小游戏；
-3. 地图、事件、副本增加视觉背景；
-4. 副本结局图鉴和重玩提示；
-5. 扩充默认事件、成就、结局文案；
-6. 完整版后台 CRUD；
-7. 成就称号；
-8. 成长报告；
-9. 数据统计图表；
-10. 其他副本。
+1. 周回合制行动点和周次系统；
+2. 组织系统 MVP，例如学生会、实验室小组；
+3. 地点探索系统 MVP；
+4. 地图事件随机化和事件池扩充；
+5. Bug 暴走升级为 Bug 定位小游戏；
+6. 地图、事件、副本增加视觉背景；
+7. 副本结局图鉴和重玩提示；
+8. 扩充默认事件、成就、结局文案；
+9. 完整版后台 CRUD；
+10. 成就称号、成长报告、统计图表和其他副本。
 
 ## 当前风险
 
@@ -299,19 +292,20 @@ HAUT_Survivor_Requirements.md
 | 文档和实现都较多 | 新 AI 容易迷路 | 先读 handoff 和 requirements index |
 | 工作区存在大量未提交文件 | 容易误删或覆盖 | 接手前先 `git status -sb` |
 | `.claude/` 是未跟踪目录 | 可能是用户工具配置 | 不要触碰，除非用户明确要求 |
-| Demo 可玩性还集中在 Java 副本 | 系统整体仍可能显单调 | 下一步优先增强地图和 Bug 小游戏 |
+| Demo 可玩性还集中在 Java 副本 | 系统整体仍可能显单调 | 下一步优先建立周回合制主循环、组织和探索 |
 | 管理后台不完整 | 完整版仍缺很多 CRUD | 不要现在优先做，先补玩家体验 |
 
 ## 建议下一步
 
 推荐开一个新实施计划：
 
-> Map Random Events And Bug Minigame Upgrade
+> Semester Simulation Core Upgrade
 
 目标：
 
-1. 每个核心地点支持多个随机事件；
-2. 实验室和图书馆先做成重点地点；
-3. Bug 暴走改为 Bug 定位小游戏；
-4. 结果页显示更清晰的属性变化和后续影响；
-5. 补充基础视觉背景。
+1. 建立当前周次和本周行动点；
+2. 地图行动、副本推进、探索行动消耗行动点；
+3. 先实现学生会和实验室小组两个组织；
+4. 先实现图书馆、实验室、食堂、社团活动区探索度；
+5. 后续把 Bug 暴走改为 Bug 定位小游戏；
+6. 补充基础视觉背景和多路线结局。

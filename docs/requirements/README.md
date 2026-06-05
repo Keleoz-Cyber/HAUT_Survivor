@@ -28,6 +28,9 @@
 8. [08-content-library.md](./08-content-library.md)  
    默认地点、事件、副本、结局、文案素材和后续内容补充方向。
 
+9. [09-semester-sim-design.md](./09-semester-sim-design.md)
+   周回合制大学生模拟器设计，包括组织、探索、关系、随机事件、当代校园元素和多路线结局。
+
 ## 配套移交文档
 
 - [../PROJECT_COMPLETION_STATUS.md](../PROJECT_COMPLETION_STATUS.md)  
@@ -38,4 +41,4 @@
 
 ## 当前阶段判断
 
-当前项目已经完成一个可演示的 Spring Boot Demo，并完成了一轮可玩性增强。后续重点不应继续堆普通 CRUD，而应优先增强地图随机事件、Bug 定位小游戏、视觉素材、结局图鉴和内容密度。
+当前项目已经完成一个可演示的 Spring Boot Demo，并完成了一轮可玩性增强。后续产品方向已升级为“周回合制大学生模拟器”：不应继续堆普通 CRUD，而应优先建立行动点、组织、探索、随机事件、Bug 定位小游戏和多路线结局等养成玩法。
