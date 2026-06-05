@@ -5,6 +5,7 @@ import cn.haut.survivor.domain.entity.DungeonTask;
 import cn.haut.survivor.domain.entity.DungeonTaskOption;
 import cn.haut.survivor.domain.entity.UserDungeonRecord;
 import cn.haut.survivor.domain.entity.UserDungeonTaskRecord;
+import cn.haut.survivor.service.DungeonService.BugQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,37 +113,107 @@ class DungeonServiceTests {
         assertThat(updatedRecord.getRiskFlags()).contains("scope_sprawl", "schema_mist");
     }
 
+    // ==================== Bug Hunt 小游戏测试 ====================
+
     @Test
-    void strongRunKeepsCompletedRecordAndProducesWarriorEnding() {
+    void generateBugQuestionsReturnsThreeFromPool() {
+        List<BugQuestion> questions = dungeonService.generateBugQuestions();
+
+        assertThat(questions).hasSize(3);
+        assertThat(questions).allMatch(q -> q.symptom() != null && !q.symptom().isBlank());
+        assertThat(questions).allMatch(q -> q.options().size() == 4);
+        assertThat(questions).allMatch(q -> q.correctIndex() >= 0 && q.correctIndex() < 4);
+    }
+
+    @Test
+    void bugHuntAllCorrectProducesHighScore() {
+        // 完成前两阶段
         UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
         UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
-        UserDungeonRecord finalStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
 
-        dungeonService.chooseOption(2L, finalStageRecord.getId(), 3L, 7L, null);
+        // 提交全部正确答案：题目 0→1, 1→0, 2→0
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
+                2L, bugStageRecord.getId(), 3L,
+                List.of(0, 1, 2), List.of(1, 0, 0), 20);
 
-        UserDungeonRecord completedRecord = dungeonService.findRecordById(2L, finalStageRecord.getId());
-        assertThat(completedRecord.getStatus()).isEqualTo("COMPLETED");
-        assertThat(completedRecord.getFinalEvaluation()).isEqualTo("\u8bfe\u8bbe\u6218\u795e");
-        assertThat(completedRecord.getRiskFlags()).contains("scope_controlled", "schema_clear");
+        assertThat(taskRecord.getScore()).isGreaterThanOrEqualTo(80);
+        assertThat(taskRecord.getEvaluation()).isEqualTo("Bug 猎人");
+        assertThat(taskRecord.getResultText()).contains("控制台终于安静了");
     }
 
     @Test
-    void weakRunWithSchemaMistProducesSilentEnding() {
+    void bugHuntSomeWrongProducesMediumScore() {
+        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseOption(2L, record.getId(), 1L, 3L, null);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
+                List.of("user->player_attribute"), 40);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+
+        // 只答对 1 题：题目 0→1（正确）, 1→99（错误）, 2→99（错误）
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
+                2L, bugStageRecord.getId(), 3L,
+                List.of(0, 1, 2), List.of(1, 3, 3), 40);
+
+        assertThat(taskRecord.getScore()).isBetween(20, 70);
+        assertThat(taskRecord.getEvaluation()).isIn("勉强修复", "Bug 反杀");
+    }
+
+    @Test
+    void bugHuntAllWrongProducesLowScore() {
         UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
         UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->event"), 70);
-        UserDungeonRecord finalStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
 
-        dungeonService.chooseOption(2L, finalStageRecord.getId(), 3L, 8L, null);
+        // 全部答错
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
+                2L, bugStageRecord.getId(), 3L,
+                List.of(0, 1, 2), List.of(3, 3, 3), 70);
 
-        UserDungeonRecord completedRecord = dungeonService.findRecordById(2L, finalStageRecord.getId());
+        assertThat(taskRecord.getScore()).isLessThan(50);
+        assertThat(taskRecord.getEvaluation()).isEqualTo("Bug 反杀");
+    }
+
+    @Test
+    void strongRunWithBugHuntProducesWarriorEnding() {
+        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
+                List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+
+        dungeonService.chooseBugHunt(2L, bugStageRecord.getId(), 3L,
+                List.of(0, 1, 2), List.of(1, 0, 0), 20);
+
+        UserDungeonRecord completedRecord = dungeonService.findRecordById(2L, bugStageRecord.getId());
         assertThat(completedRecord.getStatus()).isEqualTo("COMPLETED");
-        assertThat(completedRecord.getRiskFlags()).contains("scope_sprawl", "schema_mist");
-        assertThat(completedRecord.getFinalEvaluation()).isEqualTo("\u7b54\u8fa9\u6c89\u9ed8\u73b0\u573a");
+        assertThat(completedRecord.getFinalEvaluation()).isEqualTo("课设战神");
+        assertThat(completedRecord.getRiskFlags()).contains("scope_controlled", "schema_clear", "bug_crushed");
+    }
+
+    @Test
+    void weakRunWithBugAvalancheProducesSilentEnding() {
+        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
+                List.of("user->event"), 70);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+
+        dungeonService.chooseBugHunt(2L, bugStageRecord.getId(), 3L,
+                List.of(0, 1, 2), List.of(3, 3, 3), 70);
+
+        UserDungeonRecord completedRecord = dungeonService.findRecordById(2L, bugStageRecord.getId());
+        assertThat(completedRecord.getStatus()).isEqualTo("COMPLETED");
+        assertThat(completedRecord.getRiskFlags()).contains("scope_sprawl", "schema_mist", "bug_avalanche");
+        assertThat(completedRecord.getFinalEvaluation()).isEqualTo("答辩沉默现场");
     }
 }

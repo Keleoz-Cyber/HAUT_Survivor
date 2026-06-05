@@ -70,8 +70,16 @@ public class DungeonController {
         model.addAttribute("task", task);
         model.addAttribute("options", dungeonService.listOptions(task.getId()));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-        model.addAttribute("isMinigameTask", "db_link".equals(task.getMinigameType()));
+
+        String minigameType = task.getMinigameType();
+        model.addAttribute("isMinigameTask", "db_link".equals(minigameType));
+        model.addAttribute("isBugHuntTask", "bug_hunt".equals(minigameType));
         model.addAttribute("relationChoices", RELATION_CHOICES);
+
+        if ("bug_hunt".equals(minigameType)) {
+            model.addAttribute("bugQuestions", dungeonService.generateBugQuestions());
+        }
+
         return "dungeon/play";
     }
 
@@ -106,6 +114,27 @@ public class DungeonController {
         UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(userId, record.getId(), taskId,
                 selectedRelations == null ? List.of() : selectedRelations, elapsedSeconds);
+        UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
+
+        model.addAttribute("taskRecord", taskRecord);
+        model.addAttribute("record", updatedRecord);
+        model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+        return "dungeon/result";
+    }
+
+    @PostMapping("/dungeons/demo/task/{taskId}/bughunt")
+    public String submitBugHunt(
+            @PathVariable Long taskId,
+            @RequestParam("questionIds") List<Integer> questionIds,
+            @RequestParam("answers") List<Integer> answers,
+            @RequestParam(required = false) Integer elapsedSeconds,
+            HttpSession session,
+            Model model
+    ) {
+        Long userId = currentUserId(session);
+        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
+                userId, record.getId(), taskId, questionIds, answers, elapsedSeconds);
         UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
 
         model.addAttribute("taskRecord", taskRecord);

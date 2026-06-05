@@ -23,9 +23,14 @@
             </div>
             <div th:if="${record.status == 'COMPLETED'}">
                 <p class="dungeon-target" th:text="|最终评价：${record.finalEvaluation}|">最终评价</p>
-                <p class="dungeon-target" th:if="${record.riskFlags != null and !record.riskFlags.isBlank()}"
-                   th:text="|过程标签：${record.riskFlags}|">过程标签</p>
+                <p class="dungeon-target mb-2">过程标签</p>
+                    <div th:if="${record.riskFlags != null and !record.riskFlags.isBlank()}" class="mb-3">
+                    <span class="risk-flag" th:each="flag : ${#strings.arraySplit(record.riskFlags, ',')}"
+                          th:classappend="${flag == 'scope_sprawl' or flag == 'schema_mist' or flag == 'bug_avalanche'} ? 'flag-bad'"
+                          th:text="${flag}">标签</span>
+                </div>
                 <a href="/dungeons" class="btn btn-light">回到副本列表</a>
+                <a href="/map" class="btn btn-outline-light">回地图继续</a>
             </div>
             <div th:unless="${record.status == 'COMPLETED'}">
                 <a href="/dungeons/demo/play" class="btn btn-light">进入下一阶段</a>

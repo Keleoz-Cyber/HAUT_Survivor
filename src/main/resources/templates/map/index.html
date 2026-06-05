@@ -36,6 +36,7 @@
                 <p class="location-node__campus" th:text="${location.campus}">莲花街校区</p>
                 <h2 th:text="${location.locationName}">地点</h2>
                 <p th:text="${location.description}">描述</p>
+                <p class="location-node__event-hint" th:text="|可能有事件发生|">可能有事件发生</p>
             </div>
             <a class="location-node__action" th:href="@{/map/location/{id}/event(id=${location.id})}">行动</a>
         </article>

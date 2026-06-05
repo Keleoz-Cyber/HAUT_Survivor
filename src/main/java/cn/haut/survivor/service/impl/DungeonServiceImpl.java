@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Comparator;
 import java.util.List;
@@ -32,6 +34,30 @@ public class DungeonServiceImpl implements DungeonService {
 
     private static final String IN_PROGRESS = "IN_PROGRESS";
     private static final String COMPLETED = "COMPLETED";
+
+    // Bug 定位题库：5 道题，每次随机抽 3 道
+    private static final List<BugQuestion> ALL_BUG_QUESTIONS = List.of(
+            new BugQuestion(0,
+                    "提交事件选项后页面显示 404",
+                    List.of("数据库连接失败", "Controller 路径或表单 action 不一致", "前端 CSS 加载错误", "用户 Session 过期"),
+                    1),
+            new BugQuestion(1,
+                    "数据库字段读出来全是 null",
+                    List.of("实体字段和数据库列名映射不一致", "页面渲染模板错误", "Service 层未调用 Mapper", "MySQL 服务未启动"),
+                    0),
+            new BugQuestion(2,
+                    "启动报错：Mapper 无法注入",
+                    List.of("Mapper 接口未加 @Mapper 或未配置扫描", "数据库密码错误", "Controller 路径冲突", "Thymeleaf 模板语法错误"),
+                    0),
+            new BugQuestion(3,
+                    "启动失败：端口 8080 已被占用",
+                    List.of("application.yml 配置语法错误", "MySQL 占用了 8080", "防火墙拦截请求", "上一个 Spring Boot 进程未关闭"),
+                    3),
+            new BugQuestion(4,
+                    "选择事件选项后属性值没有变化",
+                    List.of("前端表单提交地址错误", "数据库字段类型不匹配", "Service 方法中没有调用 updateById", "Thymeleaf 缓存问题"),
+                    2)
+    );
 
     private final DungeonMapper dungeonMapper;
     private final DungeonTaskMapper dungeonTaskMapper;
@@ -161,15 +187,7 @@ public class DungeonServiceImpl implements DungeonService {
 
         record.setTotalScore(record.getTotalScore() + option.getScore());
         applyOptionFlags(record, task, option);
-        DungeonTask nextTask = findNextTask(task, option);
-        if (nextTask == null) {
-            record.setCurrentTaskId(null);
-            record.setStatus(COMPLETED);
-            record.setFinalEvaluation(buildFinalEvaluation(record));
-            record.setFinishTime(LocalDateTime.now());
-        } else {
-            record.setCurrentTaskId(nextTask.getId());
-        }
+        advanceToNextTask(record, task);
         userDungeonRecordMapper.updateById(record);
         return taskRecord;
     }
@@ -193,140 +211,111 @@ public class DungeonServiceImpl implements DungeonService {
         MinigameSettlement settlement = settleDatabaseLinks(userId, record, selectedRelations, elapsedSeconds);
         applyDynamicRewards(userId, settlement);
 
-        UserDungeonTaskRecord taskRecord = new UserDungeonTaskRecord();
-        taskRecord.setUserDungeonRecordId(record.getId());
-        taskRecord.setDungeonTaskId(task.getId());
-        taskRecord.setTaskType(task.getTaskType());
-        taskRecord.setMinigameResult("relations=" + String.join("|", selectedRelations == null ? List.of() : selectedRelations)
-                + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
-        taskRecord.setAttributeCheckResult(settlement.score >= 80 ? "excellent" : settlement.score >= 50 ? "pass" : "fail");
-        taskRecord.setResultText(settlement.resultText);
-        taskRecord.setEvaluation(settlement.evaluation);
-        taskRecord.setScore(settlement.score);
-        taskRecord.setExpChange(settlement.expChange);
-        taskRecord.setCreateTime(LocalDateTime.now());
+        UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
+                "relations=" + String.join("|", selectedRelations == null ? List.of() : selectedRelations)
+                        + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
         userDungeonTaskRecordMapper.insert(taskRecord);
 
         record.setTotalScore(record.getTotalScore() + settlement.score);
         addRiskFlag(record, settlement.flag);
-        DungeonTask nextTask = findNextTask(task, new DungeonTaskOption());
-        if (nextTask == null) {
-            record.setCurrentTaskId(null);
-            record.setStatus(COMPLETED);
-            record.setFinalEvaluation(buildFinalEvaluation(record));
-            record.setFinishTime(LocalDateTime.now());
-        } else {
-            record.setCurrentTaskId(nextTask.getId());
-        }
+        advanceToNextTask(record, task);
         userDungeonRecordMapper.updateById(record);
         return taskRecord;
     }
 
-    private void applyOptionFlags(UserDungeonRecord record, DungeonTask task, DungeonTaskOption option) {
-        if (task.getTaskOrder() == 1) {
-            if (option.getScore() >= 80) {
-                addRiskFlag(record, "scope_controlled");
-            } else if (option.getScore() < 50) {
-                addRiskFlag(record, "scope_sprawl");
-            } else {
-                addRiskFlag(record, "report_first");
+    @Override
+    public List<BugQuestion> generateBugQuestions() {
+        List<BugQuestion> shuffled = new ArrayList<>(ALL_BUG_QUESTIONS);
+        Collections.shuffle(shuffled);
+        return shuffled.subList(0, 3);
+    }
+
+    @Override
+    @Transactional
+    public UserDungeonTaskRecord chooseBugHunt(Long userId, Long recordId, Long taskId,
+                                                List<Integer> questionIds, List<Integer> answers,
+                                                Integer elapsedSeconds) {
+        UserDungeonRecord record = requireRecord(userId, recordId);
+        if (!IN_PROGRESS.equals(record.getStatus())) {
+            throw new IllegalArgumentException("副本已经结束");
+        }
+        if (!taskId.equals(record.getCurrentTaskId())) {
+            throw new IllegalArgumentException("只能结算当前阶段任务");
+        }
+        DungeonTask task = requireTask(taskId);
+        if (!"bug_hunt".equals(task.getMinigameType())) {
+            throw new IllegalArgumentException("当前阶段不是 Bug 定位小游戏");
+        }
+
+        MinigameSettlement settlement = settleBugHunt(userId, record, questionIds, answers, elapsedSeconds);
+        applyDynamicRewards(userId, settlement);
+
+        UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
+                "correct=" + settlement.score + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
+        userDungeonTaskRecordMapper.insert(taskRecord);
+
+        record.setTotalScore(record.getTotalScore() + settlement.score);
+        addRiskFlag(record, settlement.flag);
+        advanceToNextTask(record, task);
+        userDungeonRecordMapper.updateById(record);
+        return taskRecord;
+    }
+
+    // ==================== Bug Hunt 结算 ====================
+
+    private MinigameSettlement settleBugHunt(Long userId, UserDungeonRecord record,
+                                              List<Integer> questionIds, List<Integer> answers,
+                                              Integer elapsedSeconds) {
+        int correctCount = 0;
+        for (int i = 0; i < questionIds.size() && i < answers.size(); i++) {
+            int qId = questionIds.get(i);
+            if (qId >= 0 && qId < ALL_BUG_QUESTIONS.size()) {
+                BugQuestion question = ALL_BUG_QUESTIONS.get(qId);
+                if (answers.get(i) == question.correctIndex()) {
+                    correctCount++;
+                }
             }
         }
-    }
 
-    private void addRiskFlag(UserDungeonRecord record, String flag) {
-        String existing = record.getRiskFlags() == null ? "" : record.getRiskFlags();
-        if (("," + existing + ",").contains("," + flag + ",")) {
-            return;
+        int score = correctCount * 30;
+        int elapsed = elapsedSeconds == null ? 60 : elapsedSeconds;
+        if (elapsed <= 30) {
+            score += 10;
+        } else if (elapsed > 60) {
+            score -= 10;
         }
-        record.setRiskFlags(existing.isBlank() ? flag : existing + "," + flag);
-    }
 
-    private boolean hasRiskFlag(UserDungeonRecord record, String flag) {
-        String existing = record == null || record.getRiskFlags() == null ? "" : record.getRiskFlags();
-        return ("," + existing + ",").contains("," + flag + ",");
-    }
-
-    private Dungeon requireDemoDungeon() {
-        Dungeon dungeon = findDemoDungeon();
-        if (dungeon == null) {
-            throw new IllegalStateException("Demo 副本不存在");
-        }
-        return dungeon;
-    }
-
-    private UserDungeonRecord requireRecord(Long userId, Long recordId) {
-        UserDungeonRecord record = userDungeonRecordMapper.selectById(recordId);
-        if (record == null || !record.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("副本记录不存在");
-        }
-        return record;
-    }
-
-    private DungeonTask requireTask(Long taskId) {
-        DungeonTask task = dungeonTaskMapper.selectById(taskId);
-        if (task == null) {
-            throw new IllegalArgumentException("副本阶段不存在");
-        }
-        return task;
-    }
-
-    private DungeonTaskOption requireOption(Long taskId, Long optionId) {
-        DungeonTaskOption option = dungeonTaskOptionMapper.selectById(optionId);
-        if (option == null || !option.getDungeonTaskId().equals(taskId)) {
-            throw new IllegalArgumentException("副本选项不存在");
-        }
-        return option;
-    }
-
-    private DungeonTask findNextTask(DungeonTask task, DungeonTaskOption option) {
-        if (option.getNextTaskId() != null) {
-            return dungeonTaskMapper.selectById(option.getNextTaskId());
-        }
-        return listTasks(task.getDungeonId()).stream()
-                .filter(candidate -> candidate.getTaskOrder() > task.getTaskOrder())
-                .min(Comparator.comparing(DungeonTask::getTaskOrder))
-                .orElse(null);
-    }
-
-    private void applyRewards(Long userId, DungeonTaskOption option) {
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
-        PlayerProfile profile = playerService.findProfileByUserId(userId);
-        if (attribute == null || profile == null) {
-            throw new IllegalArgumentException("角色不存在");
+        if (attribute != null && attribute.getSkill() >= 50) {
+            score += 8;
         }
+        if (hasRiskFlag(record, "schema_clear")) {
+            score += 8;
+        }
+        if (hasRiskFlag(record, "schema_mist")) {
+            score -= 15;
+        }
+        if (hasRiskFlag(record, "scope_sprawl")) {
+            score -= 10;
+        }
+        score = Math.max(0, Math.min(100, score));
 
-        attribute.setAcademic(clamp(attribute.getAcademic() + option.getAcademicChange()));
-        attribute.setHealth(clamp(attribute.getHealth() + option.getHealthChange()));
-        attribute.setMoney(clamp(attribute.getMoney() + option.getMoneyChange()));
-        attribute.setSocial(clamp(attribute.getSocial() + option.getSocialChange()));
-        attribute.setSkill(clamp(attribute.getSkill() + option.getSkillChange()));
-        attribute.setPressure(clamp(attribute.getPressure() + option.getPressureChange()));
-        attribute.setDiscipline(clamp(attribute.getDiscipline() + option.getDisciplineChange()));
-        attribute.setUpdateTime(LocalDateTime.now());
-        playerAttributeMapper.updateById(attribute);
-
-        profile.setExp(profile.getExp() + option.getExpChange());
-        playerProfileMapper.updateById(profile);
+        if (score >= 80) {
+            return new MinigameSettlement(score, "Bug 猎人",
+                    "你精准定位了关键 Bug，控制台终于安静了。答辩前夜，你第一次觉得项目真的能跑。",
+                    "bug_crushed", 3, -1, 12, -8, 5, 50);
+        }
+        if (score >= 50) {
+            return new MinigameSettlement(score, "勉强修复",
+                    "部分 Bug 被修掉了，但还有几个隐患在暗处等待。答辩时祈祷老师别点得太深。",
+                    "bug_survived", 1, 0, 5, 3, 1, 25);
+        }
+        return new MinigameSettlement(score, "Bug 反杀",
+                "Bug 没修掉几个，还引入了新的。控制台比之前更红了。",
+                "bug_avalanche", -2, -2, -3, 12, -4, 8);
     }
 
-    private void applyDynamicRewards(Long userId, MinigameSettlement settlement) {
-        PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
-        PlayerProfile profile = playerService.findProfileByUserId(userId);
-        if (attribute == null || profile == null) {
-            throw new IllegalArgumentException("角色不存在");
-        }
-        attribute.setAcademic(clamp(attribute.getAcademic() + settlement.academicChange));
-        attribute.setHealth(clamp(attribute.getHealth() + settlement.healthChange));
-        attribute.setSkill(clamp(attribute.getSkill() + settlement.skillChange));
-        attribute.setPressure(clamp(attribute.getPressure() + settlement.pressureChange));
-        attribute.setDiscipline(clamp(attribute.getDiscipline() + settlement.disciplineChange));
-        attribute.setUpdateTime(LocalDateTime.now());
-        playerAttributeMapper.updateById(attribute);
-
-        profile.setExp(profile.getExp() + settlement.expChange);
-        playerProfileMapper.updateById(profile);
-    }
+    // ==================== 数据库拼图结算 ====================
 
     private MinigameSettlement settleDatabaseLinks(Long userId, UserDungeonRecord record,
                                                    List<String> selectedRelations, Integer elapsedSeconds) {
@@ -369,6 +358,135 @@ public class DungeonServiceImpl implements DungeonService {
                 "schema_mist", 0, -2, 1, 10, -4, 8);
     }
 
+    // ==================== 共享逻辑 ====================
+
+    private void applyOptionFlags(UserDungeonRecord record, DungeonTask task, DungeonTaskOption option) {
+        if (task.getTaskOrder() == 1) {
+            if (option.getScore() >= 80) {
+                addRiskFlag(record, "scope_controlled");
+            } else if (option.getScore() < 50) {
+                addRiskFlag(record, "scope_sprawl");
+            } else {
+                addRiskFlag(record, "report_first");
+            }
+        }
+    }
+
+    private void addRiskFlag(UserDungeonRecord record, String flag) {
+        String existing = record.getRiskFlags() == null ? "" : record.getRiskFlags();
+        if (("," + existing + ",").contains("," + flag + ",")) {
+            return;
+        }
+        record.setRiskFlags(existing.isBlank() ? flag : existing + "," + flag);
+    }
+
+    private boolean hasRiskFlag(UserDungeonRecord record, String flag) {
+        String existing = record == null || record.getRiskFlags() == null ? "" : record.getRiskFlags();
+        return ("," + existing + ",").contains("," + flag + ",");
+    }
+
+    private void advanceToNextTask(UserDungeonRecord record, DungeonTask currentTask) {
+        DungeonTask nextTask = listTasks(currentTask.getDungeonId()).stream()
+                .filter(candidate -> candidate.getTaskOrder() > currentTask.getTaskOrder())
+                .min(Comparator.comparing(DungeonTask::getTaskOrder))
+                .orElse(null);
+        if (nextTask == null) {
+            record.setCurrentTaskId(null);
+            record.setStatus(COMPLETED);
+            record.setFinalEvaluation(buildFinalEvaluation(record));
+            record.setFinishTime(LocalDateTime.now());
+        } else {
+            record.setCurrentTaskId(nextTask.getId());
+        }
+    }
+
+    private UserDungeonTaskRecord buildMinigameTaskRecord(UserDungeonRecord record, DungeonTask task,
+                                                           MinigameSettlement settlement, String minigameResult) {
+        UserDungeonTaskRecord taskRecord = new UserDungeonTaskRecord();
+        taskRecord.setUserDungeonRecordId(record.getId());
+        taskRecord.setDungeonTaskId(task.getId());
+        taskRecord.setTaskType(task.getTaskType());
+        taskRecord.setMinigameResult(minigameResult);
+        taskRecord.setAttributeCheckResult(settlement.score >= 80 ? "excellent" : settlement.score >= 50 ? "pass" : "fail");
+        taskRecord.setResultText(settlement.resultText);
+        taskRecord.setEvaluation(settlement.evaluation);
+        taskRecord.setScore(settlement.score);
+        taskRecord.setExpChange(settlement.expChange);
+        taskRecord.setCreateTime(LocalDateTime.now());
+        return taskRecord;
+    }
+
+    private Dungeon requireDemoDungeon() {
+        Dungeon dungeon = findDemoDungeon();
+        if (dungeon == null) {
+            throw new IllegalStateException("Demo 副本不存在");
+        }
+        return dungeon;
+    }
+
+    private UserDungeonRecord requireRecord(Long userId, Long recordId) {
+        UserDungeonRecord record = userDungeonRecordMapper.selectById(recordId);
+        if (record == null || !record.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("副本记录不存在");
+        }
+        return record;
+    }
+
+    private DungeonTask requireTask(Long taskId) {
+        DungeonTask task = dungeonTaskMapper.selectById(taskId);
+        if (task == null) {
+            throw new IllegalArgumentException("副本阶段不存在");
+        }
+        return task;
+    }
+
+    private DungeonTaskOption requireOption(Long taskId, Long optionId) {
+        DungeonTaskOption option = dungeonTaskOptionMapper.selectById(optionId);
+        if (option == null || !option.getDungeonTaskId().equals(taskId)) {
+            throw new IllegalArgumentException("副本选项不存在");
+        }
+        return option;
+    }
+
+    private void applyRewards(Long userId, DungeonTaskOption option) {
+        PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        if (attribute == null || profile == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+
+        attribute.setAcademic(clamp(attribute.getAcademic() + option.getAcademicChange()));
+        attribute.setHealth(clamp(attribute.getHealth() + option.getHealthChange()));
+        attribute.setMoney(clamp(attribute.getMoney() + option.getMoneyChange()));
+        attribute.setSocial(clamp(attribute.getSocial() + option.getSocialChange()));
+        attribute.setSkill(clamp(attribute.getSkill() + option.getSkillChange()));
+        attribute.setPressure(clamp(attribute.getPressure() + option.getPressureChange()));
+        attribute.setDiscipline(clamp(attribute.getDiscipline() + option.getDisciplineChange()));
+        attribute.setUpdateTime(LocalDateTime.now());
+        playerAttributeMapper.updateById(attribute);
+
+        profile.setExp(profile.getExp() + option.getExpChange());
+        playerProfileMapper.updateById(profile);
+    }
+
+    private void applyDynamicRewards(Long userId, MinigameSettlement settlement) {
+        PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        if (attribute == null || profile == null) {
+            throw new IllegalArgumentException("角色不存在");
+        }
+        attribute.setAcademic(clamp(attribute.getAcademic() + settlement.academicChange));
+        attribute.setHealth(clamp(attribute.getHealth() + settlement.healthChange));
+        attribute.setSkill(clamp(attribute.getSkill() + settlement.skillChange));
+        attribute.setPressure(clamp(attribute.getPressure() + settlement.pressureChange));
+        attribute.setDiscipline(clamp(attribute.getDiscipline() + settlement.disciplineChange));
+        attribute.setUpdateTime(LocalDateTime.now());
+        playerAttributeMapper.updateById(attribute);
+
+        profile.setExp(profile.getExp() + settlement.expChange);
+        playerProfileMapper.updateById(profile);
+    }
+
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
     }
@@ -376,6 +494,9 @@ public class DungeonServiceImpl implements DungeonService {
     private String buildFinalEvaluation(UserDungeonRecord record) {
         int totalScore = record.getTotalScore();
         if (hasRiskFlag(record, "schema_mist") && totalScore < 140) {
+            return "答辩沉默现场";
+        }
+        if (hasRiskFlag(record, "bug_avalanche") && totalScore < 160) {
             return "答辩沉默现场";
         }
         if (totalScore >= 230) {

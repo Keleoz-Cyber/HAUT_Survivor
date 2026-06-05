@@ -113,10 +113,12 @@ class DungeonControllerTests {
     }
 
     @Test
-    void finishingDemoDungeonShowsCompletedEndingRecord() throws Exception {
+    void bugHuntPageShowsQuestionsAfterSecondStage() throws Exception {
+        // 完成阶段 1
         mockMvc.perform(post("/dungeons/demo/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // 完成阶段 2
         mockMvc.perform(post("/dungeons/demo/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
@@ -125,15 +127,76 @@ class DungeonControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
 
-        mockMvc.perform(post("/dungeons/demo/task/3/option/7")
+        // 阶段 3 应该是 Bug Hunt
+        mockMvc.perform(get("/dungeons/demo/play")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("dungeon/play"))
+                .andExpect(model().attribute("isBugHuntTask", true))
+                .andExpect(model().attributeExists("bugQuestions"));
+    }
+
+    @Test
+    void submittingBugHuntCompletesDungeon() throws Exception {
+        // 阶段 1
+        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // 阶段 2
+        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+                        .param("selectedRelations", "user->player_attribute")
+                        .param("selectedRelations", "event->event_option")
+                        .param("selectedRelations", "dungeon->dungeon_task")
+                        .param("elapsedSeconds", "18")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // 阶段 3：Bug Hunt（全对）
+        mockMvc.perform(post("/dungeons/demo/task/3/bughunt")
+                        .param("questionIds", "0")
+                        .param("questionIds", "1")
+                        .param("questionIds", "2")
+                        .param("answers", "1")
+                        .param("answers", "0")
+                        .param("answers", "0")
+                        .param("elapsedSeconds", "20")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dungeon/result"))
                 .andExpect(model().attribute("record", hasProperty("status", equalTo("COMPLETED"))))
                 .andExpect(model().attribute("record",
-                        hasProperty("finalEvaluation", equalTo("\u8bfe\u8bbe\u6218\u795e"))))
+                        hasProperty("finalEvaluation", equalTo("课设战神"))));
+    }
+
+    @Test
+    void finishingDemoDungeonShowsCompletedEndingWithProcessFlags() throws Exception {
+        // 阶段 1
+        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // 阶段 2
+        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+                        .param("selectedRelations", "user->player_attribute")
+                        .param("selectedRelations", "event->event_option")
+                        .param("selectedRelations", "dungeon->dungeon_task")
+                        .param("elapsedSeconds", "18")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // 阶段 3
+        mockMvc.perform(post("/dungeons/demo/task/3/bughunt")
+                        .param("questionIds", "0")
+                        .param("questionIds", "1")
+                        .param("questionIds", "2")
+                        .param("answers", "1")
+                        .param("answers", "0")
+                        .param("answers", "0")
+                        .param("elapsedSeconds", "20")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("record", hasProperty("status", equalTo("COMPLETED"))))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
-                        .string(containsString("\u8fc7\u7a0b\u6807\u7b7e")));
+                        .string(containsString("过程标签")));
     }
 }

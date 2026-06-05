@@ -10,6 +10,10 @@ import java.util.List;
 
 public interface DungeonService {
 
+    /** Bug 定位小游戏的题目。 */
+    record BugQuestion(int id, String symptom, List<String> options, int correctIndex) {
+    }
+
     Dungeon findDemoDungeon();
 
     List<DungeonTask> listTasks(Long dungeonId);
@@ -26,4 +30,12 @@ public interface DungeonService {
 
     UserDungeonTaskRecord chooseMinigameRelations(Long userId, Long recordId, Long taskId,
                                                   List<String> selectedRelations, Integer elapsedSeconds);
+
+    /** 随机抽取 3 道 Bug 定位题目。 */
+    List<BugQuestion> generateBugQuestions();
+
+    /** 提交 Bug 定位答案并结算。 */
+    UserDungeonTaskRecord chooseBugHunt(Long userId, Long recordId, Long taskId,
+                                        List<Integer> questionIds, List<Integer> answers,
+                                        Integer elapsedSeconds);
 }

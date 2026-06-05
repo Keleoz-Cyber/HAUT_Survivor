@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -111,5 +113,48 @@ class EventServiceTests {
 
         assertThat(record.getId()).isNotNull();
         assertThat(eventRecordMapper.selectById(record.getId()).getResultText()).isEqualTo(record.getResultText());
+    }
+
+    // ==================== 事件池随机化测试 ====================
+
+    @Test
+    void eachLocationHasAtLeastThreeEvents() {
+        List<CampusLocation> locations = eventService.listEnabledLocations();
+
+        for (CampusLocation location : locations) {
+            List<Event> events = eventService.listEnabledEventsForLocation(location.getId(), 1);
+            assertThat(events.size())
+                    .as("地点 [%s] 应至少有 3 个事件，实际有 %d 个", location.getLocationName(), events.size())
+                    .isGreaterThanOrEqualTo(3);
+        }
+    }
+
+    @Test
+    void triggerRandomEventReturnsDifferentEventsAcrossMultipleCalls() {
+        // 对实验室（地点 6）触发多次，验证不会总是返回同一个事件
+        Map<String, Integer> eventCounts = new HashMap<>();
+        for (int i = 0; i < 30; i++) {
+            Event event = eventService.triggerRandomEvent(2L, 6L);
+            if (event != null) {
+                eventCounts.merge(event.getEventName(), 1, Integer::sum);
+            }
+        }
+
+        // 实验室有 3 个事件，30 次触发应该至少命中 2 个不同事件
+        assertThat(eventCounts.size())
+                .as("实验室多次触发应返回至少 2 种不同事件")
+                .isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void allEventsHaveAtLeastTwoOptions() {
+        for (long eventId = 1; eventId <= 26; eventId++) {
+            List<EventOption> options = eventService.listOptions(eventId);
+            if (!options.isEmpty()) {
+                assertThat(options.size())
+                        .as("事件 id=%d 应至少有 2 个选项", eventId)
+                        .isGreaterThanOrEqualTo(2);
+            }
+        }
     }
 }

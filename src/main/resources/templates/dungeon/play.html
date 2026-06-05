@@ -21,6 +21,7 @@
             <p class="event-card__story" th:text="${task.sceneText}">情境</p>
             <p class="dungeon-target" th:text="${task.targetText}">目标</p>
 
+            <!-- 数据库拼图：表名展示板 -->
             <div class="minigame-board" th:if="${isMinigameTask}">
                 <p>数据库拼图</p>
                 <div>
@@ -32,6 +33,18 @@
                 </div>
             </div>
 
+            <!-- Bug 定位：题面展示板 -->
+            <div class="minigame-board" th:if="${isBugHuntTask}">
+                <p>Bug 定位挑战</p>
+                <div>
+                    <span>404</span>
+                    <span>NullPointerException</span>
+                    <span>Mapper 注入失败</span>
+                    <span>端口占用</span>
+                    <span>数据不更新</span>
+                </div>
+            </div>
+
             <div class="attribute-strip">
                 <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
                 <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
@@ -39,6 +52,7 @@
                 <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
             </div>
 
+            <!-- 数据库拼图表单 -->
             <form th:if="${isMinigameTask}" class="relation-game" method="post"
                   th:action="@{/dungeons/demo/task/{taskId}/minigame(taskId=${task.id})}">
                 <input id="elapsedSeconds" type="hidden" name="elapsedSeconds" value="0">
@@ -53,7 +67,32 @@
                 <button class="btn btn-light mt-3" type="submit">提交数据库设计</button>
             </form>
 
-            <div class="event-options" th:unless="${isMinigameTask}">
+            <!-- Bug 定位小游戏表单 -->
+            <form th:if="${isBugHuntTask}" class="relation-game bug-hunt-game" method="post"
+                  th:action="@{/dungeons/demo/task/{taskId}/bughunt(taskId=${task.id})}">
+                <input id="bhElapsed" type="hidden" name="elapsedSeconds" value="0">
+                <div class="relation-game__top">
+                    <strong>阅读 Bug 现象，选择最可能的原因</strong>
+                    <span id="bhTimer" th:text="|剩余 ${task.timerSeconds} 秒|">剩余 60 秒</span>
+                </div>
+                <div th:each="q, qStat : ${bugQuestions}" class="bug-question">
+                    <p class="bug-symptom">
+                        <strong th:text="|Bug #${qStat.count}：|">Bug #1：</strong>
+                        <span th:text="${q.symptom}">症状描述</span>
+                    </p>
+                    <div class="bug-options">
+                        <label th:each="opt, optStat : ${q.options}" class="bug-option">
+                            <input type="radio" th:name="'answers[' + ${qStat.index} + ']'" th:value="${optStat.index}" required>
+                            <span th:text="${opt}">选项</span>
+                        </label>
+                    </div>
+                    <input type="hidden" th:name="'questionIds[' + ${qStat.index} + ']'" th:value="${q.id}">
+                </div>
+                <button class="btn btn-light mt-3" type="submit">提交 Bug 定位</button>
+            </form>
+
+            <!-- 普通选项（需求风暴等非小游戏阶段） -->
+            <div class="event-options" th:if="${!isMinigameTask and !isBugHuntTask}">
                 <form th:each="option : ${options}" method="post" th:action="@{/dungeons/demo/task/{taskId}/option/{optionId}(taskId=${task.id}, optionId=${option.id})}">
                     <input type="hidden" name="minigameResult" th:value="|task=${task.minigameType};option=${option.id}|">
                     <button type="submit" class="event-option" th:classappend="${option.isCorrect == 1 ? 'risk-low' : 'risk-medium'}">
@@ -65,18 +104,21 @@
         </div>
     </section>
 </main>
-<script th:if="${isMinigameTask}" th:inline="javascript">
+<script th:inline="javascript">
+    const isMinigame = /*[[${isMinigameTask}]]*/ false;
+    const isBugHunt = /*[[${isBugHuntTask}]]*/ false;
     const limitSeconds = /*[[${task.timerSeconds}]]*/ 45;
-    const startTime = Date.now();
-    const timerText = document.getElementById('timerText');
-    const elapsedInput = document.getElementById('elapsedSeconds');
-
-    window.setInterval(() => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000);
-        const remaining = Math.max(0, limitSeconds - elapsed);
-        elapsedInput.value = String(elapsed);
-        timerText.textContent = `剩余 ${remaining} 秒`;
-    }, 500);
+    if (isMinigame || isBugHunt) {
+        const startTime = Date.now();
+        const timerEl = document.getElementById(isBugHunt ? 'bhTimer' : 'timerText');
+        const elapsedEl = document.getElementById(isBugHunt ? 'bhElapsed' : 'elapsedSeconds');
+        window.setInterval(() => {
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const remaining = Math.max(0, limitSeconds - elapsed);
+            elapsedEl.value = String(elapsed);
+            timerEl.textContent = `剩余 ${remaining} 秒`;
+        }, 500);
+    }
 </script>
 </body>
 </html>
