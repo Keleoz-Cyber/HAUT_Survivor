@@ -25,9 +25,12 @@
             <div th:if="${activityChange != null and activityChange.hasAnyChange()}" class="attr-change-panel mb-3">
                 <p class="attr-change-label">本次活动</p>
                 <div class="attr-change-list">
-                    <span th:if="${activityChange.socialChange != 0}" th:classappend="${activityChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${activityChange.socialChange > 0} ? '+' + ${activityChange.socialChange} : ${activityChange.socialChange}">+3</em></span>
-                    <span th:if="${activityChange.disciplineChange != 0}" th:classappend="${activityChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${activityChange.disciplineChange > 0} ? '+' + ${activityChange.disciplineChange} : ${activityChange.disciplineChange}">+1</em></span>
-                    <span th:if="${activityChange.pressureChange != 0}" th:classappend="${activityChange.pressureChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">压力 <em th:text="${activityChange.pressureChange > 0} ? '+' + ${activityChange.pressureChange} : ${activityChange.pressureChange}">+2</em></span>
+                    <span th:if="${activityChange.academicChange != 0}" th:classappend="${activityChange.academicChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">学业 <em th:text="${activityChange.academicChange > 0} ? '+' + ${activityChange.academicChange} : ${activityChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
+                    <span th:if="${activityChange.healthChange != 0}" th:classappend="${activityChange.healthChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">健康 <em th:text="${activityChange.healthChange > 0} ? '+' + ${activityChange.healthChange} : ${activityChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
+                    <span th:if="${activityChange.socialChange != 0}" th:classappend="${activityChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${activityChange.socialChange > 0} ? '+' + ${activityChange.socialChange} : ${activityChange.socialChange}">+3</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
+                    <span th:if="${activityChange.skillChange != 0}" th:classappend="${activityChange.skillChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">技能 <em th:text="${activityChange.skillChange > 0} ? '+' + ${activityChange.skillChange} : ${activityChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
+                    <span th:if="${activityChange.pressureChange != 0}" th:classappend="${activityChange.pressureChange > 0} ? 'attr-down' : 'attr-up'" class="attr-change-item">压力 <em th:text="${activityChange.pressureChange > 0} ? '+' + ${activityChange.pressureChange} : ${activityChange.pressureChange}">+2</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
+                    <span th:if="${activityChange.disciplineChange != 0}" th:classappend="${activityChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${activityChange.disciplineChange > 0} ? '+' + ${activityChange.disciplineChange} : ${activityChange.disciplineChange}">+1</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
                 </div>
             </div>
 
@@ -68,7 +71,7 @@
                     <span class="badge bg-success" th:text="${relation.positionName}">职位</span>
                     <span class="ms-2" th:text="'贡献 ' + ${relation.contribution} + ' · 声望 ' + ${relation.reputation}">数据</span>
                 </div>
-                <p class="text-muted mb-3">参加活动消耗 1 行动点，获得社交 +3、自律 +1、压力 +2、贡献 +3、声望 +2。贡献 ≥ 10 自动晋升为部长。</p>
+                <p class="text-muted mb-3">参加活动消耗 1 行动点。不同组织活动奖励不同：学生会（社交+3、自律+2、压力+2）、实验室（技能+3、学业+2、压力+3）、篮球社（健康+3、社交+1、压力-2）。贡献 ≥ 10 自动晋升为部长。</p>
                 <form method="post" th:action="@{/organizations/{id}/activity(id=${org.id})}">
                     <button type="submit" class="btn btn-light"
                             th:disabled="${semesterOver or profile.actionPoints <= 0}">

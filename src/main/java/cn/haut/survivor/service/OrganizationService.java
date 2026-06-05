@@ -26,8 +26,10 @@ public interface OrganizationService {
     /** 参加本周组织活动并返回属性变化。 */
     default OrganizationActivityResult attendActivityWithChange(Long userId, Long organizationId) {
         UserOrganization relation = attendActivity(userId, organizationId);
-        // 默认实现：组织活动固定属性变化 社交+3 自律+1 压力+2
-        return new OrganizationActivityResult(relation, new AttributeChange(0, 0, 0, 3, 0, 2, 1, 0));
+        // 属性变化由组织类型决定，这里按 orgType 返回对应快照
+        // Controller 需要拿到 orgType 才能选择正确的 AttributeChange，
+        // 但默认实现无法获取 orgType。由 OrganizationServiceImpl 覆盖。
+        return new OrganizationActivityResult(relation, AttributeChange.EMPTY);
     }
 
     /** 查找用户对某个组织的关系，没有则返回 null。 */

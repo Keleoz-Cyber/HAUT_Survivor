@@ -275,28 +275,29 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
 
     /**
      * 基于探索/组织/副本上下文的路线结局判断。
+     * 使用固定优先级列表，优先匹配更稀缺/更具体的条件。
      * 返回匹配的结局名称，无匹配返回 null。
      */
     private String matchRouteEnding(SettlementContext ctx, Map<String, Integer> vars) {
-        // 实验室编外研究员：实验室探索高 + 技能高
+        // 优先级 1：课设战神 — 需要副本完成+高评价（最稀缺条件）
+        if ("课设战神".equals(ctx.dungeon1Evaluation())) {
+            return "课设战神";
+        }
+        // 优先级 2：实验室编外研究员 — 需要实验室探索高+技能高
         if (ctx.labExploreLevel() >= 40 && vars.getOrDefault("skill", 0) >= 55) {
             return "实验室编外研究员";
         }
-        // 社团风云人物：组织贡献高 + 社交高
+        // 优先级 3：社团风云人物 — 需要组织贡献高+社交高
         if (ctx.orgContribution() >= 6 && vars.getOrDefault("social", 0) >= 65) {
             return "社团风云人物";
         }
-        // 图书馆常驻民：图书馆探索高 + 学业高
+        // 优先级 4：图书馆常驻民 — 需要图书馆探索高+学业高
         if (ctx.libraryExploreLevel() >= 40 && vars.getOrDefault("academic", 0) >= 65) {
             return "图书馆常驻民";
         }
-        // 体测幸存者：体测副本完成或健康较高
-        if (ctx.dungeon2Completed() || vars.getOrDefault("health", 0) >= 80) {
+        // 优先级 5：体测幸存者 — 体测副本完成或健康极高
+        if (ctx.dungeon2Completed()) {
             return "体测幸存者";
-        }
-        // 课设战神：Java 课设高评价或技能高
-        if ("课设战神".equals(ctx.dungeon1Evaluation()) || vars.getOrDefault("skill", 0) >= 70) {
-            return "课设战神";
         }
         return null;
     }

@@ -2,8 +2,13 @@ package cn.haut.survivor.service.impl;
 
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.domain.entity.UserDungeonRecord;
+import cn.haut.survivor.domain.entity.UserLocationExploration;
+import cn.haut.survivor.domain.entity.UserOrganization;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.PlayerProfileMapper;
+import cn.haut.survivor.mapper.UserDungeonRecordMapper;
+import cn.haut.survivor.mapper.UserDungeonTaskRecordMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import cn.haut.survivor.mapper.UserOrganizationMapper;
 import cn.haut.survivor.service.PlayerService;
@@ -13,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
@@ -24,15 +30,21 @@ public class PlayerServiceImpl implements PlayerService {
     private final PlayerAttributeMapper playerAttributeMapper;
     private final UserLocationExplorationMapper explorationMapper;
     private final UserOrganizationMapper userOrganizationMapper;
+    private final UserDungeonRecordMapper userDungeonRecordMapper;
+    private final UserDungeonTaskRecordMapper userDungeonTaskRecordMapper;
 
     public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper,
                              PlayerAttributeMapper playerAttributeMapper,
                              UserLocationExplorationMapper explorationMapper,
-                             UserOrganizationMapper userOrganizationMapper) {
+                             UserOrganizationMapper userOrganizationMapper,
+                             UserDungeonRecordMapper userDungeonRecordMapper,
+                             UserDungeonTaskRecordMapper userDungeonTaskRecordMapper) {
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.explorationMapper = explorationMapper;
         this.userOrganizationMapper = userOrganizationMapper;
+        this.userDungeonRecordMapper = userDungeonRecordMapper;
+        this.userDungeonTaskRecordMapper = userDungeonTaskRecordMapper;
     }
 
     @Override
@@ -252,12 +264,22 @@ public class PlayerServiceImpl implements PlayerService {
         playerAttributeMapper.updateById(attribute);
 
         // 清理探索记录
-        explorationMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserLocationExploration>()
-                .eq(cn.haut.survivor.domain.entity.UserLocationExploration::getUserId, userId));
+        explorationMapper.delete(new LambdaQueryWrapper<UserLocationExploration>()
+                .eq(UserLocationExploration::getUserId, userId));
 
         // 清理组织关系
-        userOrganizationMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserOrganization>()
-                .eq(cn.haut.survivor.domain.entity.UserOrganization::getUserId, userId));
+        userOrganizationMapper.delete(new LambdaQueryWrapper<UserOrganization>()
+                .eq(UserOrganization::getUserId, userId));
+        // 清理副本记录（避免重开后残留上学期未完成副本）
+        // 先删 task_record（依赖 record），再删 record
+        List<UserDungeonRecord> dungeonRecords = userDungeonRecordMapper.selectList(
+                new LambdaQueryWrapper<UserDungeonRecord>().eq(UserDungeonRecord::getUserId, userId));
+        for (UserDungeonRecord dr : dungeonRecords) {
+            userDungeonTaskRecordMapper.delete(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.UserDungeonTaskRecord>()
+                    .eq(cn.haut.survivor.domain.entity.UserDungeonTaskRecord::getUserDungeonRecordId, dr.getId()));
+        }
+        userDungeonRecordMapper.delete(new LambdaQueryWrapper<UserDungeonRecord>()
+                .eq(UserDungeonRecord::getUserId, userId));
 
         // 保留历史结局记录（不删除），hasSettled 基于学期号判断
     }

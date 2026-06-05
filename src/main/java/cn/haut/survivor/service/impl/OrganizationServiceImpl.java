@@ -1,5 +1,6 @@
 package cn.haut.survivor.service.impl;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Organization;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
@@ -119,11 +120,34 @@ public class OrganizationServiceImpl implements OrganizationService {
         relation.setContribution(relation.getContribution() + 3);
         relation.setReputation(relation.getReputation() + 2);
 
-        // 属性结算：社交 +3，自律 +1，压力 +2（时间被占用了）
+        // 按组织类型差异化属性结算
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
-        attribute.setSocial(clamp(attribute.getSocial() + 3));
-        attribute.setDiscipline(clamp(attribute.getDiscipline() + 1));
-        attribute.setPressure(clamp(attribute.getPressure() + 2));
+        switch (org.getOrgType()) {
+            case "学生会" -> {
+                // 学生会偏社交/自律，活动繁忙增加压力
+                attribute.setSocial(clamp(attribute.getSocial() + 3));
+                attribute.setDiscipline(clamp(attribute.getDiscipline() + 2));
+                attribute.setPressure(clamp(attribute.getPressure() + 2));
+            }
+            case "实验室" -> {
+                // 实验室偏技能/学业，项目压力大
+                attribute.setSkill(clamp(attribute.getSkill() + 3));
+                attribute.setAcademic(clamp(attribute.getAcademic() + 2));
+                attribute.setPressure(clamp(attribute.getPressure() + 3));
+            }
+            case "社团" -> {
+                // 篮球社偏健康/社交，运动减压
+                attribute.setHealth(clamp(attribute.getHealth() + 3));
+                attribute.setSocial(clamp(attribute.getSocial() + 1));
+                attribute.setPressure(clamp(attribute.getPressure() - 2));
+            }
+            default -> {
+                // 通用：社交+3，自律+1，压力+2
+                attribute.setSocial(clamp(attribute.getSocial() + 3));
+                attribute.setDiscipline(clamp(attribute.getDiscipline() + 1));
+                attribute.setPressure(clamp(attribute.getPressure() + 2));
+            }
+        }
         attribute.setUpdateTime(LocalDateTime.now());
         playerAttributeMapper.updateById(attribute);
 
@@ -161,5 +185,18 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
+    }
+
+    @Override
+    public OrganizationActivityResult attendActivityWithChange(Long userId, Long organizationId) {
+        Organization org = requireOrg(organizationId);
+        UserOrganization relation = attendActivity(userId, organizationId);
+        AttributeChange change = switch (org.getOrgType()) {
+            case "学生会" -> new AttributeChange(0, 0, 0, 3, 0, 2, 2, 0);
+            case "实验室" -> new AttributeChange(2, 0, 0, 0, 3, 3, 0, 0);
+            case "社团"  -> new AttributeChange(0, 3, 0, 1, 0, -2, 0, 0);
+            default      -> new AttributeChange(0, 0, 0, 3, 0, 2, 1, 0);
+        };
+        return new OrganizationActivityResult(relation, change);
     }
 }

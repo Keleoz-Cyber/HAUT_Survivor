@@ -873,6 +873,12 @@ body {
     margin-left: 4px;
 }
 
+.attr-change-item small {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.78rem;
+    margin-left: 2px;
+}
+
 .attr-change-item.attr-up em {
     color: #4ade80;
 }

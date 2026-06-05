@@ -214,4 +214,20 @@ class PlayerServiceTests {
         assertThat(attribute.getSocial()).isEqualTo(55);
         assertThat(attribute.getAcademic()).isEqualTo(60);
     }
+
+    @Test
+    void resetSemesterClearsDungeonRecords() {
+        // 推进到学期结束
+        playerService.advanceWeek(2L);
+        playerService.advanceWeek(2L);
+        playerService.advanceWeek(2L);
+        playerService.advanceWeek(2L);
+
+        playerService.resetSemester(2L);
+
+        // 验证重开后回到第1周
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        assertThat(profile.getCurrentWeek()).isEqualTo(1);
+        assertThat(profile.getSemesterNumber()).isEqualTo(2);
+    }
 }

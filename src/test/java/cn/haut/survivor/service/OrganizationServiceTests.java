@@ -107,9 +107,37 @@ class OrganizationServiceTests {
         assertThat(relation.getContribution()).isEqualTo(3);
         assertThat(relation.getReputation()).isEqualTo(2);
 
+        // 学生会：社交+3，自律+2，压力+2
         PlayerAttribute attr = playerService.findAttributeByUserId(2L);
         assertThat(attr.getSocial()).isEqualTo(58);  // 55 + 3
+        assertThat(attr.getDiscipline()).isEqualTo(52); // 50 + 2
         assertThat(attr.getPressure()).isEqualTo(32); // 30 + 2
+    }
+
+    @Test
+    void labActivityBoostsSkillAndAcademic() {
+        organizationService.discover(2L, 2L);
+        organizationService.join(2L, 2L);
+        organizationService.attendActivity(2L, 2L);
+
+        // 实验室：技能+3，学业+2，压力+3
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        assertThat(attr.getSkill()).isEqualTo(53);   // 50 + 3
+        assertThat(attr.getAcademic()).isEqualTo(62); // 60 + 2
+        assertThat(attr.getPressure()).isEqualTo(33);  // 30 + 3
+    }
+
+    @Test
+    void basketballActivityBoostsHealthAndReducesPressure() {
+        organizationService.discover(2L, 3L);
+        organizationService.join(2L, 3L);
+        organizationService.attendActivity(2L, 3L);
+
+        // 篮球社：健康+3，社交+1，压力-2
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        assertThat(attr.getHealth()).isEqualTo(73);    // 70 + 3
+        assertThat(attr.getSocial()).isEqualTo(56);    // 55 + 1
+        assertThat(attr.getPressure()).isEqualTo(28); // 30 - 2
     }
 
     @Test

@@ -249,6 +249,59 @@ class SemesterEndingServiceTests {
         assertThat(ending.getEndingName()).isEqualTo("社团风云人物");
     }
 
+    @Test
+    void routeEndingPriorityCourseDesignOverLabExplore() {
+        // 同时满足课设战神和实验室编外研究员条件时，课设战神优先
+        advanceToSemesterEnd();
+
+        // 拉高实验室探索度和技能（满足实验室编外研究员）
+        cn.haut.survivor.domain.entity.UserLocationExploration exploration =
+                explorationService.findExploration(2L, 6L);
+        if (exploration == null) {
+            exploration = new cn.haut.survivor.domain.entity.UserLocationExploration();
+            exploration.setUserId(2L);
+            exploration.setLocationId(6L);
+            exploration.setExploreLevel(45);
+            exploration.setExploreCount(1);
+            exploration.setLastExploreWeek(1);
+            explorationMapper.insert(exploration);
+        } else {
+            exploration.setExploreLevel(45);
+            explorationMapper.updateById(exploration);
+        }
+
+        // 同时完成课设副本且评价为课设战神
+        cn.haut.survivor.domain.entity.UserDungeonRecord dungeonRecord = new cn.haut.survivor.domain.entity.UserDungeonRecord();
+        dungeonRecord.setUserId(2L);
+        dungeonRecord.setDungeonId(1L);
+        dungeonRecord.setStatus("COMPLETED");
+        dungeonRecord.setTotalScore(240);
+        dungeonRecord.setFinalEvaluation("课设战神");
+        dungeonRecord.setStartTime(java.time.LocalDateTime.now());
+        dungeonRecordMapper.insert(dungeonRecord);
+
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setSkill(60);
+        playerAttributeMapper.updateById(attr);
+
+        SemesterEnding ending = semesterEndingService.settleSemester(2L);
+        assertThat(ending.getEndingName()).isEqualTo("课设战神");
+    }
+
+    @Test
+    void noRouteEndingFallsBackToAttributeMatch() {
+        // 不满足任何路线结局条件时，回退到属性条件匹配
+        advanceToSemesterEnd();
+
+        // 默认就业路线属性：skill=50, social=55, academic=60, discipline=50, pressure=30, health=70, money=80
+        // 不满足任何路线结局条件，回退到属性匹配
+        // health>=60 AND pressure<=50 → 体测幸存者（priority=16）
+        // academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60 → 六边形（priority=10）
+        // 体测幸存者优先级更高，会命中
+        SemesterEnding ending = semesterEndingService.settleSemester(2L);
+        assertThat(ending.getEndingName()).isEqualTo("体测幸存者");
+    }
+
     @Autowired
     private cn.haut.survivor.service.ExplorationService explorationService;
 
@@ -260,6 +313,9 @@ class SemesterEndingServiceTests {
 
     @Autowired
     private cn.haut.survivor.mapper.UserLocationExplorationMapper explorationMapper;
+
+    @Autowired
+    private cn.haut.survivor.mapper.UserDungeonRecordMapper dungeonRecordMapper;
 
     private void advanceToSemesterEnd() {
         playerService.advanceWeek(2L); // week 2
