@@ -3,47 +3,52 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>校园探索 - HAUT Survivor</title>
+    <title>校园踩点 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="survivor-body">
-<div th:replace="~{fragments/layout :: nav}"></div>
-<main class="container app-shell">
-    <header class="campus-hero mb-4">
-        <div>
-            <p class="campus-hero__eyebrow">校园探索</p>
-            <h1 class="campus-hero__title">发现未知的角落</h1>
-            <p class="campus-hero__copy">每个地点都有隐藏的秘密。探索消耗 1 行动点，可能发现新事件、遇到 NPC、或获得意外收获。</p>
-        </div>
-        <div class="campus-status">
-            <span th:text="|行动点 ${profile.actionPoints}/${profile.maxActionPoints}|">4/4</span>
-            <span th:text="|第 ${profile.currentWeek} 周|">第 1 周</span>
-        </div>
-    </header>
+<body class="game-shell">
 
-    <div th:if="${param.error}" class="alert alert-warning" th:text="${param.error[0]}">错误</div>
-    <div th:if="${semesterOver}" class="alert alert-info">学期已结束，无法继续探索。</div>
+<!-- 游戏HUD -->
+<div th:replace="~{fragments/layout :: game-hud}"></div>
 
-    <section class="row g-3">
-        <article class="col-md-6 col-lg-4" th:each="loc : ${locations}">
-            <div class="panel location-node" th:style="'border-left: 4px solid ' + ${loc.themeColor}">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h3 class="h5 mb-0" th:text="${loc.locationName}">地点名</h3>
-                    <span class="badge bg-secondary" th:text="${exploreLevels[loc.id] != null ? exploreLevels[loc.id] + '%' : '0%'}">0%</span>
+<main class="explore-page">
+
+    <!-- ========== 页面标题 ========== -->
+    <section class="explore-page__header">
+        <p class="explore-page__eyebrow">🔍 校园踩点</p>
+        <h1 class="explore-page__title">发现未知的角落</h1>
+        <p class="explore-page__sub">每个地点都有隐藏的秘密。踩点消耗 1 行动点，可能发现新事件、遇到 NPC、或获得意外收获。</p>
+    </section>
+
+    <!-- 状态提示 -->
+    <div th:if="${param.error}" class="explore-page__msg explore-page__msg--error" th:text="${param.error[0]}">错误</div>
+    <div th:if="${semesterOver}" class="explore-page__msg">学期已结束，无法继续探索。</div>
+
+    <!-- ========== 探索地点列表 ========== -->
+    <section class="explore-page__grid" th:if="${!semesterOver}">
+        <article class="explore-card" th:each="loc : ${locations}" th:style="|--card-color: ${loc.themeColor}">
+            <!-- 地点图标 -->
+            <div class="explore-card__marker">
+                <span th:text="${loc.iconKey}">📍</span>
+            </div>
+            <!-- 地点信息 -->
+            <div class="explore-card__body">
+                <h2 class="explore-card__name" th:text="${loc.locationName}">地点名</h2>
+                <p class="explore-card__desc" th:text="${loc.description}">描述</p>
+
+                <!-- 探索度进度 -->
+                <div class="explore-card__progress">
+                    <div class="explore-card__progress-track">
+                        <div class="explore-card__progress-fill"
+                             th:style="'width:' + ${exploreLevels[loc.id] != null ? exploreLevels[loc.id] : 0} + '%; background:' + ${loc.themeColor}"></div>
+                    </div>
+                    <span class="explore-card__progress-label"
+                          th:text="'探索 ' + ${exploreLevels[loc.id] != null ? exploreLevels[loc.id] : 0} + '%'">0%</span>
                 </div>
-                <p class="text-muted small mb-2" th:text="${loc.description}">描述</p>
 
-                <!-- 探索度进度条 -->
-                <div class="progress mb-3" style="height: 6px;">
-                    <div class="progress-bar" role="progressbar"
-                         th:style="'width:' + ${exploreLevels[loc.id] != null ? exploreLevels[loc.id] : 0} + '%; background:' + ${loc.themeColor}"
-                         th:aria-valuenow="${exploreLevels[loc.id] != null ? exploreLevels[loc.id] : 0}"
-                         aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-
-                <!-- 探索度解锁提示 -->
-                <div class="small text-muted mb-2">
+                <!-- 解锁提示 -->
+                <div class="explore-card__unlock">
                     <span th:if="${exploreLevels[loc.id] == null or exploreLevels[loc.id] < 20}">🔒 20% 解锁普通事件</span>
                     <span th:if="${exploreLevels[loc.id] != null and exploreLevels[loc.id] >= 20 and exploreLevels[loc.id] < 40}">🔓 40% 解锁隐藏内容</span>
                     <span th:if="${exploreLevels[loc.id] != null and exploreLevels[loc.id] >= 40 and exploreLevels[loc.id] < 60}">🔓 60% 解锁组织入口</span>
@@ -52,20 +57,28 @@
                     <span th:if="${exploreLevels[loc.id] != null and exploreLevels[loc.id] >= 100}">✅ 已完全探索</span>
                 </div>
 
+                <!-- 探索按钮 -->
                 <form method="post" th:action="@{/exploration/{id}(id=${loc.id})}">
-                    <button type="submit" class="btn btn-sm btn-outline-light w-100"
+                    <button type="submit" class="explore-card__btn"
                             th:disabled="${semesterOver or profile.actionPoints <= 0}">
-                        探索此地 (消耗 1 行动点)
+                        <span th:if="${profile.actionPoints > 0}">🔍 踩点探索 (⚡ 1 行动点)</span>
+                        <span th:if="${profile.actionPoints <= 0}">⚡ 行动点不足</span>
                     </button>
                 </form>
             </div>
         </article>
     </section>
 
-    <div class="mt-4">
-        <a href="/map" class="btn btn-outline-light">返回地图</a>
-        <a href="/dashboard" class="btn btn-outline-light ms-2">仪表盘</a>
+    <!-- ========== 导航 ========== -->
+    <div class="explore-page__nav" th:if="${!semesterOver}">
+        <a href="/map" class="sticky-note__btn">🗺️ 返回地图</a>
+        <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
     </div>
+
 </main>
+
+<!-- 手机底栏 -->
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+
 </body>
 </html>

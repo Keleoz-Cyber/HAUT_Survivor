@@ -3,74 +3,159 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>校园事件 - HAUT Survivor</title>
+    <title>事件 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="survivor-body">
-<div th:replace="~{fragments/layout :: nav}"></div>
-<main class="container app-shell">
-    <section th:if="${resultText}" class="event-stage event-stage--result">
-        <div class="event-card">
-            <p class="event-card__eyebrow">事件结算</p>
-            <h1>行动产生了后果</h1>
-            <p class="event-card__story" th:text="${resultText}">结果</p>
-            <!-- 属性变化展示 -->
-            <div th:if="${attributeChange != null and attributeChange.hasAnyChange()}" class="attr-change-panel mb-4">
-                <p class="attr-change-label">属性变化</p>
-                <div class="attr-change-list">
-                    <span th:if="${attributeChange.academicChange != 0}" th:classappend="${attributeChange.academicChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">学业 <em th:text="${attributeChange.academicChange > 0} ? '+' + ${attributeChange.academicChange} : ${attributeChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
-                    <span th:if="${attributeChange.healthChange != 0}" th:classappend="${attributeChange.healthChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">健康 <em th:text="${attributeChange.healthChange > 0} ? '+' + ${attributeChange.healthChange} : ${attributeChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
-                    <span th:if="${attributeChange.moneyChange != 0}" th:classappend="${attributeChange.moneyChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">金钱 <em th:text="${attributeChange.moneyChange > 0} ? '+' + ${attributeChange.moneyChange} : ${attributeChange.moneyChange}">+5</em></span>
-                    <span th:if="${attributeChange.socialChange != 0}" th:classappend="${attributeChange.socialChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">社交 <em th:text="${attributeChange.socialChange > 0} ? '+' + ${attributeChange.socialChange} : ${attributeChange.socialChange}">+5</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
-                    <span th:if="${attributeChange.skillChange != 0}" th:classappend="${attributeChange.skillChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">技能 <em th:text="${attributeChange.skillChange > 0} ? '+' + ${attributeChange.skillChange} : ${attributeChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
-                    <span th:if="${attributeChange.pressureChange != 0}" th:classappend="${attributeChange.pressureChange > 0} ? 'attr-down' : 'attr-up'" class="attr-change-item">压力 <em th:text="${attributeChange.pressureChange > 0} ? '+' + ${attributeChange.pressureChange} : ${attributeChange.pressureChange}">+5</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
-                    <span th:if="${attributeChange.disciplineChange != 0}" th:classappend="${attributeChange.disciplineChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">自律 <em th:text="${attributeChange.disciplineChange > 0} ? '+' + ${attributeChange.disciplineChange} : ${attributeChange.disciplineChange}">+5</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
-                    <span th:if="${attributeChange.expChange != 0}" th:classappend="${attributeChange.expChange > 0} ? 'attr-up' : 'attr-down'" class="attr-change-item">经验 <em th:text="${attributeChange.expChange > 0} ? '+' + ${attributeChange.expChange} : ${attributeChange.expChange}">+5</em></span>
-                </div>
-            </div>
-            <div class="attribute-strip mb-4">
-                <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
-                <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
-                <div><span>金钱</span><strong th:text="${attribute.money}">80</strong></div>
-                <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
-                <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
-                <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
-                <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
-                <div><span>经验</span><strong th:text="${profile.exp}">0</strong></div>
-            </div>
-            <a href="/map" class="btn btn-primary">继续探索</a>
-            <a href="/dashboard" class="btn btn-outline-light">返回仪表盘</a>
-        </div>
-    </section>
+<body class="game-shell">
 
-    <section th:unless="${resultText}" class="event-stage" th:classappend="${event.sceneImage}">
-        <div class="event-card">
-            <div class="event-card__meta">
-                <span th:if="${location}" th:text="${location.locationName}">地点</span>
-                <span th:text="${event.moodTag}">氛围</span>
+<!-- 游戏HUD -->
+<div th:replace="~{fragments/layout :: game-hud}"></div>
+
+<!-- ========== 事件结算页 ========== -->
+<main class="vn-stage" th:if="${resultText}" th:classappend="${event != null ? event.sceneImage : ''}">
+    <div class="vn-result">
+        <!-- 结算标题 -->
+        <div class="vn-result__header">
+            <span class="vn-result__eyebrow">📋 事件结算</span>
+            <h1 class="vn-result__title">这次发生了什么</h1>
+        </div>
+        <!-- 结果描述 -->
+        <p class="vn-result__story" th:text="${resultText}">结果</p>
+
+        <!-- 属性变化 -->
+        <div th:if="${attributeChange != null and attributeChange.hasAnyChange()}" class="vn-result__changes">
+            <p class="vn-result__changes-label">状态变化</p>
+            <div class="vn-result__changes-list">
+                <span th:if="${attributeChange.academicChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.academicChange > 0} ? 'vn-up' : 'vn-down'">
+                    📚 学业 <em th:text="${attributeChange.academicChange > 0} ? '+' + ${attributeChange.academicChange} : ${attributeChange.academicChange}">+5</em>
+                    <small th:text="'（' + ${attribute.academic} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.healthChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.healthChange > 0} ? 'vn-up' : 'vn-down'">
+                    💚 健康 <em th:text="${attributeChange.healthChange > 0} ? '+' + ${attributeChange.healthChange} : ${attributeChange.healthChange}">+5</em>
+                    <small th:text="'（' + ${attribute.health} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.moneyChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.moneyChange > 0} ? 'vn-up' : 'vn-down'">
+                    💰 金钱 <em th:text="${attributeChange.moneyChange > 0} ? '+' + ${attributeChange.moneyChange} : ${attributeChange.moneyChange}">+5</em>
+                </span>
+                <span th:if="${attributeChange.socialChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.socialChange > 0} ? 'vn-up' : 'vn-down'">
+                    🤝 社交 <em th:text="${attributeChange.socialChange > 0} ? '+' + ${attributeChange.socialChange} : ${attributeChange.socialChange}">+5</em>
+                    <small th:text="'（' + ${attribute.social} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.skillChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.skillChange > 0} ? 'vn-up' : 'vn-down'">
+                    🔧 技能 <em th:text="${attributeChange.skillChange > 0} ? '+' + ${attributeChange.skillChange} : ${attributeChange.skillChange}">+5</em>
+                    <small th:text="'（' + ${attribute.skill} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.pressureChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.pressureChange > 0} ? 'vn-down' : 'vn-up'">
+                    😰 压力 <em th:text="${attributeChange.pressureChange > 0} ? '+' + ${attributeChange.pressureChange} : ${attributeChange.pressureChange}">+5</em>
+                    <small th:text="'（' + ${attribute.pressure} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.disciplineChange != 0}"
+                      class="vn-result__change"
+                      th:classappend="${attributeChange.disciplineChange > 0} ? 'vn-up' : 'vn-down'">
+                    🎯 自律 <em th:text="${attributeChange.disciplineChange > 0} ? '+' + ${attributeChange.disciplineChange} : ${attributeChange.disciplineChange}">+5</em>
+                    <small th:text="'（' + ${attribute.discipline} + ')'"></small>
+                </span>
+                <span th:if="${attributeChange.expChange != 0}"
+                      class="vn-result__change vn-up">
+                    ✨ 经验 <em th:text="${attributeChange.expChange > 0} ? '+' + ${attributeChange.expChange} : ${attributeChange.expChange}">+5</em>
+                </span>
             </div>
-            <h1 th:text="${event.eventName}">事件名称</h1>
-            <p class="event-card__story" th:text="${event.description}">事件描述</p>
-            <div class="attribute-strip">
-                <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
-                <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
-                <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
-                <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
+        </div>
+
+        <!-- 当前状态速览 -->
+        <div class="vn-result__stats">
+            <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
+            <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
+            <div><span>金钱</span><strong th:text="${attribute.money}">80</strong></div>
+            <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
+            <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
+            <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
+            <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
+        </div>
+
+        <!-- 后续行动 -->
+        <div class="vn-result__actions">
+            <a href="/map" class="sticky-note__btn sticky-note__btn--primary">🗺️ 继续逛校园</a>
+            <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
+        </div>
+    </div>
+</main>
+
+<!-- ========== 视觉小说事件页 ========== -->
+<main class="vn-stage" th:unless="${resultText}" th:classappend="${event.sceneImage}">
+    <div class="vn-scene">
+        <!-- 场景标签 -->
+        <div class="vn-scene__meta">
+            <span th:if="${location}" th:text="${location.locationName}">📍 地点</span>
+            <span th:if="${event.moodTag}" th:text="${event.moodTag}">🎭 氛围</span>
+        </div>
+
+        <!-- 事件标题 -->
+        <h1 class="vn-scene__title" th:text="${event.eventName}">事件名称</h1>
+
+        <!-- 情境描述 -->
+        <p class="vn-scene__story" th:text="${event.description}">事件描述</p>
+
+        <!-- 角色状态小条 -->
+        <div class="vn-scene__status">
+            <div class="vn-scene__stat">
+                <span>🔧 技能</span>
+                <strong th:text="${attribute.skill}">40</strong>
             </div>
-            <div class="event-options">
-                <form th:each="option : ${options}" method="post" th:action="@{/map/event/{eventId}/option/{optionId}(eventId=${event.id}, optionId=${option.id})}">
-                    <button type="submit" class="event-option" th:classappend="|risk-${option.riskLevel}|">
-                        <strong th:text="${option.optionText}">选项</strong>
-                        <span th:text="${option.previewText}">后果预览</span>
-                    </button>
-                </form>
+            <div class="vn-scene__stat vn-scene__stat--pressure">
+                <span>😰 压力</span>
+                <strong th:text="${attribute.pressure}">30</strong>
             </div>
-            <form class="mt-3" action="/map">
-                <button class="btn btn-outline-light" type="submit">先离开这里</button>
+            <div class="vn-scene__stat">
+                <span>💚 健康</span>
+                <strong th:text="${attribute.health}">70</strong>
+            </div>
+            <div class="vn-scene__stat">
+                <span>🎯 自律</span>
+                <strong th:text="${attribute.discipline}">50</strong>
+            </div>
+        </div>
+
+        <!-- 选择按钮 -->
+        <div class="vn-scene__choices">
+            <form th:each="option : ${options}" method="post"
+                  th:action="@{/map/event/{eventId}/option/{optionId}(eventId=${event.id}, optionId=${option.id})}">
+                <button type="submit" class="vn-choice"
+                        th:classappend="${option.riskLevel == 'low'} ? 'vn-choice--safe' : (${option.riskLevel == 'medium'} ? 'vn-choice--risky' : 'vn-choice--danger')">
+                    <span class="vn-choice__label"
+                          th:if="${option.riskLevel == 'low'}">🛡️ 稳妥</span>
+                    <span class="vn-choice__label"
+                          th:if="${option.riskLevel == 'medium'}">⚖️ 冒险</span>
+                    <span class="vn-choice__label"
+                          th:if="${option.riskLevel == 'high'}">🔥 硬刚</span>
+                    <strong class="vn-choice__text" th:text="${option.optionText}">选项文本</strong>
+                    <span class="vn-choice__preview" th:text="${option.previewText}">后果预览</span>
+                </button>
             </form>
         </div>
-    </section>
+
+        <!-- 离开 -->
+        <form action="/map" class="vn-scene__leave">
+            <button type="submit" class="sticky-note__btn">🚪 先离开这里</button>
+        </form>
+    </div>
 </main>
+
+<!-- 手机底栏 -->
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+
 </body>
 </html>

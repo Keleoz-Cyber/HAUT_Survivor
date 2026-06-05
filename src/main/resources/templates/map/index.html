@@ -3,66 +3,94 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>莲花街地图 - HAUT Survivor</title>
+    <title>莲花街校区 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="survivor-body">
-<div th:replace="~{fragments/layout :: nav}"></div>
-<main class="container app-shell">
-    <header class="campus-hero mb-4">
-        <div>
-            <p class="campus-hero__eyebrow">莲花街校区行动地图</p>
-            <h1 class="campus-hero__title">今晚去哪儿续命？</h1>
-            <p class="campus-hero__copy" th:if="${!semesterOver}"
-               th:text="|${profile.playerName}，剩余 ${profile.actionPoints} 次行动。|">
-                玩家，剩余行动。
-            </p>
-            <p class="campus-hero__copy" th:if="${semesterOver}">
-                学期已结束，感谢你度过的大学时光。
-            </p>
-        </div>
-        <div class="campus-status">
-            <span th:each="line : ${statusLines}" th:text="${line}">状态</span>
-        </div>
-    </header>
+<body class="game-shell">
 
-    <div th:if="${message}" class="alert alert-info" th:text="${message}"></div>
+<!-- 游戏HUD -->
+<div th:replace="~{fragments/layout :: game-hud}"></div>
 
-    <section class="action-map" th:if="${!semesterOver}">
-        <div class="action-map__backdrop"></div>
-        <article class="location-node"
+<main class="campus-map">
+
+    <!-- ========== 地图标题区 ========== -->
+    <section class="campus-map__header">
+        <p class="campus-map__eyebrow">🗺️ 莲花街校区行动地图</p>
+        <h1 class="campus-map__title" th:if="${!semesterOver}">今晚去哪儿续命？</h1>
+        <h1 class="campus-map__title" th:if="${semesterOver}">学期已结束</h1>
+        <p class="campus-map__sub" th:if="${!semesterOver}">
+            <span th:text="${profile.playerName}">玩家</span>，剩余
+            <strong th:text="${profile.actionPoints}">3</strong> 次行动
+        </p>
+    </section>
+
+    <!-- 信息提示 -->
+    <div th:if="${message}" class="campus-map__msg" th:text="${message}">提示</div>
+
+    <!-- ========== 校园节点地图 ========== -->
+    <section class="campus-map__grid" th:if="${!semesterOver}">
+        <article class="campus-node"
                  th:each="location : ${locations}"
                  th:classappend="${location.backgroundImage}"
                  th:style="|--node-color: ${location.themeColor}|">
-            <div class="location-node__icon" th:text="${#strings.substring(location.iconKey,0,1).toUpperCase()}">L</div>
-            <div class="location-node__content">
-                <p class="location-node__campus" th:text="${location.campus}">莲花街校区</p>
-                <h2 th:text="${location.locationName}">地点</h2>
-                <p th:text="${location.description}">描述</p>
-                <!-- 探索度条 -->
-                <div class="progress mb-1" style="height: 4px;">
-                    <div class="progress-bar" role="progressbar"
-                         th:style="'width:' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%; background:' + ${location.themeColor}"
-                         th:aria-valuenow="${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0}"
-                         aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <p class="small text-muted mb-1" th:text="'探索度 ' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%'">探索度 0%</p>
-                <p class="location-node__event-hint" th:if="${profile.actionPoints > 0}">消耗 1 行动点</p>
-                <p class="location-node__event-hint" th:if="${profile.actionPoints == 0}" style="color:#fca5a5">行动点不足</p>
+            <!-- 节点图标 -->
+            <div class="campus-node__marker">
+                <span th:text="${location.iconKey}">📍</span>
             </div>
-            <a class="location-node__action"
+            <!-- 节点信息 -->
+            <div class="campus-node__body">
+                <h2 class="campus-node__name" th:text="${location.locationName}">地点名</h2>
+                <p class="campus-node__vibe" th:text="${location.description}">氛围短句</p>
+                <!-- 探索度 -->
+                <div class="campus-node__explore">
+                    <div class="campus-node__explore-track">
+                        <div class="campus-node__explore-fill"
+                             th:style="'width:' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%; background:' + ${location.themeColor}"></div>
+                    </div>
+                    <span class="campus-node__explore-label"
+                          th:text="'探索 ' + ${exploreLevels[location.id] != null ? exploreLevels[location.id] : 0} + '%'">0%</span>
+                </div>
+                <!-- 行动点消耗 -->
+                <div class="campus-node__cost">
+                    <span class="campus-node__ap">⚡ 1 行动点</span>
+                </div>
+            </div>
+            <!-- 行动按钮 -->
+            <a class="campus-node__go"
                th:if="${profile.actionPoints > 0}"
-               th:href="@{/map/location/{id}/event(id=${location.id})}">行动</a>
-            <span class="location-node__action" th:if="${profile.actionPoints == 0}" style="opacity:0.5;cursor:default">行动</span>
+               th:href="@{/map/location/{id}/event(id=${location.id})}">去这里</a>
+            <span class="campus-node__go campus-node__go--disabled"
+                  th:if="${profile.actionPoints == 0}">行动点不足</span>
         </article>
-        <aside class="dungeon-hook">
-            <p>核心副本</p>
-            <h2>Java 课设：DDL 前夜</h2>
-            <span>实验室灯还亮着，数据库关系还没想清楚。</span>
-            <a href="/dungeons" class="btn btn-light btn-sm">查看副本</a>
-        </aside>
     </section>
+
+    <!-- ========== 学期结束 ========== -->
+    <section th:if="${semesterOver}" class="campus-map__end">
+        <p>学期已结束，无法继续行动。</p>
+        <a href="/ending" class="sticky-note__btn sticky-note__btn--primary">📖 查看学期回忆</a>
+    </section>
+
+    <!-- ========== 副本入口 ========== -->
+    <aside class="campus-map__dungeon-hook" th:if="${!semesterOver}">
+        <div class="campus-map__dungeon-hook-left">
+            <span class="campus-map__dungeon-hook-tag">核心副本</span>
+            <h3>Java 课设：DDL 前夜</h3>
+            <p>实验室灯还亮着，数据库关系还没想清楚。</p>
+        </div>
+        <a href="/dungeons" class="sticky-note__btn sticky-note__btn--primary">⚔️ 查看副本</a>
+    </aside>
+
+    <!-- ========== 返回寝室 ========== -->
+    <div class="campus-map__back" th:if="${!semesterOver}">
+        <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
+        <a href="/exploration" class="sticky-note__btn">🔍 去踩点</a>
+    </div>
+
 </main>
+
+<!-- 手机底栏 -->
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+
 </body>
 </html>
