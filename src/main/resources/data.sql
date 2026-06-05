@@ -250,3 +250,16 @@ INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, 
 INSERT INTO organization (id, org_name, org_type, description, unlock_location_id, unlock_explore_level, recommended_attribute, weekly_ap_cost, theme_color) VALUES
 (1, '学生会', '学生会', '校园活动的组织者和协调者。加入学生会能快速积累社交和声望，但活动会占用大量时间。', 7, 20, '社交', 1, '#f59e0b'),
 (2, '实验室项目组', '实验室', '跟着老师做项目的硬核路线。需要一定的技能基础，但能快速提升技术和自律。', 6, 20, '技能', 1, '#8b5cf6');
+
+-- ============================================================
+-- 学期结局种子数据
+-- ============================================================
+
+INSERT INTO semester_ending (id, ending_name, ending_type, description, condition_rule, priority, theme_color, icon) VALUES
+(1, '课设战神', '学业', '你的 Java 课设拿到了高分，老师点名表扬了你的数据库设计。你用技能和自律把课设做到了极致。', 'skill>=70 AND academic>=60 AND discipline>=50', 30, '#7c3aed', '💻'),
+(2, '图书馆常驻民', '学业', '图书馆的每一个角落你都熟悉，你成了这里最稳定的自习者。学业和自律双高，但社交可能有点欠缺。', 'academic>=70 AND discipline>=60 AND social<50', 25, '#0f766e', '📚'),
+(3, '社团风云人物', '社交', '你在社团活动区是出了名的活跃分子，声望和社交值都很高。不过学业可能需要补课。', 'social>=70 AND discipline>=40', 20, '#ea580c', '🎉'),
+(4, '实验室编外研究员', '学业', '你虽然不是正式成员，但在实验室花的时间比大多数组员还多。技能和自律都很强，项目进度推进明显。', 'skill>=65 AND discipline>=55 AND academic>=50', 22, '#8b5cf6', '🔬'),
+(5, 'DDL 幸存者', '生活', '你在高压中一路硬撑，所有关键任务勉强完成。压力值很高，但你活下来了。', 'pressure>=60 AND academic>=40 AND health>=40', 15, '#dc2626', '⏰'),
+(6, '快乐摆烂人', '生活', '你选择了快乐路线。压力很低，自律也很低，学业只是还行。但谁说这不是一种活法呢？', 'pressure<30 AND discipline<40 AND academic<50', 18, '#f59e0b', '😎'),
+(7, '六边形工大学子', '均衡', '你的各项属性都比较均衡，没有明显短板，也没有极端优势。你是一个合格的工大学子。', 'academic>=50 AND health>=50 AND social>=50 AND skill>=50 AND discipline>=50 AND pressure<60', 10, '#2563eb', '⚖️');

@@ -12,6 +12,8 @@ DROP TABLE IF EXISTS task;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
 DROP TABLE IF EXISTS player_profile;
+DROP TABLE IF EXISTS user_semester_ending;
+DROP TABLE IF EXISTS semester_ending;
 DROP TABLE IF EXISTS user_location_exploration;
 DROP TABLE IF EXISTS user_organization;
 DROP TABLE IF EXISTS organization;
@@ -261,6 +263,33 @@ CREATE TABLE user_location_exploration (
     CONSTRAINT fk_ule_user FOREIGN KEY (user_id) REFERENCES `user`(id),
     CONSTRAINT fk_ule_location FOREIGN KEY (location_id) REFERENCES campus_location(id),
     UNIQUE KEY uk_user_location (user_id, location_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE semester_ending (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    ending_name VARCHAR(50) NOT NULL UNIQUE,
+    ending_type VARCHAR(30) NOT NULL DEFAULT 'normal',
+    description TEXT NOT NULL,
+    condition_rule TEXT NOT NULL,
+    priority INT NOT NULL DEFAULT 0,
+    theme_color VARCHAR(20) NOT NULL DEFAULT '#2563eb',
+    icon VARCHAR(50) NOT NULL DEFAULT '🏆'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE user_semester_ending (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    ending_id BIGINT NOT NULL,
+    growth_route VARCHAR(50) NOT NULL,
+    academic INT NOT NULL DEFAULT 0,
+    health INT NOT NULL DEFAULT 0,
+    social INT NOT NULL DEFAULT 0,
+    skill INT NOT NULL DEFAULT 0,
+    pressure INT NOT NULL DEFAULT 0,
+    discipline INT NOT NULL DEFAULT 0,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_use_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_use_ending FOREIGN KEY (ending_id) REFERENCES semester_ending(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
