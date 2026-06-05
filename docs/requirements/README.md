@@ -1,44 +1,18 @@
-# HAUT Survivor Requirements Index
+# HAUT Survivor 需求文档索引
 
-本文档目录用于替代原来过长的 `HAUT_Survivor_Requirements.md` 作为后续开发入口。原始文档已归档到 `docs/archive/HAUT_Survivor_Requirements.full.md`，仅作为历史完整稿保留；新开发者或下一个 AI 优先阅读本目录。
+## 阅读顺序
 
-## 推荐阅读顺序
+1. [01-product-scope.md](01-product-scope.md) — 项目定位、目标用户、成功标准
+2. [02-core-gameplay.md](02-core-gameplay.md) — 核心循环、角色属性、地图、事件
+3. [03-dungeon-system.md](03-dungeon-system.md) — 副本系统、小游戏、过程标签
+4. [04-functional-modules.md](04-functional-modules.md) — 功能模块、业务流程
+5. [05-data-and-technical-design.md](05-data-and-technical-design.md) — 技术架构、数据库设计
+6. [06-ui-ux-and-visual-design.md](06-ui-ux-and-visual-design.md) — UI/UX 设计
+7. [07-roadmap-and-acceptance.md](07-roadmap-and-acceptance.md) — 路线图、验收标准
+8. [08-content-library.md](08-content-library.md) — 事件/地点/结局文案素材
+9. [09-semester-sim-design.md](09-semester-sim-design.md) — 周回合制模拟器设计（行动点、组织、探索、结局）
 
-1. [01-product-scope.md](./01-product-scope.md)  
-   项目定位、目标用户、阶段范围和当前决策。
+## 配套文档
 
-2. [02-core-gameplay.md](./02-core-gameplay.md)  
-   核心循环、角色属性、地图、随机事件、任务系统等基础玩法。
-
-3. [03-dungeon-system.md](./03-dungeon-system.md)  
-   副本挑战模块、情境驱动式任务机制、Java 课设副本和后续副本设计。
-
-4. [04-functional-modules.md](./04-functional-modules.md)  
-   用户端、管理员端、业务流程和功能验收要求。
-
-5. [05-data-and-technical-design.md](./05-data-and-technical-design.md)  
-   技术路线、数据库设计、核心业务规则和扩展建议。
-
-6. [06-ui-ux-and-visual-design.md](./06-ui-ux-and-visual-design.md)  
-   页面结构、视觉氛围、交互体验、小游戏表现要求。
-
-7. [07-roadmap-and-acceptance.md](./07-roadmap-and-acceptance.md)  
-   Demo 基础版、完整版、加强版路线和验收标准。
-
-8. [08-content-library.md](./08-content-library.md)  
-   默认地点、事件、副本、结局、文案素材和后续内容补充方向。
-
-9. [09-semester-sim-design.md](./09-semester-sim-design.md)
-   周回合制大学生模拟器设计，包括组织、探索、关系、随机事件、当代校园元素和多路线结局。
-
-## 配套移交文档
-
-- [../PROJECT_COMPLETION_STATUS.md](../PROJECT_COMPLETION_STATUS.md)  
-  当前完成情况、已验证内容、未完成内容和风险。
-
-- [../NEXT_AI_HANDOFF.md](../NEXT_AI_HANDOFF.md)  
-  给另一个 AI 的接手说明、上下文摘要、推荐下一步和可直接复制的提示词。
-
-## 当前阶段判断
-
-当前项目已经完成一个可演示的 Spring Boot Demo，并完成了一轮可玩性增强。后续产品方向已升级为“周回合制大学生模拟器”：不应继续堆普通 CRUD，而应优先建立行动点、组织、探索、随机事件、Bug 定位小游戏和多路线结局等养成玩法。
+- [../PROJECT_COMPLETION_STATUS.md](../PROJECT_COMPLETION_STATUS.md) — 当前完成状态
+- [../README.md](../README.md) — 项目说明和快速开始
