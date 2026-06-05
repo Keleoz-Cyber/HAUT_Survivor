@@ -54,7 +54,7 @@
 
             <!-- 数据库拼图表单 -->
             <form th:if="${isMinigameTask}" class="relation-game" method="post"
-                  th:action="@{/dungeons/demo/task/{taskId}/minigame(taskId=${task.id})}">
+                  th:action="@{/dungeons/{dungeonId}/task/{taskId}/minigame(dungeonId=${dungeon.id}, taskId=${task.id})}">
                 <input id="elapsedSeconds" type="hidden" name="elapsedSeconds" value="0">
                 <div class="relation-game__top">
                     <strong>选择你认为正确的表关系</strong>
@@ -69,7 +69,7 @@
 
             <!-- Bug 定位小游戏表单 -->
             <form th:if="${isBugHuntTask}" id="bugHuntForm" class="relation-game bug-hunt-game" method="post"
-                  th:action="@{/dungeons/demo/task/{taskId}/bughunt(taskId=${task.id})}"
+                  th:action="@{/dungeons/{dungeonId}/task/{taskId}/bughunt(dungeonId=${dungeon.id}, taskId=${task.id})}"
                   onsubmit="return prepareBugHunt()">
                 <input id="bhElapsed" type="hidden" name="elapsedSeconds" value="0">
                 <div class="relation-game__top">
@@ -96,7 +96,7 @@
 
             <!-- 普通选项（需求风暴等非小游戏阶段） -->
             <div class="event-options" th:if="${!isMinigameTask and !isBugHuntTask}">
-                <form th:each="option : ${options}" method="post" th:action="@{/dungeons/demo/task/{taskId}/option/{optionId}(taskId=${task.id}, optionId=${option.id})}">
+                <form th:each="option : ${options}" method="post" th:action="@{/dungeons/{dungeonId}/task/{taskId}/option/{optionId}(dungeonId=${dungeon.id}, taskId=${task.id}, optionId=${option.id})}">
                     <input type="hidden" name="minigameResult" th:value="|task=${task.minigameType};option=${option.id}|">
                     <button type="submit" class="event-option" th:classappend="${option.isCorrect == 1 ? 'risk-low' : 'risk-medium'}">
                         <strong th:text="${option.optionText}">选项</strong>

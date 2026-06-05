@@ -49,12 +49,12 @@ class DungeonServiceTests {
 
     @Test
     void choosingDungeonOptionUpdatesProgressAndAttributes() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         DungeonTask task = dungeonService.findCurrentTask(record);
         DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
 
         UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(2L, record.getId(), task.getId(), option.getId(), null);
-        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         assertThat(taskRecord.getEvaluation()).isNotBlank();
         assertThat(taskRecord.getResultText()).contains("课设");
@@ -64,33 +64,33 @@ class DungeonServiceTests {
 
     @Test
     void firstStageChoiceStoresConsequenceFlags() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
 
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
 
-        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         assertThat(updatedRecord.getRiskFlags()).contains("scope_controlled");
     }
 
     @Test
     void riskyFirstStageChoiceStoresScopeSprawlFlag() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
 
         dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
 
-        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         assertThat(updatedRecord.getRiskFlags()).contains("scope_sprawl");
     }
 
     @Test
     void databaseRelationMinigameRewardsCorrectRelations() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
-        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         assertThat(taskRecord.getEvaluation()).isEqualTo("结构清晰");
         assertThat(taskRecord.getScore()).isGreaterThanOrEqualTo(90);
@@ -100,13 +100,13 @@ class DungeonServiceTests {
 
     @Test
     void databaseRelationMinigameCarriesBadConsequences() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->event"), 70);
-        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord updatedRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         assertThat(taskRecord.getEvaluation()).isEqualTo("表关系迷雾");
         assertThat(taskRecord.getScore()).isLessThan(50);
@@ -128,12 +128,12 @@ class DungeonServiceTests {
     @Test
     void bugHuntAllCorrectProducesHighScore() {
         // 完成前两阶段
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
-        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         // 提交全部正确答案：题目 0→1, 1→0, 2→0
         UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
@@ -147,12 +147,12 @@ class DungeonServiceTests {
 
     @Test
     void bugHuntSomeWrongProducesMediumScore() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 3L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->player_attribute"), 40);
-        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         // 只答对 1 题：题目 0→1（正确）, 1→99（错误）, 2→99（错误）
         UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
@@ -165,12 +165,12 @@ class DungeonServiceTests {
 
     @Test
     void bugHuntAllWrongProducesLowScore() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->event"), 70);
-        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         // 全部答错
         UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
@@ -183,12 +183,12 @@ class DungeonServiceTests {
 
     @Test
     void strongRunWithBugHuntProducesWarriorEnding() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
-        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         dungeonService.chooseBugHunt(2L, bugStageRecord.getId(), 3L,
                 List.of(0, 1, 2), List.of(1, 0, 0), 20);
@@ -201,12 +201,12 @@ class DungeonServiceTests {
 
     @Test
     void weakRunWithBugAvalancheProducesSilentEnding() {
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 2L, null);
-        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
                 List.of("user->event"), 70);
-        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDemoDungeon(2L);
+        UserDungeonRecord bugStageRecord = dungeonService.startOrResumeDungeon(2L, 1L);
 
         dungeonService.chooseBugHunt(2L, bugStageRecord.getId(), 3L,
                 List.of(0, 1, 2), List.of(3, 3, 3), 70);

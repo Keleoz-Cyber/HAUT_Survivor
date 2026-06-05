@@ -43,29 +43,40 @@ public class DungeonController {
         if (!playerService.hasProfile(userId)) {
             return "redirect:/player/create";
         }
-        Dungeon dungeon = dungeonService.findDemoDungeon();
-        model.addAttribute("dungeon", dungeon);
-        model.addAttribute("tasks", dungeonService.listTasks(dungeon.getId()));
+        List<Dungeon> dungeons = dungeonService.listAllDungeons();
+        model.addAttribute("dungeons", dungeons);
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         return "dungeon/index";
     }
 
-    @GetMapping("/dungeons/demo/start")
-    public String startDemo(HttpSession session) {
+    @GetMapping("/dungeons/{dungeonId}")
+    public String detail(@PathVariable Long dungeonId, HttpSession session, Model model) {
         Long userId = currentUserId(session);
-        dungeonService.startOrResumeDemoDungeon(userId);
-        return "redirect:/dungeons/demo/play";
+        Dungeon dungeon = dungeonService.findDungeonById(dungeonId);
+        if (dungeon == null) return "redirect:/dungeons";
+        model.addAttribute("dungeon", dungeon);
+        model.addAttribute("tasks", dungeonService.listTasks(dungeonId));
+        model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+        return "dungeon/detail";
     }
 
-    @GetMapping("/dungeons/demo/play")
-    public String playDemo(HttpSession session, Model model) {
+    @GetMapping("/dungeons/{dungeonId}/start")
+    public String startDungeon(@PathVariable Long dungeonId, HttpSession session) {
         Long userId = currentUserId(session);
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
+        dungeonService.startOrResumeDungeon(userId, dungeonId);
+        return "redirect:/dungeons/" + dungeonId + "/play";
+    }
+
+    @GetMapping("/dungeons/{dungeonId}/play")
+    public String playDungeon(@PathVariable Long dungeonId, HttpSession session, Model model) {
+        Long userId = currentUserId(session);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         DungeonTask task = dungeonService.findCurrentTask(record);
         if (task == null) {
             return "redirect:/dungeons";
         }
-        model.addAttribute("dungeon", dungeonService.findDemoDungeon());
+        Dungeon dungeon = dungeonService.findDungeonById(dungeonId);
+        model.addAttribute("dungeon", dungeon);
         model.addAttribute("record", record);
         model.addAttribute("task", task);
         model.addAttribute("options", dungeonService.listOptions(task.getId()));
@@ -83,8 +94,9 @@ public class DungeonController {
         return "dungeon/play";
     }
 
-    @PostMapping("/dungeons/demo/task/{taskId}/option/{optionId}")
+    @PostMapping("/dungeons/{dungeonId}/task/{taskId}/option/{optionId}")
     public String chooseOption(
+            @PathVariable Long dungeonId,
             @PathVariable Long taskId,
             @PathVariable Long optionId,
             @RequestParam(required = false) String minigameResult,
@@ -92,18 +104,20 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(userId, record.getId(), taskId, optionId, minigameResult);
         UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
 
         model.addAttribute("taskRecord", taskRecord);
         model.addAttribute("record", updatedRecord);
+        model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         return "dungeon/result";
     }
 
-    @PostMapping("/dungeons/demo/task/{taskId}/minigame")
+    @PostMapping("/dungeons/{dungeonId}/task/{taskId}/minigame")
     public String submitMinigame(
+            @PathVariable Long dungeonId,
             @PathVariable Long taskId,
             @RequestParam(required = false) List<String> selectedRelations,
             @RequestParam(required = false) Integer elapsedSeconds,
@@ -111,19 +125,21 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(userId, record.getId(), taskId,
                 selectedRelations == null ? List.of() : selectedRelations, elapsedSeconds);
         UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
 
         model.addAttribute("taskRecord", taskRecord);
         model.addAttribute("record", updatedRecord);
+        model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         return "dungeon/result";
     }
 
-    @PostMapping("/dungeons/demo/task/{taskId}/bughunt")
+    @PostMapping("/dungeons/{dungeonId}/task/{taskId}/bughunt")
     public String submitBugHunt(
+            @PathVariable Long dungeonId,
             @PathVariable Long taskId,
             @RequestParam("questionIds") List<Integer> questionIds,
             @RequestParam("answers") List<Integer> answers,
@@ -132,13 +148,14 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
-        UserDungeonRecord record = dungeonService.startOrResumeDemoDungeon(userId);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
                 userId, record.getId(), taskId, questionIds, answers, elapsedSeconds);
         UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
 
         model.addAttribute("taskRecord", taskRecord);
         model.addAttribute("record", updatedRecord);
+        model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         return "dungeon/result";
     }

@@ -16,6 +16,12 @@ public interface DungeonService {
 
     Dungeon findDemoDungeon();
 
+    List<Dungeon> listAllDungeons();
+
+    Dungeon findDungeonById(Long dungeonId);
+
+    UserDungeonRecord startOrResumeDungeon(Long userId, Long dungeonId);
+
     List<DungeonTask> listTasks(Long dungeonId);
 
     List<DungeonTaskOption> listOptions(Long taskId);

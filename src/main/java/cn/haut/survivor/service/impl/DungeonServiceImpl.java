@@ -97,6 +97,51 @@ public class DungeonServiceImpl implements DungeonService {
     }
 
     @Override
+    public List<Dungeon> listAllDungeons() {
+        return dungeonMapper.selectList(new LambdaQueryWrapper<Dungeon>()
+                .eq(Dungeon::getStatus, 1)
+                .orderByAsc(Dungeon::getId));
+    }
+
+    @Override
+    public Dungeon findDungeonById(Long dungeonId) {
+        return dungeonMapper.selectById(dungeonId);
+    }
+
+    @Override
+    @Transactional
+    public UserDungeonRecord startOrResumeDungeon(Long userId, Long dungeonId) {
+        if (!playerService.hasProfile(userId)) {
+            throw new IllegalArgumentException("请先创建角色");
+        }
+        Dungeon dungeon = dungeonMapper.selectById(dungeonId);
+        if (dungeon == null || dungeon.getStatus() != 1) {
+            throw new IllegalArgumentException("副本不存在");
+        }
+        UserDungeonRecord record = userDungeonRecordMapper.selectOne(new LambdaQueryWrapper<UserDungeonRecord>()
+                .eq(UserDungeonRecord::getUserId, userId)
+                .eq(UserDungeonRecord::getDungeonId, dungeonId)
+                .eq(UserDungeonRecord::getStatus, IN_PROGRESS)
+                .last("limit 1"));
+        if (record != null) {
+            return record;
+        }
+
+        DungeonTask firstTask = listTasks(dungeonId).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("副本缺少阶段任务"));
+        record = new UserDungeonRecord();
+        record.setUserId(userId);
+        record.setDungeonId(dungeonId);
+        record.setCurrentTaskId(firstTask.getId());
+        record.setStatus(IN_PROGRESS);
+        record.setTotalScore(0);
+        record.setStartTime(LocalDateTime.now());
+        userDungeonRecordMapper.insert(record);
+        return record;
+    }
+
+    @Override
     public List<DungeonTask> listTasks(Long dungeonId) {
         return dungeonTaskMapper.selectList(new LambdaQueryWrapper<DungeonTask>()
                 .eq(DungeonTask::getDungeonId, dungeonId)

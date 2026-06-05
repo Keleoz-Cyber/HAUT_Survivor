@@ -10,26 +10,31 @@
 <body class="survivor-body">
 <div th:replace="~{fragments/layout :: nav}"></div>
 <main class="container app-shell">
-    <section class="dungeon-cover">
+    <header class="campus-hero mb-4">
         <div>
-            <p class="campus-hero__eyebrow">Demo 核心副本</p>
-            <h1 th:text="${dungeon.dungeonName}">Java 课设：DDL 前夜</h1>
-            <p th:text="${dungeon.description}">副本描述</p>
-            <div class="dungeon-cover__meta">
-                <span th:text="|预计 ${dungeon.estimatedMinutes} 分钟|">预计 8 分钟</span>
-                <span th:text="${dungeon.difficultyLabel}">普通</span>
-                <span th:text="|奖励：${dungeon.rewardTitle}|">奖励</span>
-            </div>
-            <a href="/dungeons/demo/start" class="btn btn-light">进入副本</a>
+            <p class="campus-hero__eyebrow">副本挑战</p>
+            <h1 class="campus-hero__title">选择你的战场</h1>
+            <p class="campus-hero__copy">每个副本都是一个完整的挑战故事，有多个阶段和不同玩法。完成副本获得丰厚奖励。</p>
         </div>
-    </section>
+        <div class="campus-status">
+            <span th:text="|行动点 ${attribute.social}|">属性</span>
+        </div>
+    </header>
 
-    <section class="dungeon-timeline mt-4">
-        <article th:each="task : ${tasks}">
-            <span th:text="${task.taskOrder}">1</span>
-            <div>
-                <h2 th:text="${task.taskName}">阶段</h2>
-                <p th:text="${task.targetText}">目标</p>
+    <section class="row g-3">
+        <article class="col-md-6" th:each="dungeon : ${dungeons}">
+            <div class="panel" th:style="'border-left: 4px solid ' + (${dungeon.themeStyle == 'DDL' ? '#7c3aed' : '#16a34a'})">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h3 class="h5 mb-0" th:text="${dungeon.dungeonName}">副本名</h3>
+                    <span class="badge bg-secondary" th:text="${dungeon.difficultyLabel}">难度</span>
+                </div>
+                <p class="text-muted small mb-2" th:text="${dungeon.description}">描述</p>
+                <div class="d-flex gap-2 mb-3">
+                    <span class="badge bg-info" th:text="|预计 ${dungeon.estimatedMinutes} 分钟|">时间</span>
+                    <span class="badge bg-warning text-dark" th:text="${dungeon.dungeonType}">类型</span>
+                    <span class="badge bg-success" th:if="${dungeon.rewardTitle}" th:text="'奖励：' + ${dungeon.rewardTitle}">奖励</span>
+                </div>
+                <a th:href="@{/dungeons/{id}(id=${dungeon.id})}" class="btn btn-sm btn-outline-dark">查看详情</a>
             </div>
         </article>
     </section>

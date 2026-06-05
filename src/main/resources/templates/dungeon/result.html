@@ -33,7 +33,7 @@
                 <a href="/map" class="btn btn-outline-light">回地图继续</a>
             </div>
             <div th:unless="${record.status == 'COMPLETED'}">
-                <a href="/dungeons/demo/play" class="btn btn-light">进入下一阶段</a>
+                <a th:href="@{/dungeons/{id}/play(id=${record.dungeonId})}" class="btn btn-light">进入下一阶段</a>
                 <a href="/map" class="btn btn-outline-light">先回地图</a>
             </div>
         </div>

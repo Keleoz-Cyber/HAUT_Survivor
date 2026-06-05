@@ -40,27 +40,27 @@ class DungeonControllerTests {
     }
 
     @Test
-    void dungeonIndexShowsDemoDungeon() throws Exception {
+    void dungeonIndexShowsDungeonList() throws Exception {
         mockMvc.perform(get("/dungeons")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dungeon/index"))
-                .andExpect(model().attributeExists("dungeon", "tasks"));
+                .andExpect(model().attributeExists("dungeons"));
     }
 
     @Test
     void startDemoDungeonRedirectsToPlayPage() throws Exception {
-        mockMvc.perform(get("/dungeons/demo/start")
+        mockMvc.perform(get("/dungeons/1/start")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/dungeons/demo/play"));
+                .andExpect(redirectedUrl("/dungeons/1/play"));
     }
 
     @Test
     void playPageShowsCurrentDungeonTask() throws Exception {
-        mockMvc.perform(get("/dungeons/demo/play")
+        mockMvc.perform(get("/dungeons/1/play")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
@@ -70,7 +70,7 @@ class DungeonControllerTests {
 
     @Test
     void choosingDungeonOptionShowsResult() throws Exception {
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .param("minigameResult", "selected=core-loop")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
@@ -81,11 +81,11 @@ class DungeonControllerTests {
 
     @Test
     void minigamePageShowsRelationChoicesAfterFirstStage() throws Exception {
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
 
-        mockMvc.perform(get("/dungeons/demo/play")
+        mockMvc.perform(get("/dungeons/1/play")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
@@ -96,11 +96,11 @@ class DungeonControllerTests {
 
     @Test
     void submittingDatabaseMinigameShowsResult() throws Exception {
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
 
-        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
                         .param("selectedRelations", "dungeon->dungeon_task")
@@ -115,11 +115,11 @@ class DungeonControllerTests {
     @Test
     void bugHuntPageShowsQuestionsAfterSecondStage() throws Exception {
         // 完成阶段 1
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
         // 完成阶段 2
-        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
                         .param("selectedRelations", "dungeon->dungeon_task")
@@ -128,7 +128,7 @@ class DungeonControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
 
         // 阶段 3 应该是 Bug Hunt
-        mockMvc.perform(get("/dungeons/demo/play")
+        mockMvc.perform(get("/dungeons/1/play")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
@@ -140,11 +140,11 @@ class DungeonControllerTests {
     @Test
     void submittingBugHuntCompletesDungeon() throws Exception {
         // 阶段 1
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
         // 阶段 2
-        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
                         .param("selectedRelations", "dungeon->dungeon_task")
@@ -152,7 +152,7 @@ class DungeonControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
         // 阶段 3：Bug Hunt（全对）
-        mockMvc.perform(post("/dungeons/demo/task/3/bughunt")
+        mockMvc.perform(post("/dungeons/1/task/3/bughunt")
                         .param("questionIds", "0")
                         .param("questionIds", "1")
                         .param("questionIds", "2")
@@ -172,11 +172,11 @@ class DungeonControllerTests {
     @Test
     void finishingDemoDungeonShowsCompletedEndingWithProcessFlags() throws Exception {
         // 阶段 1
-        mockMvc.perform(post("/dungeons/demo/task/1/option/1")
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
         // 阶段 2
-        mockMvc.perform(post("/dungeons/demo/task/2/minigame")
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
                         .param("selectedRelations", "dungeon->dungeon_task")
@@ -184,7 +184,7 @@ class DungeonControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
         // 阶段 3
-        mockMvc.perform(post("/dungeons/demo/task/3/bughunt")
+        mockMvc.perform(post("/dungeons/1/task/3/bughunt")
                         .param("questionIds", "0")
                         .param("questionIds", "1")
                         .param("questionIds", "2")

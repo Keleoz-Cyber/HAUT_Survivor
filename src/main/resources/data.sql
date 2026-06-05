@@ -317,6 +317,33 @@ INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, 
 (2, 1, 'strategy', '继续堆功能，看看最后能不能都跑起来', 0, 100, '功能列表变长了，但每个模块都像半成品。你感觉答辩风险正在上升。', '勉强完成', 42, 2, -2, 0, 0, 2, 8, -2, 12, 2, 1),
 (3, 1, 'strategy', '先写报告，代码明天再抢救', 0, 100, '报告目录变整齐了，项目本体却还没准备好面对老师的鼠标。', '普通完成', 55, 3, 0, 0, 0, 1, 4, 1, 18, 2, 1);
 
+-- ============================================================
+-- 副本种子数据：体测生存挑战
+-- ============================================================
+
+INSERT INTO dungeon (id, dungeon_name, dungeon_type, description, cover_image, theme_style, estimated_minutes, difficulty_label, reward_exp, reward_title, status) VALUES
+(2, '体测生存挑战', '体测', '体测项目来了！1000米、引体向上、坐位体前屈……你需要在体能极限和策略之间找到平衡。能否拿到满分全靠你的选择。', 'scene-track', '体测', 6, '普通', 150, '体测幸存者', 1);
+
+INSERT INTO dungeon_task (id, dungeon_id, task_name, task_type, task_order, scene_text, target_text, background_image, minigame_type, minigame_config, timer_seconds, settlement_rule, random_enabled, attribute_check_rule, pass_condition, required, status) VALUES
+(4, 2, '1000 米生死线', 'single_choice', 1, '体育老师在起点吹响了哨子。1000米跑是体测的核心项目，你站在起跑线上，脑子里转着各种策略。操场上一圈又一圈的跑道看起来比平时更长。', '选择你的跑步策略。健康值影响体力，自律影响节奏控制。', 'scene-track', 'none', NULL, NULL, '健康和自律影响成绩。健康<40 跑不动，自律<40 容易崩节奏。', 0, NULL, 'score>=40', 1, 1),
+(5, 2, '引体向上极限', 'single_choice', 2, '你来到单杠前，双手握住冰凉的横杠。体测标准是至少 10 个及格，15 个良好。你的手臂已经开始发酸了——上一个项目的后遗症还没消。', '决定你的发力策略。健康和技能影响表现。', 'scene-track', 'none', NULL, NULL, '上一个项目的状态会影响这一关。', 0, 'health>=40', 'score>=40', 1, 1),
+(6, 2, '坐位体前屈绝杀', 'single_choice', 3, '最后一个项目了。你坐在测试仪前，双腿伸直。老师手里的记录本上还差最后一项成绩。你需要往前够——身体的极限就在眼前。', '最后冲刺，用你的方式完成体测。', 'scene-track', 'none', NULL, NULL, '全程表现综合评价。', 1, NULL, 'score>=40', 1, 1);
+
+INSERT INTO dungeon_task_option (id, dungeon_task_id, option_type, option_text, is_correct, trigger_probability, result_text, evaluation, score, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change, next_task_id, status) VALUES
+-- 1000米跑步策略
+(7, 4, 'strategy', '匀速跑，稳住节奏', 1, 100, '你保持了稳定的配速，虽然不是最快，但全程没有掉速。体测不是比赛，及格就行。', '稳定发挥', 80, 0, -2, 0, 0, 0, 3, 4, 30, 5, 1),
+(8, 4, 'strategy', '前半程冲刺，后半程硬撑', 0, 100, '前两圈你冲在最前面，但第三圈开始掉速严重，最后几乎是走过终点的。成绩勉强及格。', '勉强过关', 50, 0, -5, 0, 0, 0, 6, 1, 18, 5, 1),
+(9, 4, 'strategy', '跟在别人后面跑，省力', 0, 100, '你找到了一个节奏不错的同学跟在后面，省了不少力气。虽然没有发挥出全力，但轻松过关。', '安全过关', 65, 0, -1, 0, 2, 0, 1, 2, 22, 5, 1),
+-- 引体向上策略
+(10, 5, 'strategy', '分组完成，每组 5 个', 1, 100, '你把目标拆成了三组，节奏清晰。虽然中间休息了几秒，但每个动作都很标准。', '优秀完成', 85, 0, -3, 0, 0, 2, 2, 5, 35, 6, 1),
+(11, 5, 'strategy', '一鼓作气做到做不动为止', 0, 100, '你一口气做了 12 个，然后手臂完全力竭。后面的体测老师帮了你一把才下来。', '勉强完成', 55, 0, -6, 0, 0, 0, 5, 2, 20, 6, 1),
+(12, 5, 'strategy', '只做最低数量，保留体力', 0, 100, '你做了 10 个就下来了，留着体力给最后一个项目。策略不错，但成绩一般。', '保守通过', 45, 0, -1, 0, 0, 0, 1, 3, 15, 6, 1),
+-- 坐位体前屈
+(13, 6, 'strategy', '先热身拉伸再测', 1, 100, '你花了两分钟做拉伸，身体明显软了不少。测试时你轻松够过了标准线。', '完美收尾', 90, 0, -1, 0, 0, 0, 1, 5, 40, NULL, 1),
+(14, 6, 'strategy', '直接上，硬推', 0, 100, '你没热身就坐上去硬推，韧带发出了抗议。成绩勉强够线，但腿疼了一下午。', '硬撑过关', 55, 0, -4, 0, 0, 0, 4, 2, 18, NULL, 1),
+(15, 6, 'strategy', '请教旁边的体育特长生', 0, 100, '体育生教你了一个呼吸放松技巧，确实有效。虽然不是最标准的方式，但成绩提升了。', '取巧完成', 70, 0, -1, 0, 3, 1, 1, 2, 25, NULL, 1);
+
+-- ============================================================
 -- 组织种子数据
 INSERT INTO organization (id, org_name, org_type, description, unlock_location_id, unlock_explore_level, recommended_attribute, weekly_ap_cost, theme_color) VALUES
 (1, '学生会', '学生会', '校园活动的组织者和协调者。加入学生会能快速积累社交和声望，但活动会占用大量时间。', 7, 20, '社交', 1, '#f59e0b'),
