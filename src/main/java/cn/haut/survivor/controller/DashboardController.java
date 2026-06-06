@@ -4,8 +4,13 @@ import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.User;
+import cn.haut.survivor.domain.entity.UserNpcRelation;
+import cn.haut.survivor.domain.entity.Rumor;
+import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorService;
 import cn.haut.survivor.service.UserService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,10 +27,18 @@ public class DashboardController {
 
     private final PlayerService playerService;
     private final UserService userService;
+    private final WeeklyThemeService weeklyThemeService;
+    private final RumorService rumorService;
+    private final NpcService npcService;
 
-    public DashboardController(PlayerService playerService, UserService userService) {
+    public DashboardController(PlayerService playerService, UserService userService,
+                               WeeklyThemeService weeklyThemeService, RumorService rumorService,
+                               NpcService npcService) {
         this.playerService = playerService;
         this.userService = userService;
+        this.weeklyThemeService = weeklyThemeService;
+        this.rumorService = rumorService;
+        this.npcService = npcService;
     }
 
     @GetMapping("/")
@@ -50,6 +63,9 @@ public class DashboardController {
         model.addAttribute("warnings", buildWarnings(attribute, profile));
         model.addAttribute("weekPhaseLabel", playerService.getWeekPhaseLabel(profile));
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
+        model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
+        model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
+        model.addAttribute("knownNpcs", npcService.listKnownNpcs(userId));
         return "dashboard/index";
     }
 

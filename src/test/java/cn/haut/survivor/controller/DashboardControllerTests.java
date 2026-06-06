@@ -70,6 +70,24 @@ class DashboardControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("dashboard/index"))
-                .andExpect(model().attributeExists("user", "profile", "attribute", "warnings"));
+                .andExpect(model().attributeExists("user", "profile", "attribute", "warnings",
+                        "weekTheme", "rumors", "knownNpcs"));
+    }
+
+    @Test
+    void dashboardWithNpcRelationDoesNotError() throws Exception {
+        playerService.createProfile(2L, "NPC仪表盘测试", "大一", "计算机类", "就业路线");
+        // Force NPC encounters by hitting exploration multiple times
+        for (int i = 0; i < 20; i++) {
+            mockMvc.perform(post("/exploration/1")
+                            .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                            .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        }
+        // Dashboard should still render fine even with NPC relations
+        mockMvc.perform(get("/dashboard")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("dashboard/index"));
     }
 }

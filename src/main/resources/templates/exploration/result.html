@@ -125,6 +125,27 @@
             <div><span>行动点</span><strong th:text="${profile.actionPoints}">3</strong></div>
         </div>
 
+        <!-- ========== NPC 遇见卡片 ========== -->
+        <section th:if="${npcEncounter != null and npcEncounter.isPresent()}" class="encounter-card">
+            <div class="encounter-card__header">
+                <span class="encounter-card__avatar" th:text="${npcEncounter.get().npc.avatarIcon}">👤</span>
+                <div class="encounter-card__info">
+                    <h3 class="encounter-card__name" th:text="${npcEncounter.get().npc.npcName}">NPC名</h3>
+                    <span class="encounter-card__type" th:text="${npcEncounter.get().npc.npcType}">类型</span>
+                </div>
+            </div>
+            <p class="encounter-card__text" th:text="${npcEncounter.get().encounterText}">遇见描述</p>
+            <div class="encounter-card__changes">
+                <span th:if="${npcEncounter.get().familiarityGain > 0}" class="encounter-card__familiarity">
+                    🤝 熟悉度 +<span th:text="${npcEncounter.get().familiarityGain}">2</span>
+                    （<span th:text="${npcEncounter.get().relation.familiarity}">10</span>）
+                </span>
+                <span th:if="${npcEncounter.get().tendencyHint}" class="encounter-card__tendency"
+                      th:text="${npcEncounter.get().tendencyHint}">倾向提示</span>
+            </div>
+            <p class="encounter-card__personality" th:if="${npcEncounter.get().npc.personality}" th:text="${npcEncounter.get().npc.personality}">性格描述</p>
+        </section>
+
         <!-- 后续行动 -->
         <div class="vn-result__actions">
             <a href="/exploration" class="sticky-note__btn sticky-note__btn--primary">🔍 继续踩点</a>

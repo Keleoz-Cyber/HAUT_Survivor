@@ -7,9 +7,12 @@ import cn.haut.survivor.domain.entity.EventRecord;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
+import cn.haut.survivor.domain.entity.Rumor;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +30,17 @@ public class MapController {
     private final EventService eventService;
     private final PlayerService playerService;
     private final ExplorationService explorationService;
+    private final WeeklyThemeService weeklyThemeService;
+    private final RumorService rumorService;
 
-    public MapController(EventService eventService, PlayerService playerService, ExplorationService explorationService) {
+    public MapController(EventService eventService, PlayerService playerService,
+                         ExplorationService explorationService,
+                         WeeklyThemeService weeklyThemeService, RumorService rumorService) {
         this.eventService = eventService;
         this.playerService = playerService;
         this.explorationService = explorationService;
+        this.weeklyThemeService = weeklyThemeService;
+        this.rumorService = rumorService;
     }
 
     @GetMapping("/map")
@@ -53,6 +62,8 @@ public class MapController {
         model.addAttribute("exploreLevels", exploreLevels);
         model.addAttribute("statusLines", buildStatusLines(profile, attribute));
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
+        model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
+        model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         return "map/index";
     }
 

@@ -7,7 +7,10 @@ import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
+import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,11 +28,19 @@ public class ExplorationController {
     private final ExplorationService explorationService;
     private final PlayerService playerService;
     private final EventService eventService;
+    private final WeeklyThemeService weeklyThemeService;
+    private final RumorService rumorService;
+    private final NpcService npcService;
 
-    public ExplorationController(ExplorationService explorationService, PlayerService playerService, EventService eventService) {
+    public ExplorationController(ExplorationService explorationService, PlayerService playerService,
+                                 EventService eventService, WeeklyThemeService weeklyThemeService,
+                                 RumorService rumorService, NpcService npcService) {
         this.explorationService = explorationService;
         this.playerService = playerService;
         this.eventService = eventService;
+        this.weeklyThemeService = weeklyThemeService;
+        this.rumorService = rumorService;
+        this.npcService = npcService;
     }
 
     @GetMapping("/exploration")
@@ -55,6 +66,8 @@ public class ExplorationController {
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
+        model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
+        model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         return "exploration/index";
     }
 
@@ -67,10 +80,12 @@ public class ExplorationController {
 
         try {
             ExplorationService.ExplorationResult result = explorationService.explore(userId, locationId);
+            PlayerProfile profile = playerService.findProfileByUserId(userId);
             model.addAttribute("result", result);
             model.addAttribute("location", findLocation(locationId));
             model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-            model.addAttribute("profile", playerService.findProfileByUserId(userId));
+            model.addAttribute("profile", profile);
+            model.addAttribute("npcEncounter", npcService.maybeMeetNpc(userId, locationId, profile.getCurrentWeek()));
             return "exploration/result";
         } catch (IllegalArgumentException e) {
             // 行动点不足或学期结束

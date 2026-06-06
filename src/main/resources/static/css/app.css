@@ -900,7 +900,14 @@ body {
     color: #e2e8f0;
     min-height: 100vh;
     overflow-x: hidden;
-    padding-bottom: 80px; /* 给底栏留空间 */
+    padding-bottom: 96px; /* 移动端：给 fixed Dock 留空间 */
+}
+
+/* 桌面端：Dock 不 fixed，不需要额外 body 底部留白 */
+@media (min-width: 993px) {
+    .game-shell {
+        padding-bottom: 16px;
+    }
 }
 
 /* ---------- 游戏HUD顶部栏 ---------- */
@@ -1015,6 +1022,16 @@ body {
     z-index: 100;
 }
 
+/* 桌面端：Dock 不固定，改为页面底部流式布局，不遮挡任何内容 */
+@media (min-width: 993px) {
+    .game-dock {
+        position: static;
+        border-radius: 0;
+        max-width: 960px;
+        margin: 0 auto;
+    }
+}
+
 .game-dock__item {
     align-items: center;
     color: #64748b;
@@ -1045,7 +1062,7 @@ body {
 .dorm-room {
     max-width: 960px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 24px 16px 32px; /* 底部额外留白，防止 Dock 遮挡 */
 }
 
 /* 寝室台灯氛围 */
@@ -1434,7 +1451,7 @@ body.bg-light .game-hud {
 .campus-map {
     max-width: 960px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 24px 16px 32px;
 }
 
 .campus-map__header {
@@ -1480,7 +1497,7 @@ body.bg-light .game-hud {
 .campus-map__grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
@@ -1492,7 +1509,7 @@ body.bg-light .game-hud {
     color: #ffffff;
     display: flex;
     flex-direction: column;
-    padding: 18px;
+    padding: 14px;
     position: relative;
     overflow: hidden;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -1508,18 +1525,18 @@ body.bg-light .game-hud {
     background: radial-gradient(circle, color-mix(in srgb, var(--node-color) 20%, transparent), transparent 70%);
     border-radius: 999px;
     content: "";
-    height: 140px;
+    height: 100px;
     position: absolute;
-    right: -40px;
-    top: -40px;
-    width: 140px;
+    right: -30px;
+    top: -30px;
+    width: 100px;
     pointer-events: none;
 }
 
 .campus-node__marker {
     position: relative;
     z-index: 1;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .campus-node__marker span {
@@ -1529,9 +1546,9 @@ body.bg-light .game-hud {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.4rem;
-    height: 44px;
-    width: 44px;
+    font-size: 1.3rem;
+    height: 40px;
+    width: 40px;
 }
 
 .campus-node__body {
@@ -1542,16 +1559,16 @@ body.bg-light .game-hud {
 
 .campus-node__name {
     color: #f8fafc;
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 800;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
 }
 
 .campus-node__vibe {
     color: rgba(255, 255, 255, 0.65);
-    font-size: 0.82rem;
-    line-height: 1.5;
-    margin: 0 0 12px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 8px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -1590,7 +1607,7 @@ body.bg-light .game-hud {
 
 /* 行动点消耗 */
 .campus-node__cost {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .campus-node__ap {
@@ -1700,12 +1717,18 @@ body.bg-light .game-hud {
         linear-gradient(135deg, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.92)),
         radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.3), transparent 26rem),
         radial-gradient(circle at 85% 12%, rgba(249, 115, 22, 0.25), transparent 20rem);
-    min-height: calc(100vh - 140px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 16px;
+    padding: 24px 16px 96px; /* 移动端：留足够空间给 fixed Dock */
     position: relative;
+}
+
+/* 桌面端 Dock 不 fixed，vn-stage 不需要大底部留白 */
+@media (min-width: 993px) {
+    .vn-stage {
+        padding-bottom: 24px;
+    }
 }
 
 /* 场景氛围变体 */
@@ -1930,9 +1953,19 @@ body.bg-light .game-hud {
     margin-top: 4px;
 }
 
-/* 离开按钮 */
+/* 离开按钮（桌面端在底部） */
 .vn-scene__leave {
     margin: 0;
+}
+
+/* 移动端顶部离开按钮（默认隐藏，移动端显示） */
+.vn-scene__leave-mobile {
+    display: none;
+}
+
+.vn-scene__leave-mobile .sticky-note__btn {
+    font-size: 0.78rem;
+    padding: 4px 12px;
 }
 
 /* ---------- 事件结算 / 探索发现结果 ---------- */
@@ -2147,7 +2180,7 @@ body.bg-light .game-hud {
 .explore-page {
     max-width: 960px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 24px 16px 32px;
 }
 
 .explore-page__header {
@@ -2206,7 +2239,7 @@ body.bg-light .game-hud {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     color: #ffffff;
-    padding: 18px;
+    padding: 14px;
     position: relative;
     overflow: hidden;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
@@ -2221,18 +2254,18 @@ body.bg-light .game-hud {
     background: radial-gradient(circle, color-mix(in srgb, var(--card-color) 15%, transparent), transparent 70%);
     border-radius: 999px;
     content: "";
-    height: 120px;
+    height: 90px;
     position: absolute;
-    right: -30px;
-    top: -30px;
-    width: 120px;
+    right: -25px;
+    top: -25px;
+    width: 90px;
     pointer-events: none;
 }
 
 .explore-card__marker {
     position: relative;
     z-index: 1;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .explore-card__marker span {
@@ -2242,9 +2275,9 @@ body.bg-light .game-hud {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
-    height: 40px;
-    width: 40px;
+    font-size: 1.2rem;
+    height: 36px;
+    width: 36px;
 }
 
 .explore-card__body {
@@ -2254,16 +2287,16 @@ body.bg-light .game-hud {
 
 .explore-card__name {
     color: #f8fafc;
-    font-size: 1.05rem;
+    font-size: 1rem;
     font-weight: 800;
-    margin: 0 0 6px;
+    margin: 0 0 4px;
 }
 
 .explore-card__desc {
     color: rgba(255, 255, 255, 0.6);
-    font-size: 0.82rem;
-    line-height: 1.5;
-    margin: 0 0 12px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 10px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -2303,8 +2336,8 @@ body.bg-light .game-hud {
 /* 解锁提示 */
 .explore-card__unlock {
     color: rgba(255, 255, 255, 0.45);
-    font-size: 0.78rem;
-    margin-bottom: 14px;
+    font-size: 0.75rem;
+    margin-bottom: 10px;
 }
 
 /* 探索按钮 */
@@ -2377,24 +2410,71 @@ body.bg-light .game-hud {
     }
 
     .campus-node__marker span {
-        height: 38px;
-        width: 38px;
-        font-size: 1.2rem;
+        height: 36px;
+        width: 36px;
+        font-size: 1.1rem;
     }
 
     .vn-stage {
-        min-height: auto;
-        padding: 16px;
+        padding: 16px 16px 96px;
         align-items: flex-start;
     }
 
-    .vn-scene,
+    .vn-scene {
+        padding: 14px;
+    }
+
     .vn-result {
-        padding: 20px;
+        padding: 14px;
+    }
+
+    /* 手机端：顶部离开按钮显示，底部隐藏 */
+    .vn-scene__leave-mobile {
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .vn-scene__leave {
+        display: none;
+    }
+
+    /* 手机端压缩标题和描述 */
+    .vn-scene__title {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .vn-scene__story {
+        font-size: 0.92rem;
+        line-height: 1.65;
+        margin-bottom: 14px;
+    }
+
+    /* 手机端压缩选项卡 */
+    .vn-choice {
+        padding: 10px 12px;
+    }
+
+    .vn-choice__text {
+        font-size: 0.88rem;
+    }
+
+    .vn-choice__preview {
+        font-size: 0.78rem;
     }
 
     .vn-scene__status {
         grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+        margin-bottom: 16px;
+    }
+
+    .vn-scene__stat {
+        padding: 6px 8px;
+    }
+
+    .vn-scene__stat strong {
+        font-size: 0.95rem;
     }
 
     .vn-result__stats {
@@ -2414,9 +2494,307 @@ body.bg-light .game-hud {
     }
 
     .explore-card__marker span {
-        height: 36px;
-        width: 36px;
-        font-size: 1.1rem;
+        height: 34px;
+        width: 34px;
+        font-size: 1rem;
+    }
+}
+
+/* ============================================================
+   可玩性第一批：周主题、传闻、NPC
+   ============================================================ */
+
+/* ---------- 周主题卡片 ---------- */
+
+.week-theme-card {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(249, 115, 22, 0.06));
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.week-theme-card__icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.week-theme-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.week-theme-card__name {
+    color: #fbbf24;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 4px;
+}
+
+.week-theme-card__desc {
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    margin: 0 0 6px;
+}
+
+.week-theme-card__hint {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* ---------- 校园传闻栏 ---------- */
+
+.rumor-board {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.rumor-board--compact {
+    padding: 12px;
+}
+
+.rumor-board__title {
+    color: #86efac;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+}
+
+.rumor-board__list {
+    display: grid;
+    gap: 10px;
+}
+
+.rumor-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.rumor-note__rarity {
+    flex-shrink: 0;
+    font-size: 0.6rem;
+    line-height: 1;
+    margin-top: 4px;
+}
+
+.rumor-note__rarity--common { color: #94a3b8; }
+.rumor-note__rarity--rare { color: #fbbf24; }
+
+.rumor-note__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.rumor-note__title {
+    color: #f8fafc;
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin: 0 0 2px;
+}
+
+.rumor-note__text {
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 4px;
+}
+
+.rumor-note__hint {
+    color: #86efac;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ---------- NPC 熟人条 ---------- */
+
+.npc-strip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.npc-strip__title {
+    color: #93c5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+}
+
+.npc-strip__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.npc-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.npc-chip__avatar {
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.npc-chip__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.npc-chip__name {
+    color: #f8fafc;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.npc-chip__familiarity {
+    color: #94a3b8;
+    font-size: 0.7rem;
+}
+
+/* ---------- NPC 遇见卡片 ---------- */
+
+.encounter-card {
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(59, 130, 246, 0.06));
+    border: 1px solid rgba(147, 51, 234, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.encounter-card__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.encounter-card__avatar {
+    font-size: 2rem;
+    line-height: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    width: 48px;
+}
+
+.encounter-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.encounter-card__name {
+    color: #f8fafc;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.encounter-card__type {
+    color: #a5b4fc;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.encounter-card__text {
+    color: #e2e8f0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin: 0 0 10px;
+}
+
+.encounter-card__changes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.encounter-card__familiarity {
+    background: rgba(147, 51, 234, 0.15);
+    border: 1px solid rgba(147, 51, 234, 0.25);
+    border-radius: 6px;
+    color: #c4b5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 10px;
+}
+
+.encounter-card__personality {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-style: italic;
+    margin: 0;
+}
+
+.encounter-card__tendency {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 6px;
+    color: #86efac;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+}
+
+/* ---------- NPC 移动端适配 ---------- */
+
+@media (max-width: 640px) {
+    .week-theme-card {
+        padding: 12px;
+    }
+
+    .week-theme-card__icon {
+        font-size: 1.3rem;
+    }
+
+    .week-theme-card__name {
+        font-size: 0.9rem;
+    }
+
+    .rumor-board--compact .rumor-note {
+        padding: 8px 10px;
+    }
+
+    .npc-strip__list {
+        flex-direction: column;
+    }
+
+    .encounter-card {
+        padding: 12px;
+    }
+
+    .encounter-card__avatar {
+        height: 40px;
+        width: 40px;
+        font-size: 1.6rem;
     }
 }
 
@@ -2437,5 +2815,765 @@ body.bg-light .game-hud {
 
     .explore-page__grid {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ============================================================
+   UI 2.0 第三批：组织广场、副本挑战、学期回忆
+   ============================================================ */
+
+/* ---------- 社团招新广场 ---------- */
+
+.org-plaza {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 32px;
+}
+
+.org-plaza__header {
+    margin-bottom: 24px;
+}
+
+.org-plaza__eyebrow {
+    color: #f9a8d4;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.org-plaza__title {
+    color: #f8fafc;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 850;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.org-plaza__sub {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-top: 8px;
+    max-width: 560px;
+}
+
+.org-plaza__msg {
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 10px;
+    color: #7dd3fc;
+    font-size: 0.88rem;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.org-plaza__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.org-plaza__nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 摊位卡片 */
+.org-booth {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--booth-color) 14%, rgba(15, 23, 42, 0.92)), rgba(15, 23, 42, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.org-booth:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(2, 6, 23, 0.35);
+}
+
+.org-booth::before {
+    background: radial-gradient(circle, color-mix(in srgb, var(--booth-color) 18%, transparent), transparent 70%);
+    border-radius: 999px;
+    content: "";
+    height: 100px;
+    position: absolute;
+    right: -25px;
+    top: -25px;
+    width: 100px;
+    pointer-events: none;
+}
+
+.org-booth__icon {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 10px;
+}
+
+.org-booth__icon span {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    height: 38px;
+    width: 38px;
+}
+
+.org-booth__body {
+    position: relative;
+    z-index: 1;
+}
+
+.org-booth__name {
+    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.org-booth__type {
+    margin-bottom: 8px;
+}
+
+.org-booth__badge {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+}
+
+.org-booth__desc {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.org-booth__attr {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.75rem;
+    margin-bottom: 10px;
+}
+
+.org-booth__status {
+    margin-bottom: 12px;
+}
+
+.org-booth__tag {
+    display: inline-block;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+}
+
+.org-booth__tag--undiscovered { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+.org-booth__tag--discovered { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; }
+.org-booth__tag--member { background: rgba(34, 197, 94, 0.15); color: #86efac; }
+
+.org-booth__go {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 6px;
+    color: #0f172a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    text-decoration: none;
+    transition: transform 0.1s;
+}
+
+.org-booth__go:active {
+    transform: scale(0.96);
+}
+
+/* ---------- 组织活动场景 ---------- */
+
+.org-stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--booth-color) 16%, rgba(15, 23, 42, 0.92)), rgba(15, 23, 42, 0.94));
+    min-height: calc(100vh - 140px);
+    position: relative;
+}
+
+.org-stage__actions {
+    margin-bottom: 16px;
+}
+
+.org-stage__position {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+/* ---------- 挑战海报墙 ---------- */
+
+.dungeon-wall {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 32px;
+}
+
+.dungeon-wall__header {
+    margin-bottom: 24px;
+}
+
+.dungeon-wall__eyebrow {
+    color: #c4b5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.dungeon-wall__title {
+    color: #f8fafc;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 850;
+    line-height: 1.1;
+    margin: 0;
+}
+
+.dungeon-wall__sub {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-top: 8px;
+    max-width: 560px;
+}
+
+.dungeon-wall__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.dungeon-wall__nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 挑战海报卡片 */
+.dungeon-poster {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--poster-color) 16%, rgba(15, 23, 42, 0.92)), rgba(15, 23, 42, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dungeon-poster:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(2, 6, 23, 0.35);
+}
+
+.dungeon-poster::before {
+    background: radial-gradient(circle, color-mix(in srgb, var(--poster-color) 18%, transparent), transparent 70%);
+    border-radius: 999px;
+    content: "";
+    height: 100px;
+    position: absolute;
+    right: -25px;
+    top: -25px;
+    width: 100px;
+    pointer-events: none;
+}
+
+.dungeon-poster__icon {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 10px;
+}
+
+.dungeon-poster__icon span {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    height: 38px;
+    width: 38px;
+}
+
+.dungeon-poster__body {
+    position: relative;
+    z-index: 1;
+}
+
+.dungeon-poster__name {
+    color: #f8fafc;
+    font-size: 1.05rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.dungeon-poster__desc {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin: 0 0 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.dungeon-poster__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.dungeon-poster__tag {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    color: #cbd5e1;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+}
+
+.dungeon-poster__go {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 6px;
+    color: #0f172a;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    text-decoration: none;
+    transition: transform 0.1s;
+}
+
+.dungeon-poster__go:active {
+    transform: scale(0.96);
+}
+
+/* ---------- 副本封面页 ---------- */
+
+.dungeon-cover-v2 {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px 32px;
+}
+
+.dungeon-cover-v2__content {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--cover-color) 20%, rgba(15, 23, 42, 0.92)), rgba(15, 23, 42, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 28px;
+}
+
+.dungeon-cover-v2__header {
+    margin-bottom: 24px;
+}
+
+.dungeon-cover-v2__eyebrow {
+    color: #c4b5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.dungeon-cover-v2__title {
+    color: #f8fafc;
+    font-size: clamp(1.6rem, 5vw, 2.6rem);
+    font-weight: 850;
+    line-height: 1.1;
+    margin: 0 0 12px;
+}
+
+.dungeon-cover-v2__story {
+    color: #e0f2fe;
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 16px;
+}
+
+.dungeon-cover-v2__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.dungeon-cover-v2__meta span {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 10px;
+}
+
+.dungeon-cover-v2__nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* 关卡路线 */
+.dungeon-route {
+    margin-bottom: 20px;
+}
+
+.dungeon-route__label {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dungeon-route__steps {
+    display: grid;
+    gap: 10px;
+}
+
+.dungeon-route__step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.dungeon-route__step-num {
+    background: color-mix(in srgb, var(--cover-color) 30%, rgba(15, 23, 42, 0.8));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #f8fafc;
+    font-weight: 800;
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+.dungeon-route__step-info h3 {
+    color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.dungeon-route__step-info p {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0;
+}
+
+/* 挑战目标提示 */
+.challenge-target {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 8px;
+    color: #fcd34d;
+    font-size: 0.88rem;
+    font-weight: 700;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+}
+
+/* 战报最终评价 */
+.battle-report__final {
+    margin-bottom: 16px;
+}
+
+.battle-report__eval {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 8px;
+    color: #c4b5fd;
+    font-weight: 700;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+}
+
+/* ---------- 学期回忆报告 ---------- */
+
+.semester-report {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 16px 32px;
+}
+
+/* 学期未结束 */
+.semester-report__pending {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.semester-report__pending-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.semester-report__pending h1 {
+    color: #f8fafc;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+/* 学期结算 */
+.semester-report__settle {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.08));
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    color: #e2e8f0;
+    margin-bottom: 24px;
+}
+
+.semester-report__settle-icon {
+    font-size: 3.5rem;
+    margin-bottom: 12px;
+}
+
+.semester-report__settle h1 {
+    color: #f8fafc;
+    font-size: 1.6rem;
+    font-weight: 850;
+    margin-bottom: 10px;
+}
+
+.semester-report__settle p {
+    color: #94a3b8;
+    margin-bottom: 20px;
+}
+
+/* 结局展示 */
+.semester-report__ending {
+    background:
+        linear-gradient(135deg, color-mix(in srgb, var(--ending-color) 16%, rgba(15, 23, 42, 0.92)), rgba(15, 23, 42, 0.94));
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 32px 24px;
+    text-align: center;
+    color: #ffffff;
+    margin-bottom: 24px;
+    animation: resultReveal 0.6s ease-out;
+}
+
+.semester-report__ending-icon {
+    font-size: 4rem;
+    margin-bottom: 12px;
+    animation: iconBounce 0.8s ease-out;
+}
+
+.semester-report__ending-type span {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #93c5fd;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.semester-report__ending-title {
+    color: #f8fafc;
+    font-size: clamp(1.5rem, 5vw, 2.4rem);
+    font-weight: 850;
+    line-height: 1.1;
+    margin-bottom: 14px;
+}
+
+.semester-report__ending-desc {
+    color: #e0f2fe;
+    font-size: 1rem;
+    line-height: 1.8;
+    margin-bottom: 20px;
+}
+
+.semester-report__route {
+    color: #94a3b8;
+    font-size: 0.88rem;
+    margin-bottom: 20px;
+}
+
+.semester-report__route strong {
+    color: #a5b4fc;
+}
+
+.semester-report__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* 属性快照（通用） */
+.semester-report__attrs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.semester-report__attrs div {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+}
+
+.semester-report__attrs span {
+    color: #94a3b8;
+    display: block;
+    font-size: 0.72rem;
+    margin-bottom: 2px;
+}
+
+.semester-report__attrs strong {
+    color: #f8fafc;
+    display: block;
+    font-size: 1.1rem;
+}
+
+/* ---------- 结局图鉴 ---------- */
+
+.memory-gallery {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.memory-gallery__label {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.memory-gallery__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.memory-card {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+}
+
+.memory-card__icon {
+    font-size: 2rem;
+    margin-bottom: 6px;
+}
+
+.memory-card__route {
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.memory-card__date {
+    color: #64748b;
+    font-size: 0.72rem;
+}
+
+/* ---------- 第三批移动端适配 ---------- */
+
+@media (max-width: 640px) {
+    .org-plaza__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dungeon-wall__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .dungeon-cover-v2__content {
+        padding: 20px;
+    }
+
+    .semester-report__attrs {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .memory-gallery__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .semester-report__actions {
+        flex-direction: column;
+    }
+
+    .semester-report__actions .sticky-note__btn {
+        text-align: center;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 992px) {
+    .org-plaza__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dungeon-wall__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 993px) {
+    .org-plaza__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .dungeon-wall__grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

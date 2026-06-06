@@ -25,6 +25,29 @@
         </p>
     </section>
 
+    <!-- ========== 本周主题 ========== -->
+    <section th:if="${weekTheme != null}" class="week-theme-card">
+        <span class="week-theme-card__icon" th:text="${weekTheme.icon}">🎒</span>
+        <div class="week-theme-card__body">
+            <h2 class="week-theme-card__name" th:text="${weekTheme.name}">开学适应周</h2>
+            <p class="week-theme-card__hint" th:text="${weekTheme.hint}">提示</p>
+        </div>
+    </section>
+
+    <!-- ========== 校园传闻 ========== -->
+    <section th:if="${rumors != null and !rumors.isEmpty()}" class="rumor-board rumor-board--compact">
+        <p class="rumor-board__title">📣 传闻</p>
+        <div class="rumor-board__list">
+            <article class="rumor-note" th:each="rumor : ${rumors}">
+                <span class="rumor-note__rarity" th:classappend="'rumor-note__rarity--' + ${rumor.rarity}">●</span>
+                <div class="rumor-note__body">
+                    <h3 class="rumor-note__title" th:text="${rumor.rumorTitle}">传闻标题</h3>
+                    <p class="rumor-note__text" th:text="${rumor.rumorText}">传闻内容</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
     <!-- 信息提示 -->
     <div th:if="${message}" class="campus-map__msg" th:text="${message}">提示</div>
 
@@ -36,7 +59,17 @@
                  th:style="|--node-color: ${location.themeColor}|">
             <!-- 节点图标 -->
             <div class="campus-node__marker">
-                <span th:text="${location.iconKey}">📍</span>
+                <span th:switch="${location.iconKey}">
+                    <span th:case="'building'">🏫</span>
+                    <span th:case="'book-open'">📚</span>
+                    <span th:case="'bed'">🛏️</span>
+                    <span th:case="'utensils'">🍜</span>
+                    <span th:case="'activity'">🏃</span>
+                    <span th:case="'code'">💻</span>
+                    <span th:case="'users'">🎉</span>
+                    <span th:case="'package'">📦</span>
+                    <span th:case="*">📍</span>
+                </span>
             </div>
             <!-- 节点信息 -->
             <div class="campus-node__body">

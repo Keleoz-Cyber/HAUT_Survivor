@@ -3,51 +3,64 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>校园组织 - HAUT Survivor</title>
+    <title>社团招新广场 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="survivor-body">
-<div th:replace="~{fragments/layout :: nav}"></div>
-<main class="container app-shell">
-    <header class="campus-hero mb-4">
-        <div>
-            <p class="campus-hero__eyebrow">校园组织</p>
-            <h1 class="campus-hero__title">加入你的路线</h1>
-            <p class="campus-hero__copy">组织能带来社交、声望和独特路线，但也会占用你的时间。</p>
-        </div>
-        <div class="campus-status">
-            <span th:text="|行动点 ${profile.actionPoints}/${profile.maxActionPoints}|">4/4</span>
-            <span th:text="|第 ${profile.currentWeek} 周|">第 1 周</span>
-        </div>
-    </header>
+<body class="game-shell">
 
-    <div th:if="${semesterOver}" class="alert alert-info">学期已结束。</div>
+<!-- 游戏HUD -->
+<div th:replace="~{fragments/layout :: game-hud}"></div>
 
-    <section class="row g-3">
-        <article class="col-md-6" th:each="org : ${orgs}">
-            <div class="panel" th:style="'border-left: 4px solid ' + ${org.themeColor}">
-                <h3 class="h5" th:text="${org.orgName}">组织名</h3>
-                <p class="text-muted mb-2">
-                    <span class="badge" th:style="'background:' + ${org.themeColor}" th:text="${org.orgType}">类型</span>
+<main class="org-plaza">
+
+    <!-- ========== 标题区 ========== -->
+    <section class="org-plaza__header">
+        <p class="org-plaza__eyebrow">🎉 社团招新广场</p>
+        <h1 class="org-plaza__title">今天想加入哪个圈子？</h1>
+        <p class="org-plaza__sub">组织能带来社交、声望和独特路线，但也会占用你的时间。加入需要社交值 ≥ 40。</p>
+    </section>
+
+    <div th:if="${semesterOver}" class="org-plaza__msg">学期已结束，无法继续组织活动。</div>
+
+    <!-- ========== 摊位网格 ========== -->
+    <section class="org-plaza__grid" th:if="${!semesterOver}">
+        <article class="org-booth" th:each="org : ${orgs}" th:style="|--booth-color: ${org.themeColor}">
+            <div class="org-booth__icon">
+                <span th:switch="${org.orgType}">
+                    <span th:case="'学生会'">🏛️</span>
+                    <span th:case="'实验室项目组'">🔬</span>
+                    <span th:case="'篮球社'">🏀</span>
+                    <span th:case="*">🎪</span>
+                </span>
+            </div>
+            <div class="org-booth__body">
+                <h2 class="org-booth__name" th:text="${org.orgName}">组织名</h2>
+                <p class="org-booth__type">
+                    <span class="org-booth__badge" th:style="'background:' + ${org.themeColor}" th:text="${org.orgType}">类型</span>
                 </p>
-                <p th:text="${org.description}">描述</p>
-                <p class="mb-2">
-                    <span class="text-muted" th:if="${org.recommendedAttribute}"
-                          th:text="'推荐属性：' + ${org.recommendedAttribute}">推荐属性</span>
-                </p>
-                <div th:with="rel=${relationMap.get(org.id)}">
-                    <span th:if="${rel == null}" class="badge bg-secondary">未发现</span>
-                    <span th:if="${rel != null and rel.membershipStatus == 'discovered'}" class="badge bg-info">已发现</span>
-                    <span th:if="${rel != null and rel.membershipStatus == 'member'}" class="badge bg-success"
-                          th:text="${rel.positionName} + ' · 贡献 ' + ${rel.contribution}">成员</span>
-                    <span th:if="${rel != null and rel.membershipStatus == 'core_member'}" class="badge bg-warning text-dark"
-                          th:text="${rel.positionName} + ' · 贡献 ' + ${rel.contribution}">骨干</span>
-                    <a th:if="${!semesterOver}" th:href="@{/organizations/{id}(id=${org.id})}" class="btn btn-sm btn-outline-light ms-2">查看</a>
+                <p class="org-booth__desc" th:text="${org.description}">描述</p>
+                <p class="org-booth__attr" th:if="${org.recommendedAttribute}" th:text="'推荐属性：' + ${org.recommendedAttribute}">推荐属性</p>
+                <div class="org-booth__status" th:with="rel=${relationMap.get(org.id)}">
+                    <span th:if="${rel == null}" class="org-booth__tag org-booth__tag--undiscovered">🔒 未发现</span>
+                    <span th:if="${rel != null and rel.membershipStatus == 'discovered'}" class="org-booth__tag org-booth__tag--discovered">🔓 已发现</span>
+                    <span th:if="${rel != null and (rel.membershipStatus == 'member' or rel.membershipStatus == 'core_member')}" class="org-booth__tag org-booth__tag--member"
+                          th:text="${rel.positionName} + ' · 贡献 ' + ${rel.contribution} + ' · 声望 ' + ${rel.reputation}">成员</span>
                 </div>
+                <a th:if="${!semesterOver}" th:href="@{/organizations/{id}(id=${org.id})}" class="org-booth__go">去摊位看看</a>
             </div>
         </article>
     </section>
+
+    <div class="org-plaza__nav" th:if="${!semesterOver}">
+        <a href="/map" class="sticky-note__btn">🗺️ 回地图</a>
+        <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
+    </div>
+
 </main>
+
+<!-- 手机底栏 -->
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+
 </body>
 </html>

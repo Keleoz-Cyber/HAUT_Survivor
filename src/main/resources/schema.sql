@@ -17,6 +17,9 @@ DROP TABLE IF EXISTS semester_ending;
 DROP TABLE IF EXISTS user_location_exploration;
 DROP TABLE IF EXISTS user_organization;
 DROP TABLE IF EXISTS organization;
+DROP TABLE IF EXISTS user_npc_relation;
+DROP TABLE IF EXISTS npc;
+DROP TABLE IF EXISTS rumor;
 DROP TABLE IF EXISTS `user`;
 
 
@@ -296,3 +299,41 @@ CREATE TABLE user_semester_ending (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ========== 校园传闻 ==========
+CREATE TABLE IF NOT EXISTS rumor (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    week_number INT NOT NULL,
+    location_id BIGINT,
+    rumor_title VARCHAR(100) NOT NULL,
+    rumor_text TEXT NOT NULL,
+    effect_hint VARCHAR(100),
+    rarity VARCHAR(20) NOT NULL DEFAULT 'common',
+    active INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== NPC ==========
+CREATE TABLE IF NOT EXISTS npc (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    npc_name VARCHAR(50) NOT NULL,
+    npc_type VARCHAR(30) NOT NULL,
+    home_location_id BIGINT,
+    personality VARCHAR(100),
+    description TEXT,
+    avatar_icon VARCHAR(10) NOT NULL DEFAULT '👤',
+    favorite_attribute VARCHAR(30),
+    active INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 玩家-NPC关系 ==========
+CREATE TABLE IF NOT EXISTS user_npc_relation (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    npc_id BIGINT NOT NULL,
+    familiarity INT NOT NULL DEFAULT 0,
+    met_count INT NOT NULL DEFAULT 0,
+    last_met_week INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_unr_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_unr_npc FOREIGN KEY (npc_id) REFERENCES npc(id),
+    UNIQUE KEY uk_user_npc (user_id, npc_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

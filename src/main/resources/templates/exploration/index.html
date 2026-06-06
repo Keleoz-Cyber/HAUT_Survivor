@@ -21,6 +21,30 @@
         <p class="explore-page__sub">每个地点都有隐藏的秘密。踩点消耗 1 行动点，可能发现新事件、遇到 NPC、或获得意外收获。</p>
     </section>
 
+    <!-- ========== 本周主题 ========== -->
+    <section th:if="${weekTheme != null}" class="week-theme-card">
+        <span class="week-theme-card__icon" th:text="${weekTheme.icon}">🎒</span>
+        <div class="week-theme-card__body">
+            <h2 class="week-theme-card__name" th:text="${weekTheme.name}">开学适应周</h2>
+            <p class="week-theme-card__hint" th:text="${weekTheme.hint}">提示</p>
+        </div>
+    </section>
+
+    <!-- ========== 校园传闻 ========== -->
+    <section th:if="${rumors != null and !rumors.isEmpty()}" class="rumor-board rumor-board--compact">
+        <p class="rumor-board__title">📣 本周传闻</p>
+        <div class="rumor-board__list">
+            <article class="rumor-note" th:each="rumor : ${rumors}">
+                <span class="rumor-note__rarity" th:classappend="'rumor-note__rarity--' + ${rumor.rarity}">●</span>
+                <div class="rumor-note__body">
+                    <h3 class="rumor-note__title" th:text="${rumor.rumorTitle}">传闻标题</h3>
+                    <p class="rumor-note__text" th:text="${rumor.rumorText}">传闻内容</p>
+                    <span class="rumor-note__hint" th:if="${rumor.effectHint}" th:text="${rumor.effectHint}">效果提示</span>
+                </div>
+            </article>
+        </div>
+    </section>
+
     <!-- 状态提示 -->
     <div th:if="${param.error}" class="explore-page__msg explore-page__msg--error" th:text="${param.error[0]}">错误</div>
     <div th:if="${semesterOver}" class="explore-page__msg">学期已结束，无法继续探索。</div>
@@ -30,7 +54,17 @@
         <article class="explore-card" th:each="loc : ${locations}" th:style="|--card-color: ${loc.themeColor}">
             <!-- 地点图标 -->
             <div class="explore-card__marker">
-                <span th:text="${loc.iconKey}">📍</span>
+                <span th:switch="${loc.iconKey}">
+                    <span th:case="'building'">🏫</span>
+                    <span th:case="'book-open'">📚</span>
+                    <span th:case="'bed'">🛏️</span>
+                    <span th:case="'utensils'">🍜</span>
+                    <span th:case="'activity'">🏃</span>
+                    <span th:case="'code'">💻</span>
+                    <span th:case="'users'">🎉</span>
+                    <span th:case="'package'">📦</span>
+                    <span th:case="*">📍</span>
+                </span>
             </div>
             <!-- 地点信息 -->
             <div class="explore-card__body">

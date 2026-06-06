@@ -97,6 +97,12 @@
 <!-- ========== 视觉小说事件页 ========== -->
 <main class="vn-stage" th:unless="${resultText}" th:classappend="${event.sceneImage}">
     <div class="vn-scene">
+        <!-- 离开按钮（移动端放顶部，桌面端放底部） -->
+        <div class="vn-scene__leave-mobile">
+            <form action="/map">
+                <button type="submit" class="sticky-note__btn">🚪 先离开</button>
+            </form>
+        </div>
         <!-- 场景标签 -->
         <div class="vn-scene__meta">
             <span th:if="${location}" th:text="${location.locationName}">📍 地点</span>
@@ -147,7 +153,7 @@
             </form>
         </div>
 
-        <!-- 离开 -->
+        <!-- 桌面端离开按钮 -->
         <form action="/map" class="vn-scene__leave">
             <button type="submit" class="sticky-note__btn">🚪 先离开这里</button>
         </form>
