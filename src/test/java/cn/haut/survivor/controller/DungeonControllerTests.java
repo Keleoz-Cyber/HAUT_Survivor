@@ -1,6 +1,7 @@
 package cn.haut.survivor.controller;
 
 import cn.haut.survivor.config.LoginInterceptor;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.PlayerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasProperty;
@@ -33,6 +35,9 @@ class DungeonControllerTests {
 
     @Autowired
     private PlayerService playerService;
+
+    @Autowired
+    private AchievementService achievementService;
 
     @BeforeEach
     void setUpPlayer() {
@@ -234,5 +239,47 @@ class DungeonControllerTests {
                 .andExpect(model().attribute("record", hasProperty("status", equalTo("COMPLETED"))))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
                         .string(containsString("过程标签")));
+    }
+
+    @Test
+    void completingDatabaseDefenseDungeonUnlocksAchievement() throws Exception {
+        mockMvc.perform(get("/dungeons/3/start")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/dungeons/3/play"));
+
+        mockMvc.perform(post("/dungeons/3/task/3001/option/7001")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/dungeons/3/task/3002/minigame")
+                        .param("selectedRelations", "user->player_attribute")
+                        .param("selectedRelations", "event->event_option")
+                        .param("selectedRelations", "dungeon->dungeon_task")
+                        .param("elapsedSeconds", "20")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/dungeons/3/task/3003/bughunt")
+                        .param("questionIds", "0")
+                        .param("questionIds", "1")
+                        .param("questionIds", "2")
+                        .param("answers", "1")
+                        .param("answers", "0")
+                        .param("answers", "0")
+                        .param("elapsedSeconds", "30")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/dungeons/3/task/3004/option/7004")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk());
+
+        assertThat(achievementService.hasUnlocked(2L, "ddl_survivor_plus")).isTrue();
     }
 }

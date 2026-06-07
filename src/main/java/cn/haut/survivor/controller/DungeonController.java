@@ -129,13 +129,7 @@ public class DungeonController {
         achievementService.unlockAchievement(userId, "dungeon_beginner");
 
         // 如果副本已完成，检查对应成就
-        if ("COMPLETED".equals(updatedRecord.getStatus())) {
-            if (dungeonId == 1L) {
-                achievementService.unlockAchievement(userId, "java_survivor");
-            } else if (dungeonId == 2L) {
-                achievementService.unlockAchievement(userId, "fitness_survivor");
-            }
-        }
+        unlockDungeonCompletionAchievement(userId, dungeonId, updatedRecord);
 
         return "dungeon/result";
     }
@@ -166,9 +160,7 @@ public class DungeonController {
 
         // 成就：完成副本阶段
         achievementService.unlockAchievement(userId, "dungeon_beginner");
-        if ("COMPLETED".equals(updatedRecord.getStatus()) && dungeonId == 1L) {
-            achievementService.unlockAchievement(userId, "java_survivor");
-        }
+        unlockDungeonCompletionAchievement(userId, dungeonId, updatedRecord);
 
         return "dungeon/result";
     }
@@ -200,14 +192,25 @@ public class DungeonController {
 
         // 成就：完成副本阶段
         achievementService.unlockAchievement(userId, "dungeon_beginner");
-        if ("COMPLETED".equals(updatedRecord.getStatus()) && dungeonId == 1L) {
-            achievementService.unlockAchievement(userId, "java_survivor");
-        }
+        unlockDungeonCompletionAchievement(userId, dungeonId, updatedRecord);
 
         return "dungeon/result";
     }
 
     private Long currentUserId(HttpSession session) {
         return (Long) session.getAttribute(LoginInterceptor.LOGIN_USER_ID);
+    }
+
+    private void unlockDungeonCompletionAchievement(Long userId, Long dungeonId, UserDungeonRecord updatedRecord) {
+        if (!"COMPLETED".equals(updatedRecord.getStatus())) {
+            return;
+        }
+        if (dungeonId == 1L) {
+            achievementService.unlockAchievement(userId, "java_survivor");
+        } else if (dungeonId == 2L) {
+            achievementService.unlockAchievement(userId, "fitness_survivor");
+        } else if (dungeonId == 3L) {
+            achievementService.unlockAchievement(userId, "ddl_survivor_plus");
+        }
     }
 }
