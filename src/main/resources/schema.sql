@@ -22,6 +22,8 @@ DROP TABLE IF EXISTS semester_ending;
 DROP TABLE IF EXISTS user_location_exploration;
 DROP TABLE IF EXISTS user_organization;
 DROP TABLE IF EXISTS organization;
+DROP TABLE IF EXISTS user_npc_weekly_action;
+DROP TABLE IF EXISTS npc_interaction;
 DROP TABLE IF EXISTS user_npc_relation;
 DROP TABLE IF EXISTS npc;
 DROP TABLE IF EXISTS rumor;
@@ -344,6 +346,41 @@ CREATE TABLE IF NOT EXISTS user_npc_relation (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========== 本周目标定义 ==========
+CREATE TABLE IF NOT EXISTS npc_interaction (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    npc_id BIGINT NOT NULL,
+    interaction_key VARCHAR(50) NOT NULL UNIQUE,
+    interaction_name VARCHAR(100) NOT NULL,
+    required_familiarity INT NOT NULL DEFAULT 0,
+    description TEXT,
+    result_text TEXT,
+    academic_change INT NOT NULL DEFAULT 0,
+    health_change INT NOT NULL DEFAULT 0,
+    money_change INT NOT NULL DEFAULT 0,
+    social_change INT NOT NULL DEFAULT 0,
+    skill_change INT NOT NULL DEFAULT 0,
+    pressure_change INT NOT NULL DEFAULT 0,
+    discipline_change INT NOT NULL DEFAULT 0,
+    familiarity_change INT NOT NULL DEFAULT 0,
+    exp_change INT NOT NULL DEFAULT 0,
+    active INT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_ni_npc FOREIGN KEY (npc_id) REFERENCES npc(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS user_npc_weekly_action (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    npc_id BIGINT NOT NULL,
+    week_number INT NOT NULL,
+    interacted INT NOT NULL DEFAULT 0,
+    buddy_selected INT NOT NULL DEFAULT 0,
+    selected_at DATETIME,
+    interacted_at DATETIME,
+    CONSTRAINT fk_unwa_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_unwa_npc FOREIGN KEY (npc_id) REFERENCES npc(id),
+    UNIQUE KEY uk_user_npc_week (user_id, npc_id, week_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS weekly_goal (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     goal_key VARCHAR(50) NOT NULL UNIQUE,
