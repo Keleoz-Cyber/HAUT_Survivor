@@ -5,11 +5,13 @@ import cn.haut.survivor.domain.entity.CampusLocation;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -31,16 +33,21 @@ public class ExplorationController {
     private final WeeklyThemeService weeklyThemeService;
     private final RumorService rumorService;
     private final NpcService npcService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
     public ExplorationController(ExplorationService explorationService, PlayerService playerService,
                                  EventService eventService, WeeklyThemeService weeklyThemeService,
-                                 RumorService rumorService, NpcService npcService) {
+                                 RumorService rumorService, NpcService npcService,
+                                 WeeklyGoalService weeklyGoalService, AchievementService achievementService) {
         this.explorationService = explorationService;
         this.playerService = playerService;
         this.eventService = eventService;
         this.weeklyThemeService = weeklyThemeService;
         this.rumorService = rumorService;
         this.npcService = npcService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/exploration")
@@ -81,11 +88,33 @@ public class ExplorationController {
         try {
             ExplorationService.ExplorationResult result = explorationService.explore(userId, locationId);
             PlayerProfile profile = playerService.findProfileByUserId(userId);
+
+            // 更新周目标进度：探索次数 +1
+            weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "explore_count", 1);
+
             model.addAttribute("result", result);
             model.addAttribute("location", findLocation(locationId));
             model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
             model.addAttribute("profile", profile);
-            model.addAttribute("npcEncounter", npcService.maybeMeetNpc(userId, locationId, profile.getCurrentWeek()));
+
+            // NPC 遇见
+            var npcEncounter = npcService.maybeMeetNpc(userId, locationId, profile.getCurrentWeek());
+            model.addAttribute("npcEncounter", npcEncounter);
+
+            // 如果遇见了 NPC，更新周目标进度
+            if (npcEncounter != null && npcEncounter.isPresent()) {
+                weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "npc_meet", 1);
+                // 成就：认识 NPC
+                achievementService.unlockAchievement(userId, "social_starter");
+            }
+
+            // 成就：探索次数检查
+            List<UserLocationExploration> allExplorations = explorationService.listUserExplorations(userId);
+            int totalExploreCount = allExplorations.stream()
+                    .mapToInt(e -> e.getExploreCount() != null ? e.getExploreCount() : 0)
+                    .sum();
+            achievementService.unlockIfEligible(userId, "explore_count", totalExploreCount);
+
             return "exploration/result";
         } catch (IllegalArgumentException e) {
             // 行动点不足或学期结束

@@ -3577,3 +3577,621 @@ body.bg-light .game-hud {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* ============================================================
+   本周目标卡片
+   ============================================================ */
+
+/* ---------- 目标卡片容器 ---------- */
+
+.weekly-goal-card {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.04));
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.weekly-goal-card__title {
+    color: #fbbf24;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+.weekly-goal-card__hint {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0 0 12px;
+}
+
+/* ---------- 候选目标列表 ---------- */
+
+.goal-candidate__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.goal-candidate {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.goal-candidate:hover {
+    border-color: rgba(251, 191, 36, 0.35);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.goal-candidate__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.goal-candidate__name {
+    color: #f8fafc;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.goal-candidate__desc {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    margin: 0 0 6px;
+    line-height: 1.4;
+}
+
+.goal-candidate__btn {
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 8px;
+    color: #fbbf24;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 8px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.goal-candidate__btn:hover {
+    background: rgba(251, 191, 36, 0.25);
+    border-color: rgba(251, 191, 36, 0.5);
+}
+
+/* ---------- 目标进度 ---------- */
+
+.goal-progress__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.goal-progress__name {
+    color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.goal-progress__status {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+.goal-progress-status--active {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #60a5fa;
+}
+
+.goal-progress-status--done {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.goal-progress__desc {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    margin: 0 0 10px;
+    line-height: 1.4;
+}
+
+.goal-progress__bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.goal-progress__bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.goal-progress__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    min-width: 0;
+}
+
+.goal-progress__value {
+    color: #fbbf24;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.goal-progress__hint {
+    color: #94a3b8;
+    font-size: 0.78rem;
+    margin: 0 0 8px;
+    font-style: italic;
+}
+
+.goal-progress__claim-btn {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 8px;
+    color: #4ade80;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.goal-progress__claim-btn:hover {
+    background: rgba(34, 197, 94, 0.25);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+/* ---------- 目标奖励 ---------- */
+
+.goal-reward {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.goal-reward__label {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.goal-reward__exp {
+    background: rgba(168, 85, 247, 0.12);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 6px;
+    color: #c4b5fd;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+}
+
+.goal-reward__attr {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 6px;
+    color: #86efac;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+}
+
+.goal-reward--claimed {
+    color: #4ade80;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 0;
+}
+
+/* ---------- 目标卡片移动端适配 ---------- */
+
+@media (max-width: 640px) {
+    .weekly-goal-card {
+        padding: 12px;
+    }
+
+    .goal-candidate {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .goal-candidate__btn {
+        text-align: center;
+    }
+}
+
+/* ============================================================
+   成就称号架
+   ============================================================ */
+
+.achievement-shelf {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.06), rgba(139, 92, 246, 0.03));
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.achievement-shelf__title {
+    color: #c4b5fd;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+.achievement-shelf__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.achievement-shelf__empty {
+    color: #64748b;
+    font-size: 0.82rem;
+    margin: 0;
+    font-style: italic;
+}
+
+.achievement-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px 12px;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.achievement-badge:hover {
+    border-color: rgba(168, 85, 247, 0.3);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.achievement-badge__icon {
+    font-size: 1.4rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.achievement-badge__body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.achievement-badge__title {
+    color: #f8fafc;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.achievement-badge__reward {
+    color: #c4b5fd;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+/* ---------- 成就架移动端适配 ---------- */
+
+@media (max-width: 640px) {
+    .achievement-shelf {
+        padding: 12px;
+    }
+
+    .achievement-shelf__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================
+   周结算回忆报告
+   ============================================================ */
+
+.week-summary-page {
+    max-width: 720px;
+}
+
+.week-summary-hero {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(59, 130, 246, 0.06));
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.week-summary-hero__icon {
+    font-size: 2.5rem;
+    line-height: 1;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.week-summary-hero__title {
+    color: #f8fafc;
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.week-summary-hero__theme {
+    color: #fbbf24;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.week-summary-hero__desc {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0 0 12px;
+}
+
+.week-summary-hero__rating {
+    background: rgba(251, 191, 36, 0.15);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 8px;
+    color: #fbbf24;
+    font-size: 0.92rem;
+    font-weight: 800;
+    padding: 6px 14px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.week-summary-hero__text {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.week-summary-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.week-summary-card__title {
+    color: #f8fafc;
+    font-size: 0.95rem;
+    font-weight: 800;
+    margin: 0 0 10px;
+}
+
+/* ----- 目标卡 ----- */
+
+.week-summary-goal__name {
+    color: #fbbf24;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.week-summary-goal__progress {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0 0 6px;
+}
+
+.week-summary-goal__status {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 6px;
+    color: #4ade80;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    display: inline-block;
+}
+
+.week-summary-goal__status--incomplete {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #f87171;
+}
+
+.week-summary-goal__claimed {
+    color: #c4b5fd;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.week-summary-goal__none {
+    color: #64748b;
+    font-size: 0.82rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* ----- 属性快照 ----- */
+
+.week-summary-stats__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+
+.week-summary-stats__item {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.week-summary-stats__label {
+    color: #94a3b8;
+    font-size: 0.78rem;
+}
+
+.week-summary-stats__value {
+    color: #f8fafc;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.week-summary-stats__item--pressure .week-summary-stats__value {
+    color: #fbbf24;
+}
+
+/* ----- NPC / 熟人 / 成就 ----- */
+
+.week-summary-memory__count {
+    color: #cbd5e1;
+    font-size: 0.85rem;
+    margin: 0 0 6px;
+}
+
+.week-summary-memory__list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.week-summary-memory__name {
+    background: rgba(147, 51, 234, 0.12);
+    border: 1px solid rgba(147, 51, 234, 0.25);
+    border-radius: 6px;
+    color: #c4b5fd;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 8px;
+}
+
+.week-summary-memory__none {
+    color: #64748b;
+    font-size: 0.82rem;
+    margin: 0;
+    font-style: italic;
+}
+
+.week-summary-memory__achievements {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.week-summary-memory__achievement {
+    background: rgba(168, 85, 247, 0.08);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: #c4b5fd;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.week-summary-memory__achievement span:first-child {
+    font-size: 1.2rem;
+}
+
+/* ----- 操作区 ----- */
+
+.week-summary-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    padding-bottom: 96px; /* mobile Dock 留白 */
+}
+
+.week-summary-actions__advance {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    border: none;
+    border-radius: 10px;
+    color: #0f172a;
+    font-size: 0.92rem;
+    font-weight: 800;
+    padding: 12px 24px;
+    cursor: pointer;
+    flex: 1;
+    transition: opacity 0.2s;
+}
+
+.week-summary-actions__advance:hover {
+    opacity: 0.9;
+}
+
+.week-summary-actions__back {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 12px 20px;
+    text-decoration: none;
+    text-align: center;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.week-summary-actions__back:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ----- 周结算移动端适配 ----- */
+
+@media (max-width: 640px) {
+    .week-summary-hero {
+        padding: 16px;
+    }
+
+    .week-summary-hero__icon {
+        font-size: 2rem;
+    }
+
+    .week-summary-hero__title {
+        font-size: 1.15rem;
+    }
+
+    .week-summary-stats__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .week-summary-actions {
+        flex-direction: column;
+    }
+
+    .week-summary-actions__advance {
+        text-align: center;
+    }
+}
+
+@media (min-width: 993px) {
+    .week-summary-actions {
+        padding-bottom: 16px;
+    }
+}

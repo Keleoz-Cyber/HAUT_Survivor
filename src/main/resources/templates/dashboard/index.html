@@ -58,6 +58,71 @@
         </div>
     </section>
 
+    <!-- ========== 本周目标 ========== -->
+    <section th:if="${!semesterOver}" class="weekly-goal-card">
+        <p class="weekly-goal-card__title">🎯 本周目标</p>
+
+        <!-- 未选择目标：显示 3 个候选 -->
+        <div th:if="${currentWeeklyGoal == null and goalCandidates != null and !goalCandidates.isEmpty()}" class="goal-candidate__list">
+            <p class="weekly-goal-card__hint">选择一个本周目标，完成后可领取奖励！</p>
+            <div class="goal-candidate" th:each="candidate : ${goalCandidates}">
+                <div class="goal-candidate__body">
+                    <h3 class="goal-candidate__name" th:text="${candidate.goalName}">目标名</h3>
+                    <p class="goal-candidate__desc" th:text="${candidate.description}">描述</p>
+                    <div class="goal-reward">
+                        <span class="goal-reward__exp" th:if="${candidate.rewardExp > 0}" th:text="'✨ ' + ${candidate.rewardExp} + ' 经验'">30 经验</span>
+                        <span class="goal-reward__attr" th:if="${candidate.rewardAmount > 0}"
+                              th:text="'+' + ${candidate.rewardAmount} + ' ' + ${candidate.rewardAttribute}">+5 社交</span>
+                    </div>
+                </div>
+                <form method="post" th:action="@{/weekly-goals/{id}/choose(id=${candidate.id})}">
+                    <button type="submit" class="goal-candidate__btn">选择</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 已选择目标：显示进度 -->
+        <div th:if="${currentWeeklyGoal != null and currentWeeklyGoalDef != null}" class="goal-progress">
+            <div class="goal-progress__header">
+                <h3 class="goal-progress__name" th:text="${currentWeeklyGoalDef.goalName}">目标名</h3>
+                <span th:if="${currentWeeklyGoal.completed == 1}" class="goal-progress__status goal-progress-status--done">✅ 已完成</span>
+                <span th:if="${currentWeeklyGoal.completed != 1}" class="goal-progress__status goal-progress-status--active">进行中</span>
+            </div>
+            <p class="goal-progress__desc" th:text="${currentWeeklyGoalDef.description}">描述</p>
+
+            <!-- 进度条 -->
+            <div class="goal-progress__bar-wrap">
+                <div class="goal-progress__bar">
+                    <div class="goal-progress__bar-fill"
+                         th:style="'width:' + ${T(java.lang.Math).min(100, (currentWeeklyGoal.currentValue * 100 / currentWeeklyGoalDef.targetValue))} + '%'"></div>
+                </div>
+                <span class="goal-progress__value"
+                      th:text="${currentWeeklyGoal.currentValue} + '/' + ${currentWeeklyGoalDef.targetValue}">0/2</span>
+            </div>
+
+            <!-- 压力保持目标提示 -->
+            <p th:if="${currentWeeklyGoalDef.goalType == 'pressure_keep'}" class="goal-progress__hint">
+                💆 本周结束时检查，压力需要 ≤ <span th:text="${currentWeeklyGoalDef.targetValue}">50</span>
+                （当前压力：<span th:text="${attribute.pressure}">30</span>）
+            </p>
+
+            <!-- 奖励 -->
+            <div class="goal-reward" th:if="${currentWeeklyGoal.completed == 1 and currentWeeklyGoal.claimed == 0}">
+                <span class="goal-reward__label">🎁 奖励：</span>
+                <span class="goal-reward__exp" th:if="${currentWeeklyGoalDef.rewardExp > 0}"
+                      th:text="'✨ ' + ${currentWeeklyGoalDef.rewardExp} + ' 经验'">30 经验</span>
+                <span class="goal-reward__attr" th:if="${currentWeeklyGoalDef.rewardAmount > 0}"
+                      th:text="'+' + ${currentWeeklyGoalDef.rewardAmount} + ' ' + ${currentWeeklyGoalDef.rewardAttribute}">+5 社交</span>
+                <form method="post" action="/weekly-goals/claim" style="display:inline">
+                    <button type="submit" class="goal-progress__claim-btn">领取奖励</button>
+                </form>
+            </div>
+            <div th:if="${currentWeeklyGoal.claimed == 1}" class="goal-reward goal-reward--claimed">
+                🎉 奖励已领取
+            </div>
+        </div>
+    </section>
+
     <!-- ========== 校园传闻 ========== -->
     <section th:if="${rumors != null and !rumors.isEmpty()}" class="rumor-board">
         <p class="rumor-board__title">📣 本周校园传闻</p>
@@ -87,13 +152,11 @@
               th:if="${profile.actionPoints > 0 and profile.actionPoints < profile.maxActionPoints}">
             还有 <span th:text="${profile.actionPoints}">2</span> 个行动点可以用
         </span>
-        <form method="post" action="/week/advance">
-            <button type="submit" class="sticky-note__btn"
+        <a href="/week/summary" class="sticky-note__btn"
                     th:disabled="${profile.actionPoints == profile.maxActionPoints}"
                     th:classappend="${profile.actionPoints == 0} ? 'sticky-note__btn--primary' : ''">
-                🌙 熬过这一周
-            </button>
-        </form>
+                🌙 查看本周回忆
+            </a>
     </section>
 
     <!-- ========== 手机桌面入口 ========== -->
@@ -198,6 +261,24 @@
             <span class="pressure-alert__icon">⚠️</span>
             <span th:text="${warning}">警告</span>
         </div>
+    </section>
+
+    <!-- ========== 成就称号 ========== -->
+    <section th:if="${!semesterOver}" class="achievement-shelf">
+        <p class="achievement-shelf__title">🏅 成就称号</p>
+        <div th:if="${recentAchievements != null and !recentAchievements.isEmpty()}" class="achievement-shelf__grid">
+            <div class="achievement-badge" th:each="ua : ${recentAchievements}" th:if="${ua.achievement != null}">
+                <span class="achievement-badge__icon" th:text="${ua.achievement.icon}">🏆</span>
+                <div class="achievement-badge__body">
+                    <span class="achievement-badge__title" th:text="${ua.achievement.achievementName}">成就名</span>
+                    <span class="achievement-badge__reward" th:if="${ua.achievement.rewardTitle != null}"
+                          th:text="'「' + ${ua.achievement.rewardTitle} + '」'">称号</span>
+                </div>
+            </div>
+        </div>
+        <p th:if="${recentAchievements == null or recentAchievements.isEmpty()}" class="achievement-shelf__empty">
+            还没有称号，本周去做点事吧 ✨
+        </p>
     </section>
 
     <!-- ========== 熟人列表 ========== -->

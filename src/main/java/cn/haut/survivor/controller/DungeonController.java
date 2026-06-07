@@ -3,10 +3,13 @@ package cn.haut.survivor.controller;
 import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.Dungeon;
 import cn.haut.survivor.domain.entity.DungeonTask;
+import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserDungeonRecord;
 import cn.haut.survivor.domain.entity.UserDungeonTaskRecord;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.DungeonService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,10 +34,15 @@ public class DungeonController {
 
     private final DungeonService dungeonService;
     private final PlayerService playerService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
-    public DungeonController(DungeonService dungeonService, PlayerService playerService) {
+    public DungeonController(DungeonService dungeonService, PlayerService playerService,
+                              WeeklyGoalService weeklyGoalService, AchievementService achievementService) {
         this.dungeonService = dungeonService;
         this.playerService = playerService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/dungeons")
@@ -112,6 +120,23 @@ public class DungeonController {
         model.addAttribute("record", updatedRecord);
         model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+
+        // 更新周目标进度：副本阶段 +1
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "dungeon_stage", 1);
+
+        // 成就：完成副本阶段
+        achievementService.unlockAchievement(userId, "dungeon_beginner");
+
+        // 如果副本已完成，检查对应成就
+        if ("COMPLETED".equals(updatedRecord.getStatus())) {
+            if (dungeonId == 1L) {
+                achievementService.unlockAchievement(userId, "java_survivor");
+            } else if (dungeonId == 2L) {
+                achievementService.unlockAchievement(userId, "fitness_survivor");
+            }
+        }
+
         return "dungeon/result";
     }
 
@@ -134,6 +159,17 @@ public class DungeonController {
         model.addAttribute("record", updatedRecord);
         model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+
+        // 更新周目标进度：副本阶段 +1
+        PlayerProfile profile2 = playerService.findProfileByUserId(userId);
+        weeklyGoalService.updateProgress(userId, profile2.getCurrentWeek(), "dungeon_stage", 1);
+
+        // 成就：完成副本阶段
+        achievementService.unlockAchievement(userId, "dungeon_beginner");
+        if ("COMPLETED".equals(updatedRecord.getStatus()) && dungeonId == 1L) {
+            achievementService.unlockAchievement(userId, "java_survivor");
+        }
+
         return "dungeon/result";
     }
 
@@ -157,6 +193,17 @@ public class DungeonController {
         model.addAttribute("record", updatedRecord);
         model.addAttribute("dungeon", dungeonService.findDungeonById(dungeonId));
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+
+        // 更新周目标进度：副本阶段 +1
+        PlayerProfile profile3 = playerService.findProfileByUserId(userId);
+        weeklyGoalService.updateProgress(userId, profile3.getCurrentWeek(), "dungeon_stage", 1);
+
+        // 成就：完成副本阶段
+        achievementService.unlockAchievement(userId, "dungeon_beginner");
+        if ("COMPLETED".equals(updatedRecord.getStatus()) && dungeonId == 1L) {
+            achievementService.unlockAchievement(userId, "java_survivor");
+        }
+
         return "dungeon/result";
     }
 

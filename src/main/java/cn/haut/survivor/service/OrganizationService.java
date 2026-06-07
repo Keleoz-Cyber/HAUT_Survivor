@@ -29,7 +29,7 @@ public interface OrganizationService {
         // 属性变化由组织类型决定，这里按 orgType 返回对应快照
         // Controller 需要拿到 orgType 才能选择正确的 AttributeChange，
         // 但默认实现无法获取 orgType。由 OrganizationServiceImpl 覆盖。
-        return new OrganizationActivityResult(relation, AttributeChange.EMPTY);
+        return new OrganizationActivityResult(relation, AttributeChange.EMPTY, "");
     }
 
     /** 查找用户对某个组织的关系，没有则返回 null。 */
@@ -38,6 +38,7 @@ public interface OrganizationService {
     /** 组织活动结果 */
     record OrganizationActivityResult(
             UserOrganization relation,
-            AttributeChange attributeChange
+            AttributeChange attributeChange,
+            String activityResultText
     ) {}
 }

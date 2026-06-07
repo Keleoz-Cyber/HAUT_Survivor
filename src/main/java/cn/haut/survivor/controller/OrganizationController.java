@@ -6,9 +6,11 @@ import cn.haut.survivor.domain.entity.Organization;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserOrganization;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.OrganizationService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,11 +29,17 @@ public class OrganizationController {
     private final OrganizationService organizationService;
     private final PlayerService playerService;
     private final ExplorationService explorationService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
-    public OrganizationController(OrganizationService organizationService, PlayerService playerService, ExplorationService explorationService) {
+    public OrganizationController(OrganizationService organizationService, PlayerService playerService,
+                                   ExplorationService explorationService, WeeklyGoalService weeklyGoalService,
+                                   AchievementService achievementService) {
         this.organizationService = organizationService;
         this.playerService = playerService;
         this.explorationService = explorationService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/organizations")
@@ -102,6 +110,8 @@ public class OrganizationController {
         Long userId = currentUserId(session);
         try {
             organizationService.join(userId, id);
+            // 成就：加入组织
+            achievementService.unlockAchievement(userId, "club_rookie");
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return detail(id, session, model);
@@ -115,6 +125,12 @@ public class OrganizationController {
         try {
             OrganizationService.OrganizationActivityResult result = organizationService.attendActivityWithChange(userId, id);
             model.addAttribute("activityChange", result.attributeChange());
+            model.addAttribute("activityResultText", result.activityResultText());
+
+            // 更新周目标进度：组织活动 +1
+            PlayerProfile profile = playerService.findProfileByUserId(userId);
+            weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "org_activity", 1);
+
             return detail(id, session, model);
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

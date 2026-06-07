@@ -33,6 +33,7 @@
         <!-- 活动属性变化 -->
         <div th:if="${activityChange != null and activityChange.hasAnyChange()}" class="vn-result__changes">
             <p class="vn-result__changes-label">本次活动</p>
+            <p th:if="${activityResultText}" class="vn-result__story" style="margin-bottom:8px;" th:text="${activityResultText}">活动描述</p>
             <div class="vn-result__changes-list">
                 <span th:if="${activityChange.academicChange != 0}" class="vn-result__change" th:classappend="${activityChange.academicChange > 0} ? 'vn-up' : 'vn-down'">📚 学业 <em th:text="${activityChange.academicChange > 0} ? '+' + ${activityChange.academicChange} : ${activityChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
                 <span th:if="${activityChange.healthChange != 0}" class="vn-result__change" th:classappend="${activityChange.healthChange > 0} ? 'vn-up' : 'vn-down'">💚 健康 <em th:text="${activityChange.healthChange > 0} ? '+' + ${activityChange.healthChange} : ${activityChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>

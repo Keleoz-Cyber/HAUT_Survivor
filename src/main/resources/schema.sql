@@ -9,6 +9,11 @@ DROP TABLE IF EXISTS dungeon_task_option;
 DROP TABLE IF EXISTS dungeon_task;
 DROP TABLE IF EXISTS dungeon;
 DROP TABLE IF EXISTS task;
+DROP TABLE IF EXISTS user_achievement;
+DROP TABLE IF EXISTS achievement;
+DROP TABLE IF EXISTS user_weekly_goal;
+DROP TABLE IF EXISTS weekly_goal;
+DROP TABLE IF EXISTS user_week_summary;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
 DROP TABLE IF EXISTS player_profile;
@@ -336,4 +341,71 @@ CREATE TABLE IF NOT EXISTS user_npc_relation (
     CONSTRAINT fk_unr_user FOREIGN KEY (user_id) REFERENCES `user`(id),
     CONSTRAINT fk_unr_npc FOREIGN KEY (npc_id) REFERENCES npc(id),
     UNIQUE KEY uk_user_npc (user_id, npc_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 本周目标定义 ==========
+CREATE TABLE IF NOT EXISTS weekly_goal (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    goal_key VARCHAR(50) NOT NULL UNIQUE,
+    goal_name VARCHAR(100) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    goal_type VARCHAR(30) NOT NULL,
+    target_value INT NOT NULL DEFAULT 1,
+    reward_exp INT NOT NULL DEFAULT 0,
+    reward_attribute VARCHAR(30),
+    reward_amount INT NOT NULL DEFAULT 0,
+    active INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 玩家本周目标 ==========
+CREATE TABLE IF NOT EXISTS user_weekly_goal (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    week_number INT NOT NULL,
+    goal_id BIGINT NOT NULL,
+    start_value INT NOT NULL DEFAULT 0,
+    current_value INT NOT NULL DEFAULT 0,
+    completed INT NOT NULL DEFAULT 0,
+    claimed INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_uwg_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_uwg_goal FOREIGN KEY (goal_id) REFERENCES weekly_goal(id),
+    UNIQUE KEY uk_user_week_goal (user_id, week_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 成就定义 ==========
+CREATE TABLE IF NOT EXISTS achievement (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    achievement_key VARCHAR(50) NOT NULL UNIQUE,
+    achievement_name VARCHAR(100) NOT NULL,
+    description VARCHAR(200) NOT NULL,
+    icon VARCHAR(10) NOT NULL DEFAULT '🏆',
+    condition_type VARCHAR(30) NOT NULL,
+    condition_value INT NOT NULL DEFAULT 1,
+    reward_title VARCHAR(50),
+    active INT NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 玩家成就 ==========
+CREATE TABLE IF NOT EXISTS user_achievement (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    achievement_id BIGINT NOT NULL,
+    unlocked_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_ua_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_ua_achievement FOREIGN KEY (achievement_id) REFERENCES achievement(id),
+    UNIQUE KEY uk_user_achievement (user_id, achievement_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 周结算报告 ==========
+CREATE TABLE IF NOT EXISTS user_week_summary (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    week_number INT NOT NULL,
+    theme_name VARCHAR(50),
+    goal_result VARCHAR(20),
+    summary_text TEXT,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_uws_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    UNIQUE KEY uk_user_week (user_id, week_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

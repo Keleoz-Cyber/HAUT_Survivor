@@ -12,6 +12,7 @@ import cn.haut.survivor.mapper.UserDungeonTaskRecordMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import cn.haut.survivor.mapper.UserOrganizationMapper;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,19 +33,22 @@ public class PlayerServiceImpl implements PlayerService {
     private final UserOrganizationMapper userOrganizationMapper;
     private final UserDungeonRecordMapper userDungeonRecordMapper;
     private final UserDungeonTaskRecordMapper userDungeonTaskRecordMapper;
+    private final WeeklyGoalService weeklyGoalService;
 
     public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper,
                              PlayerAttributeMapper playerAttributeMapper,
                              UserLocationExplorationMapper explorationMapper,
                              UserOrganizationMapper userOrganizationMapper,
                              UserDungeonRecordMapper userDungeonRecordMapper,
-                             UserDungeonTaskRecordMapper userDungeonTaskRecordMapper) {
+                             UserDungeonTaskRecordMapper userDungeonTaskRecordMapper,
+                             WeeklyGoalService weeklyGoalService) {
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.explorationMapper = explorationMapper;
         this.userOrganizationMapper = userOrganizationMapper;
         this.userDungeonRecordMapper = userDungeonRecordMapper;
         this.userDungeonTaskRecordMapper = userDungeonTaskRecordMapper;
+        this.weeklyGoalService = weeklyGoalService;
     }
 
     @Override
@@ -128,7 +132,12 @@ public class PlayerServiceImpl implements PlayerService {
             throw new IllegalArgumentException("学期已结束，无法推进周次");
         }
 
-        int nextWeek = profile.getCurrentWeek() + 1;
+        int currentWeek = profile.getCurrentWeek();
+
+        // 周推进前：检查本周压力保持目标（使用当前周的属性快照）
+        weeklyGoalService.checkPressureKeepGoal(userId, currentWeek);
+
+        int nextWeek = currentWeek + 1;
         profile.setCurrentWeek(nextWeek);
         profile.setActionPoints(profile.getMaxActionPoints());
 

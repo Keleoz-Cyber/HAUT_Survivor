@@ -113,12 +113,12 @@ class DungeonControllerTests {
     }
 
     @Test
-    void bugHuntPageShowsQuestionsAfterSecondStage() throws Exception {
-        // 完成阶段 1
+    void gitMergeStageShowsOptionsAfterDatabaseMinigame() throws Exception {
+        // Stage 1: 需求风暴
         mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
-        // 完成阶段 2
+        // Stage 2: 数据库拼图
         mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
@@ -127,7 +127,35 @@ class DungeonControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
 
-        // 阶段 3 应该是 Bug Hunt
+        // Stage 3: Git 合并地狱 (task_id=8)
+        mockMvc.perform(get("/dungeons/1/play")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("dungeon/play"))
+                .andExpect(model().attributeExists("options"));
+    }
+
+    @Test
+    void bugHuntPageShowsQuestionsAfterGitMergeStage() throws Exception {
+        // Stage 1
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // Stage 2
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
+                        .param("selectedRelations", "user->player_attribute")
+                        .param("selectedRelations", "event->event_option")
+                        .param("selectedRelations", "dungeon->dungeon_task")
+                        .param("elapsedSeconds", "18")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // Stage 3: Git 合并地狱 (task_id=8, option_id=16)
+        mockMvc.perform(post("/dungeons/1/task/8/option/16")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+
+        // Stage 4: Bug Hunt (task_id=3)
         mockMvc.perform(get("/dungeons/1/play")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
@@ -139,11 +167,11 @@ class DungeonControllerTests {
 
     @Test
     void submittingBugHuntCompletesDungeon() throws Exception {
-        // 阶段 1
+        // Stage 1
         mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
-        // 阶段 2
+        // Stage 2
         mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
@@ -151,7 +179,11 @@ class DungeonControllerTests {
                         .param("elapsedSeconds", "18")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
-        // 阶段 3：Bug Hunt（全对）
+        // Stage 3: Git 合并地狱
+        mockMvc.perform(post("/dungeons/1/task/8/option/16")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // Stage 4: Bug Hunt
         mockMvc.perform(post("/dungeons/1/task/3/bughunt")
                         .param("questionIds", "0")
                         .param("questionIds", "1")
@@ -171,11 +203,11 @@ class DungeonControllerTests {
 
     @Test
     void finishingDemoDungeonShowsCompletedEndingWithProcessFlags() throws Exception {
-        // 阶段 1
+        // Stage 1
         mockMvc.perform(post("/dungeons/1/task/1/option/1")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
-        // 阶段 2
+        // Stage 2
         mockMvc.perform(post("/dungeons/1/task/2/minigame")
                         .param("selectedRelations", "user->player_attribute")
                         .param("selectedRelations", "event->event_option")
@@ -183,7 +215,11 @@ class DungeonControllerTests {
                         .param("elapsedSeconds", "18")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
-        // 阶段 3
+        // Stage 3: Git 合并地狱
+        mockMvc.perform(post("/dungeons/1/task/8/option/16")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"));
+        // Stage 4: Bug Hunt
         mockMvc.perform(post("/dungeons/1/task/3/bughunt")
                         .param("questionIds", "0")
                         .param("questionIds", "1")

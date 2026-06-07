@@ -71,7 +71,45 @@ class DashboardControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("dashboard/index"))
                 .andExpect(model().attributeExists("user", "profile", "attribute", "warnings",
-                        "weekTheme", "rumors", "knownNpcs"));
+                        "weekTheme", "rumors", "knownNpcs",
+                        "goalCandidates",
+                        "unlockedAchievements", "recentAchievements"));
+    }
+
+    @Test
+    void dashboardWithoutGoalShowsCandidates() throws Exception {
+        playerService.createProfile(2L, "目标候选测试", "大一", "计算机类", "就业路线");
+
+        mockMvc.perform(get("/dashboard")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("goalCandidates"))
+                .andExpect(model().attribute("currentWeeklyGoal", org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void chooseGoalRedirectsToDashboard() throws Exception {
+        playerService.createProfile(2L, "选择目标测试", "大一", "计算机类", "就业路线");
+
+        // 先获取候选目标 ID
+        var candidates = mockMvc.perform(get("/dashboard")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andReturn().getModelAndView().getModel().get("goalCandidates");
+
+        @SuppressWarnings("unchecked")
+        java.util.List<cn.haut.survivor.domain.entity.WeeklyGoal> goalCandidates =
+                (java.util.List<cn.haut.survivor.domain.entity.WeeklyGoal>) candidates;
+
+        if (goalCandidates != null && !goalCandidates.isEmpty()) {
+            Long goalId = goalCandidates.get(0).getId();
+            mockMvc.perform(post("/weekly-goals/" + goalId + "/choose")
+                            .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                            .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/dashboard"));
+        }
     }
 
     @Test

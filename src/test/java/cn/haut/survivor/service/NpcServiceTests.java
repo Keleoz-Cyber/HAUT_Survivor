@@ -100,19 +100,24 @@ class NpcServiceTests {
     @Test
     void maybeMeetNpcUpdatesLastMetWeekOnRepeatedMeeting() {
         playerService.createProfile(2L, "周次更新测试", "大二", "计算机类", "就业路线");
-        // Meet in week 1
-        for (int i = 0; i < 20; i++) {
-            npcService.maybeMeetNpc(2L, 1L, 1);
+        Optional<NpcEncounter> firstEncounter = Optional.empty();
+        for (int i = 0; i < 100 && firstEncounter.isEmpty(); i++) {
+            firstEncounter = npcService.maybeMeetNpc(2L, 3L, 1);
         }
-        // Then meet again in week 3
-        for (int i = 0; i < 20; i++) {
-            npcService.maybeMeetNpc(2L, 1L, 3);
+        assertThat(firstEncounter).isPresent();
+        Long npcId = firstEncounter.get().npc().getId();
+
+        Optional<NpcEncounter> secondEncounter = Optional.empty();
+        for (int i = 0; i < 100 && secondEncounter.isEmpty(); i++) {
+            secondEncounter = npcService.maybeMeetNpc(2L, 3L, 3);
         }
-        List<UserNpcRelation> known = npcService.listKnownNpcs(2L);
-        if (!known.isEmpty()) {
-            UserNpcRelation rel = known.get(0);
-            assertThat(rel.getLastMetWeek()).isEqualTo(3);
-        }
+        assertThat(secondEncounter).isPresent();
+
+        UserNpcRelation rel = npcService.listKnownNpcs(2L).stream()
+                .filter(r -> r.getNpcId().equals(npcId))
+                .findFirst()
+                .orElseThrow();
+        assertThat(rel.getLastMetWeek()).isEqualTo(3);
     }
 
     @Test

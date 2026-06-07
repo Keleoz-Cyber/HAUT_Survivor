@@ -4,17 +4,20 @@ import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.User;
-import cn.haut.survivor.domain.entity.UserNpcRelation;
-import cn.haut.survivor.domain.entity.Rumor;
+import cn.haut.survivor.domain.entity.UserWeeklyGoal;
+import cn.haut.survivor.domain.entity.WeeklyGoal;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorService;
 import cn.haut.survivor.service.UserService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
@@ -30,15 +33,20 @@ public class DashboardController {
     private final WeeklyThemeService weeklyThemeService;
     private final RumorService rumorService;
     private final NpcService npcService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
     public DashboardController(PlayerService playerService, UserService userService,
                                WeeklyThemeService weeklyThemeService, RumorService rumorService,
-                               NpcService npcService) {
+                               NpcService npcService, WeeklyGoalService weeklyGoalService,
+                               AchievementService achievementService) {
         this.playerService = playerService;
         this.userService = userService;
         this.weeklyThemeService = weeklyThemeService;
         this.rumorService = rumorService;
         this.npcService = npcService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/")
@@ -66,16 +74,55 @@ public class DashboardController {
         model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
         model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         model.addAttribute("knownNpcs", npcService.listKnownNpcs(userId));
+
+        // 本周目标
+        UserWeeklyGoal currentGoal = weeklyGoalService.getCurrentGoal(userId, profile.getCurrentWeek());
+        WeeklyGoal currentGoalDef = weeklyGoalService.getCurrentGoalDefinition(userId, profile.getCurrentWeek());
+
+        // 检查压力保持目标
+        if (currentGoal != null && currentGoalDef != null
+                && "pressure_keep".equals(currentGoalDef.getGoalType())
+                && currentGoal.getCompleted() == 0) {
+            weeklyGoalService.checkPressureKeepGoal(userId, profile.getCurrentWeek());
+            // 重新获取更新后的目标
+            currentGoal = weeklyGoalService.getCurrentGoal(userId, profile.getCurrentWeek());
+        }
+
+        model.addAttribute("currentWeeklyGoal", currentGoal);
+        model.addAttribute("currentWeeklyGoalDef", currentGoalDef);
+        if (currentGoal == null) {
+            model.addAttribute("goalCandidates", weeklyGoalService.pickCandidateGoals(userId, profile.getCurrentWeek()));
+        } else {
+            model.addAttribute("goalCandidates", List.of());
+        }
+
+        // 成就称号
+        model.addAttribute("unlockedAchievements", achievementService.listUserAchievements(userId));
+        model.addAttribute("recentAchievements", achievementService.listRecentUnlocked(userId, 5));
+
         return "dashboard/index";
     }
 
-    @PostMapping("/week/advance")
-    public String advanceWeek(HttpSession session) {
+    @PostMapping("/weekly-goals/{goalId}/choose")
+    public String chooseGoal(@PathVariable Long goalId, HttpSession session) {
         Long userId = currentUserId(session);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
         try {
-            playerService.advanceWeek(userId);
+            weeklyGoalService.chooseGoal(userId, profile.getCurrentWeek(), goalId);
         } catch (IllegalArgumentException ignored) {
-            // 学期结束或其他异常，回到仪表盘显示状态
+            // 已选择目标或目标无效，忽略
+        }
+        return "redirect:/dashboard";
+    }
+
+    @PostMapping("/weekly-goals/claim")
+    public String claimReward(HttpSession session) {
+        Long userId = currentUserId(session);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        try {
+            weeklyGoalService.claimReward(userId, profile.getCurrentWeek());
+        } catch (IllegalArgumentException ignored) {
+            // 未完成或已领取，忽略
         }
         return "redirect:/dashboard";
     }

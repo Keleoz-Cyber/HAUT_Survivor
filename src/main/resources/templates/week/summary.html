@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本周回忆 - HAUT Survivor</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="game-shell">
+
+<header th:replace="~{fragments/layout :: game-hud}"></header>
+
+<main class="dorm-room week-summary-page">
+
+    <!-- ===== 顶部英雄区 ===== -->
+    <section class="week-summary-hero">
+        <span class="week-summary-hero__icon" th:text="${summary.themeIcon}">🎒</span>
+        <h1 class="week-summary-hero__title">
+            第 <span th:text="${summary.weekNumber}">1</span> 周回忆报告
+        </h1>
+        <p class="week-summary-hero__theme" th:text="${summary.themeName}">开学适应周</p>
+        <p class="week-summary-hero__desc" th:text="${summary.themeDescription}">描述</p>
+        <p class="week-summary-hero__rating" th:text="${summary.ratingLabel}">👍 不错的一周</p>
+        <p class="week-summary-hero__text" th:text="${summary.summaryText}">评价文案</p>
+    </section>
+
+    <!-- ===== 本周目标卡 ===== -->
+    <section class="week-summary-card week-summary-goal">
+        <p class="week-summary-card__title">🎯 本周目标</p>
+        <div th:if="${summary.weeklyGoalName != null}">
+            <p class="week-summary-goal__name" th:text="${summary.weeklyGoalName}">目标名</p>
+            <p class="week-summary-goal__progress" th:text="${summary.weeklyGoalProgressText}">0/2</p>
+            <span class="week-summary-goal__status"
+                  th:if="${summary.weeklyGoalCompleted}" th:text="'✅ 已完成'">✅ 已完成</span>
+            <span class="week-summary-goal__status week-summary-goal__status--incomplete"
+                  th:if="${!summary.weeklyGoalCompleted}" th:text="'❌ 未完成'">❌ 未完成</span>
+            <span class="week-summary-goal__claimed"
+                  th:if="${summary.weeklyGoalClaimed}" th:text="'奖励已领取 ✨'">奖励已领取</span>
+        </div>
+        <p th:if="${summary.weeklyGoalName == null}" class="week-summary-goal__none">
+            本周没有设定目标
+        </p>
+    </section>
+
+    <!-- ===== 属性快照 ===== -->
+    <section class="week-summary-card week-summary-stats">
+        <p class="week-summary-card__title">📊 属性快照</p>
+        <div class="week-summary-stats__grid">
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">学业</span>
+                <span class="week-summary-stats__value" th:text="${summary.academic}">60</span>
+            </div>
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">健康</span>
+                <span class="week-summary-stats__value" th:text="${summary.health}">70</span>
+            </div>
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">金钱</span>
+                <span class="week-summary-stats__value" th:text="${summary.money}">80</span>
+            </div>
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">社交</span>
+                <span class="week-summary-stats__value" th:text="${summary.social}">50</span>
+            </div>
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">技能</span>
+                <span class="week-summary-stats__value" th:text="${summary.skill}">40</span>
+            </div>
+            <div class="week-summary-stats__item week-summary-stats__item--pressure">
+                <span class="week-summary-stats__label">压力</span>
+                <span class="week-summary-stats__value" th:text="${summary.pressure}">30</span>
+            </div>
+            <div class="week-summary-stats__item">
+                <span class="week-summary-stats__label">自律</span>
+                <span class="week-summary-stats__value" th:text="${summary.discipline}">50</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== NPC / 熟人 ===== -->
+    <section class="week-summary-card week-summary-memory">
+        <p class="week-summary-card__title">👥 校园熟人</p>
+        <div th:if="${summary.knownNpcCount > 0}">
+            <p class="week-summary-memory__count"
+               th:text="'认识了 ' + ${summary.knownNpcCount} + ' 位校园人物'">认识了 2 位</p>
+            <div class="week-summary-memory__list">
+                <span class="week-summary-memory__name" th:each="name : ${summary.recentNpcNames}"
+                      th:text="${name}">NPC名</span>
+            </div>
+        </div>
+        <p th:if="${summary.knownNpcCount == 0}" class="week-summary-memory__none">
+            这周你基本独来独往
+        </p>
+    </section>
+
+    <!-- ===== 成就 ===== -->
+    <section class="week-summary-card week-summary-memory">
+        <p class="week-summary-card__title">🏅 解锁成就</p>
+        <div th:if="${summary.recentAchievements != null and !summary.recentAchievements.isEmpty()}">
+            <div class="week-summary-memory__achievements">
+                <div class="week-summary-memory__achievement" th:each="ua : ${summary.recentAchievements}"
+                     th:if="${ua.achievement != null}">
+                    <span th:text="${ua.achievement.icon}">🏆</span>
+                    <span th:text="${ua.achievement.achievementName}">成就名</span>
+                    <span th:if="${ua.achievement.rewardTitle != null}"
+                          th:text="'「' + ${ua.achievement.rewardTitle} + '」'">称号</span>
+                </div>
+            </div>
+        </div>
+        <p th:if="${summary.recentAchievements == null or summary.recentAchievements.isEmpty()}"
+           class="week-summary-memory__none">
+            暂未解锁新称号
+        </p>
+    </section>
+
+    <!-- ===== 操作区 ===== -->
+    <section class="week-summary-actions">
+        <form method="post" action="/week/advance">
+            <button type="submit" class="week-summary-actions__advance">
+                🌙 进入下一周
+            </button>
+        </form>
+        <a href="/dashboard" class="week-summary-actions__back">
+            🏠 回寝室再想想
+        </a>
+    </section>
+
+</main>
+
+<nav th:replace="~{fragments/layout :: game-dock}"></nav>
+
+</body>
+</html>
