@@ -276,6 +276,9 @@ public class WeeklyGoalServiceImpl implements WeeklyGoalService {
             case "academic_event" -> {
                 return 0; // 学业危机事件次数从 0 开始计数
             }
+            case "npc_interaction", "buddy_selected", "familiarity_gain" -> {
+                return 0;
+            }
             case "pressure_keep" -> {
                 // 压力保持目标：记录当前压力值
                 PlayerAttribute attribute = playerAttributeMapper.selectOne(

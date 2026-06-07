@@ -377,4 +377,58 @@ class WeeklyGoalServiceTests {
             assertThat(goal.getCompleted()).isEqualTo(0);
         }
     }
+
+    @Test
+    void npcInteractionGoalStartsFromZeroAndProgresses() {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "buddy_chat".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+
+        UserWeeklyGoal userGoal = weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+        assertThat(userGoal.getStartValue()).isZero();
+        assertThat(userGoal.getCurrentValue()).isZero();
+
+        weeklyGoalService.updateProgress(2L, 1, "npc_interaction", 1);
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(1);
+        assertThat(updated.getCompleted()).isEqualTo(1);
+    }
+
+    @Test
+    void buddySelectedGoalStartsFromZeroAndProgresses() {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "buddy_week".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+
+        UserWeeklyGoal userGoal = weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+        assertThat(userGoal.getStartValue()).isZero();
+        assertThat(userGoal.getCurrentValue()).isZero();
+
+        weeklyGoalService.updateProgress(2L, 1, "buddy_selected", 1);
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(1);
+        assertThat(updated.getCompleted()).isEqualTo(1);
+    }
+
+    @Test
+    void familiarityGainGoalAccumulatesDelta() {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "relationship_builder".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+
+        UserWeeklyGoal userGoal = weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+        assertThat(userGoal.getStartValue()).isZero();
+
+        weeklyGoalService.updateProgress(2L, 1, "familiarity_gain", 4);
+        weeklyGoalService.updateProgress(2L, 1, "familiarity_gain", 6);
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(10);
+        assertThat(updated.getCompleted()).isEqualTo(1);
+    }
 }
