@@ -178,4 +178,25 @@ class WeekSummaryServiceTests {
 
         assertThat(view.summaryText()).contains("复习");
     }
+
+    @Test
+    void summaryMentionsWeeklyBuddyWhenSelected() {
+        npcService.increaseFamiliarity(2L, 2L, 55);
+        npcService.chooseWeeklyBuddy(2L, 2L, 1);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+
+        assertThat(view.summaryText()).contains("搭子");
+    }
+
+    @Test
+    void summaryWarnsWhenHighPressureAndNoNpcInteraction() {
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setPressure(82);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+
+        assertThat(view.summaryText()).contains("硬撑");
+    }
 }

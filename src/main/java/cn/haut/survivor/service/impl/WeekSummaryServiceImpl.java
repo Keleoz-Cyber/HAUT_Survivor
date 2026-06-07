@@ -3,6 +3,7 @@ package cn.haut.survivor.service.impl;
 import cn.haut.survivor.domain.entity.Npc;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.UserAchievement;
+import cn.haut.survivor.domain.entity.UserNpcWeeklyAction;
 import cn.haut.survivor.domain.entity.UserNpcRelation;
 import cn.haut.survivor.domain.entity.UserWeeklyGoal;
 import cn.haut.survivor.domain.entity.WeeklyGoal;
@@ -10,6 +11,7 @@ import cn.haut.survivor.domain.entity.UserWeekSummary;
 import cn.haut.survivor.mapper.NpcMapper;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.UserNpcRelationMapper;
+import cn.haut.survivor.mapper.UserNpcWeeklyActionMapper;
 import cn.haut.survivor.mapper.UserWeeklyGoalMapper;
 import cn.haut.survivor.mapper.WeeklyGoalMapper;
 import cn.haut.survivor.mapper.UserWeekSummaryMapper;
@@ -31,6 +33,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
     private final UserWeeklyGoalMapper userWeeklyGoalMapper;
     private final WeeklyGoalMapper weeklyGoalMapper;
     private final UserNpcRelationMapper userNpcRelationMapper;
+    private final UserNpcWeeklyActionMapper userNpcWeeklyActionMapper;
     private final NpcMapper npcMapper;
     private final WeeklyThemeService weeklyThemeService;
     private final AchievementService achievementService;
@@ -41,6 +44,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
             UserWeeklyGoalMapper userWeeklyGoalMapper,
             WeeklyGoalMapper weeklyGoalMapper,
             UserNpcRelationMapper userNpcRelationMapper,
+            UserNpcWeeklyActionMapper userNpcWeeklyActionMapper,
             NpcMapper npcMapper,
             WeeklyThemeService weeklyThemeService,
             AchievementService achievementService) {
@@ -49,6 +53,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         this.userWeeklyGoalMapper = userWeeklyGoalMapper;
         this.weeklyGoalMapper = weeklyGoalMapper;
         this.userNpcRelationMapper = userNpcRelationMapper;
+        this.userNpcWeeklyActionMapper = userNpcWeeklyActionMapper;
         this.npcMapper = npcMapper;
         this.weeklyThemeService = weeklyThemeService;
         this.achievementService = achievementService;
@@ -138,11 +143,25 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
                 .limit(5)
                 .toList();
 
+        UserNpcWeeklyAction currentBuddy = userNpcWeeklyActionMapper.selectOne(
+                new LambdaQueryWrapper<UserNpcWeeklyAction>()
+                        .eq(UserNpcWeeklyAction::getUserId, userId)
+                        .eq(UserNpcWeeklyAction::getWeekNumber, weekNumber)
+                        .eq(UserNpcWeeklyAction::getBuddySelected, 1)
+                        .last("LIMIT 1"));
+
+        boolean hasNpcInteractionThisWeek = userNpcWeeklyActionMapper.selectCount(
+                new LambdaQueryWrapper<UserNpcWeeklyAction>()
+                        .eq(UserNpcWeeklyAction::getUserId, userId)
+                        .eq(UserNpcWeeklyAction::getWeekNumber, weekNumber)
+                        .eq(UserNpcWeeklyAction::getInteracted, 1)) > 0;
+
         // 成就
         List<UserAchievement> recentAchievements = achievementService.listRecentUnlocked(userId, 5);
 
         // 生成评价
-        String summaryText = generateSummaryText(attribute, goalCompleted, goalClaimed, knownNpcCount, weekNumber);
+        String summaryText = generateSummaryText(attribute, goalCompleted, goalClaimed, knownNpcCount, weekNumber,
+                currentBuddy != null, hasNpcInteractionThisWeek);
         String ratingLabel = generateRatingLabel(attribute, goalCompleted, knownNpcCount);
 
         return new WeekSummaryView(
@@ -228,7 +247,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
     }
 
     private String generateSummaryText(PlayerAttribute attr, boolean goalCompleted, boolean goalClaimed, int npcCount,
-                                       int weekNumber) {
+                                       int weekNumber, boolean hasWeeklyBuddy, boolean hasNpcInteractionThisWeek) {
         if (attr == null) {
             return "这一周过去了。";
         }
@@ -253,6 +272,19 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         }
         if (weekNumber == 4 && pressure >= 70) {
             return "期末周把你推到了边缘，复习、体测和报告像同时响起的闹钟。";
+        }
+
+        if (hasWeeklyBuddy && goalCompleted) {
+            return "这周你不是一个人硬扛，校园搭子把你的节奏拉住了。";
+        }
+        if (hasWeeklyBuddy) {
+            return "这周你选了一个搭子，虽然计划未必完美，但至少不是单机求生。";
+        }
+        if (highPressure && !hasNpcInteractionThisWeek) {
+            return "这周你几乎全靠自己硬撑。下周也许该找个人一起扛。";
+        }
+        if (hasNpcInteractionThisWeek && !goalCompleted) {
+            return "你这周和校园里的人有了更多连接，虽然目标没完全拿下，但已经不算单机。";
         }
 
         // 目标完成 + 压力低
