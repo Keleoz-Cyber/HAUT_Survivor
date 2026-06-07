@@ -8,6 +8,7 @@ spring:
   sql:
     init:
       mode: always
+      data-locations: classpath:data.sql,classpath:data-content-pack-2.sql
   thymeleaf:
     cache: false
 mybatis-plus:
