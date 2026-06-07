@@ -1,5 +1,6 @@
 package cn.haut.survivor.service;
 
+import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.service.WeekSummaryService.WeekSummaryView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,9 @@ class WeekSummaryServiceTests {
 
     @Autowired
     private NpcService npcService;
+
+    @Autowired
+    private PlayerAttributeMapper playerAttributeMapper;
 
     @BeforeEach
     void setUp() {
@@ -147,5 +151,31 @@ class WeekSummaryServiceTests {
         if (populatedView.knownNpcCount() > 0) {
             assertThat(populatedView.recentNpcNames()).isNotEmpty();
         }
+    }
+
+    @Test
+    void ddlWeekHighPressureUsesAcademicCrisisSummary() {
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setAcademic(68);
+        attr.setSkill(72);
+        attr.setPressure(78);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 3);
+
+        assertThat(view.summaryText()).contains("DDL");
+    }
+
+    @Test
+    void finalWeekGoodAcademicUsesExamSprintSummary() {
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setAcademic(82);
+        attr.setSkill(70);
+        attr.setPressure(45);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 4);
+
+        assertThat(view.summaryText()).contains("复习");
     }
 }
