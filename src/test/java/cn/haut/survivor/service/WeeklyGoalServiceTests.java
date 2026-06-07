@@ -168,6 +168,30 @@ class WeeklyGoalServiceTests {
     }
 
     @Test
+    void academicEventGoalStartsFromZeroAndProgresses() {
+        WeeklyGoal academicGoal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "study_twice".equals(g.getGoalKey()))
+                .findFirst()
+                .orElse(null);
+
+        assertThat(academicGoal).isNotNull();
+
+        UserWeeklyGoal userGoal = weeklyGoalService.chooseGoal(2L, 1, academicGoal.getId());
+        assertThat(userGoal.getStartValue()).isZero();
+        assertThat(userGoal.getCurrentValue()).isZero();
+
+        weeklyGoalService.updateProgress(2L, 1, "academic_event", 1);
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(1);
+        assertThat(updated.getCompleted()).isEqualTo(0);
+
+        weeklyGoalService.updateProgress(2L, 1, "academic_event", 1);
+        UserWeeklyGoal completed = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(completed.getCurrentValue()).isEqualTo(2);
+        assertThat(completed.getCompleted()).isEqualTo(1);
+    }
+
+    @Test
     void checkCompletionMarksGoalAsCompleted() {
         // 选择一个 explore_count 类型的目标（target_value = 2）
         WeeklyGoal exploreGoal = weeklyGoalService.listActiveGoals().stream()

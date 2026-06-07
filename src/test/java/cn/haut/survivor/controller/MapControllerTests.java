@@ -2,7 +2,10 @@ package cn.haut.survivor.controller;
 
 import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.domain.entity.UserWeeklyGoal;
+import cn.haut.survivor.domain.entity.WeeklyGoal;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,9 @@ class MapControllerTests {
 
     @Autowired
     private PlayerService playerService;
+
+    @Autowired
+    private WeeklyGoalService weeklyGoalService;
 
     @BeforeEach
     void setUpPlayer() {
@@ -65,6 +71,24 @@ class MapControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(view().name("map/event"))
                 .andExpect(model().attributeExists("resultText", "attribute", "profile", "attributeChange"));
+    }
+
+    @Test
+    void choosingAcademicCrisisOptionUpdatesAcademicEventGoal() throws Exception {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "study_twice".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+        weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+
+        mockMvc.perform(post("/map/event/2001/option/5001")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("map/event"));
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(1);
     }
 
     @Test

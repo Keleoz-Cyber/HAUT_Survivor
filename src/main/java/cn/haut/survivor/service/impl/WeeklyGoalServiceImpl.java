@@ -273,6 +273,9 @@ public class WeeklyGoalServiceImpl implements WeeklyGoalService {
             case "dungeon_stage" -> {
                 return 0; // 副本阶段完成次数从 0 开始计数
             }
+            case "academic_event" -> {
+                return 0; // 学业危机事件次数从 0 开始计数
+            }
             case "pressure_keep" -> {
                 // 压力保持目标：记录当前压力值
                 PlayerAttribute attribute = playerAttributeMapper.selectOne(

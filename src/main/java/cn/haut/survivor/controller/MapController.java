@@ -8,10 +8,12 @@ import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.domain.entity.Rumor;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import cn.haut.survivor.service.WeeklyThemeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -32,15 +34,20 @@ public class MapController {
     private final ExplorationService explorationService;
     private final WeeklyThemeService weeklyThemeService;
     private final RumorService rumorService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
     public MapController(EventService eventService, PlayerService playerService,
                          ExplorationService explorationService,
-                         WeeklyThemeService weeklyThemeService, RumorService rumorService) {
+                         WeeklyThemeService weeklyThemeService, RumorService rumorService,
+                         WeeklyGoalService weeklyGoalService, AchievementService achievementService) {
         this.eventService = eventService;
         this.playerService = playerService;
         this.explorationService = explorationService;
         this.weeklyThemeService = weeklyThemeService;
         this.rumorService = rumorService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/map")
@@ -103,11 +110,35 @@ public class MapController {
     public String chooseOption(@PathVariable Long eventId, @PathVariable Long optionId, HttpSession session, Model model) {
         Long userId = currentUserId(session);
         EventRecord record = eventService.chooseOption(userId, eventId, optionId);
+        Event event = eventService.findEventById(eventId);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        if (event != null && "academic_crisis".equals(event.getEventType()) && profile != null) {
+            weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "academic_event", 1);
+            unlockAcademicCrisisAchievements(userId, event, record);
+        }
         model.addAttribute("resultText", record.getResultText());
         model.addAttribute("attributeChange", record.getAttributeChange());
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
-        model.addAttribute("profile", playerService.findProfileByUserId(userId));
+        model.addAttribute("profile", profile);
         return "map/event";
+    }
+
+    private void unlockAcademicCrisisAchievements(Long userId, Event event, EventRecord record) {
+        String name = event.getEventName() == null ? "" : event.getEventName();
+        String result = record.getResultText() == null ? "" : record.getResultText();
+
+        if (name.contains("早八") && record.getAttributeChange() != null
+                && record.getAttributeChange().disciplineChange() > 0) {
+            achievementService.unlockAchievement(userId, "early_class_warrior");
+        }
+
+        if (name.contains("考前") || name.contains("抱佛脚")) {
+            achievementService.unlockAchievement(userId, "last_minute_master");
+        }
+
+        if (result.contains("林然") || result.contains("老郑") || result.contains("周予") || result.contains("阿杰")) {
+            achievementService.unlockAchievement(userId, "help_seeker");
+        }
     }
 
     private String buildMapRedirect(Long userId, Model model, String message, boolean semesterOver) {
