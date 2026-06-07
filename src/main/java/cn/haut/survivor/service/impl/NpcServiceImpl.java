@@ -1,14 +1,25 @@
 package cn.haut.survivor.service.impl;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Npc;
+import cn.haut.survivor.domain.entity.NpcInteraction;
+import cn.haut.survivor.domain.entity.PlayerAttribute;
+import cn.haut.survivor.domain.entity.UserNpcWeeklyAction;
 import cn.haut.survivor.domain.entity.UserNpcRelation;
+import cn.haut.survivor.mapper.NpcInteractionMapper;
 import cn.haut.survivor.mapper.NpcMapper;
+import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.UserNpcRelationMapper;
+import cn.haut.survivor.mapper.UserNpcWeeklyActionMapper;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
+import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyGoalService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,13 +28,34 @@ import java.util.concurrent.ThreadLocalRandom;
 public class NpcServiceImpl implements NpcService {
 
     private static final double MEET_PROBABILITY = 0.35;
+    private static final int BUDDY_REQUIRED_FAMILIARITY = 50;
 
     private final NpcMapper npcMapper;
     private final UserNpcRelationMapper relationMapper;
+    private final NpcInteractionMapper interactionMapper;
+    private final UserNpcWeeklyActionMapper weeklyActionMapper;
+    private final PlayerAttributeMapper playerAttributeMapper;
+    private final PlayerService playerService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
-    public NpcServiceImpl(NpcMapper npcMapper, UserNpcRelationMapper relationMapper) {
+    public NpcServiceImpl(
+            NpcMapper npcMapper,
+            UserNpcRelationMapper relationMapper,
+            NpcInteractionMapper interactionMapper,
+            UserNpcWeeklyActionMapper weeklyActionMapper,
+            PlayerAttributeMapper playerAttributeMapper,
+            PlayerService playerService,
+            WeeklyGoalService weeklyGoalService,
+            AchievementService achievementService) {
         this.npcMapper = npcMapper;
         this.relationMapper = relationMapper;
+        this.interactionMapper = interactionMapper;
+        this.weeklyActionMapper = weeklyActionMapper;
+        this.playerAttributeMapper = playerAttributeMapper;
+        this.playerService = playerService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -108,14 +140,251 @@ public class NpcServiceImpl implements NpcService {
     @Override
     @Transactional
     public void increaseFamiliarity(Long userId, Long npcId, int amount) {
+        UserNpcRelation relation = requireRelation(userId, npcId);
+        relation.setFamiliarity(clamp(value(relation.getFamiliarity()) + amount));
+        relationMapper.updateById(relation);
+    }
+
+    @Override
+    public List<NpcInteraction> listAvailableInteractions(Long userId, Long npcId, int weekNumber) {
+        UserNpcRelation relation = requireRelation(userId, npcId);
+        int familiarity = value(relation.getFamiliarity());
+        return interactionMapper.selectList(new LambdaQueryWrapper<NpcInteraction>()
+                .eq(NpcInteraction::getNpcId, npcId)
+                .eq(NpcInteraction::getActive, 1)
+                .le(NpcInteraction::getRequiredFamiliarity, familiarity)
+                .orderByAsc(NpcInteraction::getRequiredFamiliarity)
+                .orderByAsc(NpcInteraction::getId));
+    }
+
+    @Override
+    @Transactional
+    public NpcInteractionResult interact(Long userId, Long npcId, Long interactionId, int weekNumber) {
+        Npc npc = npcMapper.selectById(npcId);
+        if (npc == null || value(npc.getActive()) != 1) {
+            throw new IllegalArgumentException("NPC不存在或已不可互动");
+        }
+
+        UserNpcRelation relation = requireRelation(userId, npcId);
+        NpcInteraction interaction = interactionMapper.selectById(interactionId);
+        if (interaction == null || value(interaction.getActive()) != 1 || !npcId.equals(interaction.getNpcId())) {
+            throw new IllegalArgumentException("互动不存在或不属于该NPC");
+        }
+        if (value(relation.getFamiliarity()) < value(interaction.getRequiredFamiliarity())) {
+            throw new IllegalStateException("熟悉度不足，暂时解锁不了这个互动");
+        }
+
+        UserNpcWeeklyAction action = getOrCreateWeeklyAction(userId, npcId, weekNumber);
+        if (value(action.getInteracted()) == 1) {
+            throw new IllegalStateException("本周已经和这个NPC互动过了");
+        }
+
+        playerService.consumeActionPoint(userId);
+        PlayerAttribute attribute = playerAttributeMapper.selectOne(new LambdaQueryWrapper<PlayerAttribute>()
+                .eq(PlayerAttribute::getUserId, userId)
+                .last("LIMIT 1"));
+        if (attribute == null) {
+            throw new IllegalStateException("角色属性不存在");
+        }
+
+        int beforeAcademic = value(attribute.getAcademic());
+        int beforeHealth = value(attribute.getHealth());
+        int beforeMoney = value(attribute.getMoney());
+        int beforeSocial = value(attribute.getSocial());
+        int beforeSkill = value(attribute.getSkill());
+        int beforePressure = value(attribute.getPressure());
+        int beforeDiscipline = value(attribute.getDiscipline());
+
+        boolean weeklyBuddy = getCurrentBuddy(userId, weekNumber)
+                .map(buddy -> npcId.equals(buddy.getNpcId()))
+                .orElse(false);
+        applyInteractionChange(attribute, interaction, npc, weeklyBuddy);
+        attribute.setUpdateTime(LocalDateTime.now());
+        playerAttributeMapper.updateById(attribute);
+
+        AttributeChange change = new AttributeChange(
+                value(attribute.getAcademic()) - beforeAcademic,
+                value(attribute.getHealth()) - beforeHealth,
+                value(attribute.getMoney()) - beforeMoney,
+                value(attribute.getSocial()) - beforeSocial,
+                value(attribute.getSkill()) - beforeSkill,
+                value(attribute.getPressure()) - beforePressure,
+                value(attribute.getDiscipline()) - beforeDiscipline,
+                value(interaction.getExpChange()));
+
+        int familiarityGain = value(interaction.getFamiliarityChange()) + (weeklyBuddy ? 1 : 0);
+        relation.setFamiliarity(clamp(value(relation.getFamiliarity()) + familiarityGain));
+        relation.setMetCount(value(relation.getMetCount()) + 1);
+        relation.setLastMetWeek(weekNumber);
+        relationMapper.updateById(relation);
+        relation.setNpc(npc);
+
+        action.setInteracted(1);
+        action.setInteractedAt(LocalDateTime.now());
+        weeklyActionMapper.updateById(action);
+
+        weeklyGoalService.updateProgress(userId, weekNumber, "npc_interaction", 1);
+        weeklyGoalService.updateProgress(userId, weekNumber, "familiarity_gain", familiarityGain);
+        unlockNpcAchievements(userId, npc, relation);
+
+        return new NpcInteractionResult(
+                npc,
+                interaction,
+                relation,
+                change,
+                familiarityGain,
+                interaction.getResultText(),
+                getRelationStage(relation.getFamiliarity()));
+    }
+
+    @Override
+    public Optional<UserNpcWeeklyAction> getCurrentBuddy(Long userId, int weekNumber) {
+        return Optional.ofNullable(weeklyActionMapper.selectOne(new LambdaQueryWrapper<UserNpcWeeklyAction>()
+                .eq(UserNpcWeeklyAction::getUserId, userId)
+                .eq(UserNpcWeeklyAction::getWeekNumber, weekNumber)
+                .eq(UserNpcWeeklyAction::getBuddySelected, 1)
+                .last("LIMIT 1")));
+    }
+
+    @Override
+    @Transactional
+    public void chooseWeeklyBuddy(Long userId, Long npcId, int weekNumber) {
+        if (getCurrentBuddy(userId, weekNumber).isPresent()) {
+            throw new IllegalStateException("本周已经选择过校园搭子");
+        }
+        Npc npc = npcMapper.selectById(npcId);
+        if (npc == null || value(npc.getActive()) != 1) {
+            throw new IllegalArgumentException("NPC不存在或已不可选择");
+        }
+        UserNpcRelation relation = requireRelation(userId, npcId);
+        if (value(relation.getFamiliarity()) < BUDDY_REQUIRED_FAMILIARITY) {
+            throw new IllegalStateException("熟悉度不足，至少需要50才能成为本周搭子");
+        }
+
+        UserNpcWeeklyAction action = getOrCreateWeeklyAction(userId, npcId, weekNumber);
+        action.setBuddySelected(1);
+        action.setSelectedAt(LocalDateTime.now());
+        weeklyActionMapper.updateById(action);
+
+        weeklyGoalService.updateProgress(userId, weekNumber, "buddy_selected", 1);
+        achievementService.unlockAchievement(userId, "first_buddy");
+        unlockNpcAchievements(userId, npc, relation);
+    }
+
+    @Override
+    public String getRelationStage(Integer familiarity) {
+        int value = value(familiarity);
+        if (value >= 80) {
+            return "铁搭子";
+        }
+        if (value >= 50) {
+            return "搭子";
+        }
+        if (value >= 20) {
+            return "熟人";
+        }
+        return "认识";
+    }
+
+    private UserNpcRelation requireRelation(Long userId, Long npcId) {
         UserNpcRelation relation = relationMapper.selectOne(new LambdaQueryWrapper<UserNpcRelation>()
                 .eq(UserNpcRelation::getUserId, userId)
-                .eq(UserNpcRelation::getNpcId, npcId));
-
+                .eq(UserNpcRelation::getNpcId, npcId)
+                .last("LIMIT 1"));
         if (relation != null) {
-            relation.setFamiliarity(Math.min(100, relation.getFamiliarity() + amount));
-            relationMapper.updateById(relation);
+            return relation;
         }
+
+        Npc npc = npcMapper.selectById(npcId);
+        if (npc == null || value(npc.getActive()) != 1) {
+            throw new IllegalArgumentException("NPC不存在或已不可互动");
+        }
+
+        relation = new UserNpcRelation();
+        relation.setUserId(userId);
+        relation.setNpcId(npcId);
+        relation.setFamiliarity(0);
+        relation.setMetCount(0);
+        relation.setLastMetWeek(0);
+        relationMapper.insert(relation);
+        relation.setNpc(npc);
+        return relation;
+    }
+
+    private UserNpcWeeklyAction getOrCreateWeeklyAction(Long userId, Long npcId, int weekNumber) {
+        UserNpcWeeklyAction action = weeklyActionMapper.selectOne(new LambdaQueryWrapper<UserNpcWeeklyAction>()
+                .eq(UserNpcWeeklyAction::getUserId, userId)
+                .eq(UserNpcWeeklyAction::getNpcId, npcId)
+                .eq(UserNpcWeeklyAction::getWeekNumber, weekNumber)
+                .last("LIMIT 1"));
+        if (action != null) {
+            return action;
+        }
+
+        action = new UserNpcWeeklyAction();
+        action.setUserId(userId);
+        action.setNpcId(npcId);
+        action.setWeekNumber(weekNumber);
+        action.setInteracted(0);
+        action.setBuddySelected(0);
+        weeklyActionMapper.insert(action);
+        return action;
+    }
+
+    private void applyInteractionChange(PlayerAttribute attribute, NpcInteraction interaction, Npc npc, boolean weeklyBuddy) {
+        int academicDelta = value(interaction.getAcademicChange());
+        int healthDelta = value(interaction.getHealthChange());
+        int moneyDelta = value(interaction.getMoneyChange());
+        int socialDelta = value(interaction.getSocialChange());
+        int skillDelta = value(interaction.getSkillChange());
+        int pressureDelta = value(interaction.getPressureChange());
+        int disciplineDelta = value(interaction.getDisciplineChange());
+
+        if (weeklyBuddy) {
+            switch (npc.getFavoriteAttribute() != null ? npc.getFavoriteAttribute() : "") {
+                case "academic" -> academicDelta += 1;
+                case "health" -> healthDelta += 1;
+                case "money" -> moneyDelta += 1;
+                case "social" -> socialDelta += 1;
+                case "skill" -> skillDelta += 1;
+                case "pressure" -> pressureDelta -= 1;
+                case "discipline" -> disciplineDelta += 1;
+                default -> socialDelta += 1;
+            }
+        }
+
+        attribute.setAcademic(clamp(value(attribute.getAcademic()) + academicDelta));
+        attribute.setHealth(clamp(value(attribute.getHealth()) + healthDelta));
+        attribute.setMoney(clamp(value(attribute.getMoney()) + moneyDelta));
+        attribute.setSocial(clamp(value(attribute.getSocial()) + socialDelta));
+        attribute.setSkill(clamp(value(attribute.getSkill()) + skillDelta));
+        attribute.setPressure(clamp(value(attribute.getPressure()) + pressureDelta));
+        attribute.setDiscipline(clamp(value(attribute.getDiscipline()) + disciplineDelta));
+    }
+
+    private void unlockNpcAchievements(Long userId, Npc npc, UserNpcRelation relation) {
+        if (value(relation.getFamiliarity()) >= 80) {
+            achievementService.unlockAchievement(userId, "iron_buddy");
+        }
+        if (npc.getId() != null && npc.getId() == 2L && value(relation.getFamiliarity()) >= 50) {
+            achievementService.unlockAchievement(userId, "study_partner");
+        }
+        if (npc.getId() != null && npc.getId() == 4L && value(relation.getFamiliarity()) >= 50) {
+            achievementService.unlockAchievement(userId, "lab_apprentice");
+        }
+        long knownCount = relationMapper.selectCount(new LambdaQueryWrapper<UserNpcRelation>()
+                .eq(UserNpcRelation::getUserId, userId));
+        if (knownCount >= 5) {
+            achievementService.unlockAchievement(userId, "social_web");
+        }
+    }
+
+    private int value(Integer value) {
+        return value != null ? value : 0;
+    }
+
+    private int clamp(int value) {
+        return Math.max(0, Math.min(100, value));
     }
 
     private String generateEncounterText(Npc npc, UserNpcRelation relation) {

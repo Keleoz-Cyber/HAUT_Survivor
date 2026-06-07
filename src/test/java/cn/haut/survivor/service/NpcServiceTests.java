@@ -1,8 +1,12 @@
 package cn.haut.survivor.service;
 
 import cn.haut.survivor.domain.entity.Npc;
+import cn.haut.survivor.domain.entity.NpcInteraction;
+import cn.haut.survivor.domain.entity.PlayerAttribute;
+import cn.haut.survivor.domain.entity.UserNpcWeeklyAction;
 import cn.haut.survivor.domain.entity.UserNpcRelation;
 import cn.haut.survivor.service.NpcService.NpcEncounter;
+import cn.haut.survivor.service.NpcService.NpcInteractionResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
 @SpringBootTest(properties = {
@@ -139,5 +144,71 @@ class NpcServiceTests {
             assertThat(after).isNotNull();
             assertThat(after.getFamiliarity()).isGreaterThanOrEqualTo(before);
         }
+    }
+
+    @Test
+    void listAvailableInteractionsRespectsFamiliarity() {
+        playerService.createProfile(2L, "NPC interaction test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 25);
+
+        List<NpcInteraction> interactions = npcService.listAvailableInteractions(2L, 2L, 1);
+
+        assertThat(interactions).extracting(NpcInteraction::getInteractionKey)
+                .contains("linran_notes", "linran_study")
+                .doesNotContain("linran_quiz");
+    }
+
+    @Test
+    void chooseWeeklyBuddyStoresCurrentBuddy() {
+        playerService.createProfile(2L, "buddy selection test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 55);
+
+        npcService.chooseWeeklyBuddy(2L, 2L, 1);
+
+        Optional<UserNpcWeeklyAction> buddy = npcService.getCurrentBuddy(2L, 1);
+        assertThat(buddy).isPresent();
+        assertThat(buddy.get().getNpcId()).isEqualTo(2L);
+        assertThat(buddy.get().getBuddySelected()).isEqualTo(1);
+    }
+
+    @Test
+    void interactingConsumesActionPointAndAppliesActualAttributeChange() {
+        playerService.createProfile(2L, "npc active interaction test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 25);
+        int beforeAp = playerService.findProfileByUserId(2L).getActionPoints();
+        PlayerAttribute before = playerService.findAttributeByUserId(2L);
+
+        NpcInteractionResult result = npcService.interact(2L, 2L, 3004L, 1);
+
+        PlayerAttribute after = playerService.findAttributeByUserId(2L);
+        assertThat(playerService.findProfileByUserId(2L).getActionPoints()).isEqualTo(beforeAp - 1);
+        assertThat(after.getAcademic()).isEqualTo(before.getAcademic() + result.attributeChange().academicChange());
+        assertThat(after.getSocial()).isEqualTo(before.getSocial() + result.attributeChange().socialChange());
+        assertThat(result.familiarityGain()).isPositive();
+        assertThat(result.relationStage()).isNotBlank();
+    }
+
+    @Test
+    void sameNpcCannotInteractTwiceInSameWeek() {
+        playerService.createProfile(2L, "npc weekly limit test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 25);
+
+        npcService.interact(2L, 2L, 3004L, 1);
+
+        assertThatThrownBy(() -> npcService.interact(2L, 2L, 3005L, 1))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("本周");
+    }
+
+    @Test
+    void weeklyBuddyAddsSmallInteractionBonus() {
+        playerService.createProfile(2L, "npc buddy bonus test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 55);
+        npcService.chooseWeeklyBuddy(2L, 2L, 1);
+
+        NpcInteractionResult result = npcService.interact(2L, 2L, 3004L, 1);
+
+        assertThat(result.attributeChange().academicChange()).isEqualTo(5);
+        assertThat(result.familiarityGain()).isEqualTo(5);
     }
 }

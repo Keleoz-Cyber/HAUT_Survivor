@@ -1,6 +1,9 @@
 package cn.haut.survivor.service;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Npc;
+import cn.haut.survivor.domain.entity.NpcInteraction;
+import cn.haut.survivor.domain.entity.UserNpcWeeklyAction;
 import cn.haut.survivor.domain.entity.UserNpcRelation;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +25,16 @@ public interface NpcService {
     /** 增加熟悉度 */
     void increaseFamiliarity(Long userId, Long npcId, int amount);
 
+    List<NpcInteraction> listAvailableInteractions(Long userId, Long npcId, int weekNumber);
+
+    NpcInteractionResult interact(Long userId, Long npcId, Long interactionId, int weekNumber);
+
+    Optional<UserNpcWeeklyAction> getCurrentBuddy(Long userId, int weekNumber);
+
+    void chooseWeeklyBuddy(Long userId, Long npcId, int weekNumber);
+
+    String getRelationStage(Integer familiarity);
+
     /** NPC 遇见结果 */
     record NpcEncounter(
             Npc npc,
@@ -29,5 +42,15 @@ public interface NpcService {
             int familiarityGain,
             String encounterText,
             String tendencyHint
+    ) {}
+
+    record NpcInteractionResult(
+            Npc npc,
+            NpcInteraction interaction,
+            UserNpcRelation relation,
+            AttributeChange attributeChange,
+            int familiarityGain,
+            String resultText,
+            String relationStage
     ) {}
 }
