@@ -74,6 +74,7 @@ public class DashboardController {
         model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
         model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         model.addAttribute("knownNpcs", npcService.listKnownNpcs(userId));
+        model.addAttribute("currentBuddy", npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).orElse(null));
 
         // 本周目标
         UserWeeklyGoal currentGoal = weeklyGoalService.getCurrentGoal(userId, profile.getCurrentWeek());

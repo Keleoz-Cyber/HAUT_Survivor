@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>校园搭子 - HAUT Survivor</title>
+    <link href="/webjars/bootstrap/5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+</head>
+<body class="game-shell">
+<div th:replace="~{fragments/layout :: game-hud}"></div>
+
+<main class="npc-page">
+    <section class="npc-profile-card">
+        <div class="npc-profile-card__avatar" th:text="${npc.avatarIcon}">👤</div>
+        <div>
+            <p class="npc-profile-card__type" th:text="${npc.npcType}">校园人物</p>
+            <h1 class="npc-profile-card__name" th:text="${npc.npcName}">NPC</h1>
+            <p class="npc-profile-card__desc" th:text="${npc.description}">描述</p>
+            <div class="npc-profile-card__meta">
+                <span th:text="'关系：' + ${relationStage}">关系：认识</span>
+                <span th:text="'熟悉度 ' + ${relation != null ? relation.familiarity : 0}">熟悉度 0</span>
+                <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}">本周搭子</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="npc-actions-panel">
+        <div class="npc-actions-panel__header">
+            <div>
+                <p class="npc-actions-panel__eyebrow">校园关系</p>
+                <h2>这周要和 TA 做点什么？</h2>
+            </div>
+            <form th:if="${currentBuddy == null and relation != null and relation.familiarity >= 50}"
+                  th:action="@{/npcs/{id}/buddy(id=${npc.id})}" method="post">
+                <button type="submit" class="sticky-note__btn sticky-note__btn--primary">设为本周搭子</button>
+            </form>
+            <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}" class="npc-actions-panel__buddy">已结成搭子</span>
+        </div>
+
+        <p class="npc-actions-panel__hint" th:if="${relation == null or relation.familiarity < 50}">
+            熟悉度达到 50 后，可以选择 TA 作为本周搭子，互动时会有额外加成。
+        </p>
+
+        <div class="npc-interaction-list">
+            <article class="npc-interaction-card" th:each="interaction : ${interactions}">
+                <div>
+                    <h3 th:text="${interaction.interactionName}">互动名称</h3>
+                    <p th:text="${interaction.description}">互动描述</p>
+                    <small th:text="'需要熟悉度 ' + ${interaction.requiredFamiliarity}">需要熟悉度 0</small>
+                </div>
+                <form th:action="@{/npcs/{npcId}/interactions/{interactionId}(npcId=${npc.id},interactionId=${interaction.id})}"
+                      method="post">
+                    <button type="submit" class="sticky-note__btn sticky-note__btn--primary"
+                            th:disabled="${semesterOver or profile.actionPoints <= 0}">互动</button>
+                </form>
+            </article>
+        </div>
+
+        <div class="vn-result__actions">
+            <a href="/dashboard" class="sticky-note__btn">回寝室</a>
+            <a href="/exploration" class="sticky-note__btn">继续踩点</a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/layout :: game-dock}"></div>
+</body>
+</html>

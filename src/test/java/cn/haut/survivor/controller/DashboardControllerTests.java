@@ -73,7 +73,8 @@ class DashboardControllerTests {
                 .andExpect(model().attributeExists("user", "profile", "attribute", "warnings",
                         "weekTheme", "rumors", "knownNpcs",
                         "goalCandidates",
-                        "unlockedAchievements", "recentAchievements"));
+                        "unlockedAchievements", "recentAchievements"))
+                .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()));
     }
 
     @Test

@@ -4195,3 +4195,162 @@ body.bg-light .game-hud {
         padding-bottom: 16px;
     }
 }
+.npc-chip--link {
+    text-decoration: none;
+    color: inherit;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.npc-chip--link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.npc-chip__stage,
+.npc-chip__buddy {
+    display: inline-flex;
+    width: fit-content;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.npc-chip__buddy {
+    background: rgba(34, 197, 94, 0.2);
+    color: #bbf7d0;
+}
+
+.npc-page {
+    width: min(960px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 24px 0 96px;
+}
+
+.npc-profile-card,
+.npc-actions-panel {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(15, 23, 42, 0.72);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.npc-profile-card {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.npc-profile-card__avatar {
+    width: 88px;
+    height: 88px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 2.4rem;
+}
+
+.npc-profile-card__type,
+.npc-profile-card__desc,
+.npc-actions-panel__hint {
+    color: rgba(255, 255, 255, 0.72);
+    margin: 0;
+}
+
+.npc-profile-card__name {
+    color: #fff;
+    font-size: 1.8rem;
+    margin: 4px 0 8px;
+}
+
+.npc-profile-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.npc-profile-card__meta span,
+.npc-actions-panel__buddy {
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.82rem;
+}
+
+.npc-actions-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.npc-actions-panel__eyebrow {
+    margin: 0 0 4px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.82rem;
+}
+
+.npc-actions-panel__header h2 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.npc-interaction-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.npc-interaction-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.npc-interaction-card h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin: 0 0 6px;
+}
+
+.npc-interaction-card p,
+.npc-interaction-card small {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .npc-page {
+        width: min(100% - 20px, 560px);
+        padding-bottom: 128px;
+    }
+
+    .npc-profile-card,
+    .npc-interaction-card {
+        grid-template-columns: 1fr;
+    }
+
+    .npc-actions-panel__header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .npc-profile-card__avatar {
+        width: 72px;
+        height: 72px;
+        font-size: 2rem;
+    }
+}

@@ -285,13 +285,20 @@
     <section th:if="${knownNpcs != null and !knownNpcs.isEmpty()}" class="npc-strip">
         <p class="npc-strip__title">👥 校园熟人</p>
         <div class="npc-strip__list">
-            <div class="npc-chip" th:each="rel : ${knownNpcs}" th:if="${rel.npc != null}">
+            <a class="npc-chip npc-chip--link" th:each="rel : ${knownNpcs}" th:if="${rel.npc != null}"
+               th:href="@{/npcs/{id}(id=${rel.npc.id})}">
                 <span class="npc-chip__avatar" th:text="${rel.npc.avatarIcon}">👤</span>
                 <div class="npc-chip__info">
                     <span class="npc-chip__name" th:text="${rel.npc.npcName}">NPC名</span>
                     <span class="npc-chip__familiarity" th:text="'熟悉 ' + ${rel.familiarity}">熟悉 10</span>
+                    <span class="npc-chip__stage"
+                          th:text="${rel.familiarity >= 80 ? '铁搭子' : (rel.familiarity >= 50 ? '搭子' : (rel.familiarity >= 20 ? '熟人' : '认识'))}">
+                        认识
+                    </span>
+                    <span class="npc-chip__buddy"
+                          th:if="${currentBuddy != null and currentBuddy.npcId == rel.npcId}">本周搭子</span>
                 </div>
-            </div>
+            </a>
         </div>
     </section>
 
