@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-263 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-4 已上线。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化和探索奇遇链”的可玩版本。
+268 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-4 已上线，并完成 CP4.1 机制补强。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化和探索奇遇链”的可玩版本。
 
 ## 已完成功能
 
@@ -163,6 +163,11 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 - 周总结会识别本周是否推进过探索奇遇，并生成对应评价
 - CP4 已接入周目标和成就：情报猎人、校园奇遇追踪者、顺势而为、搭子救场等
 
+**CP4.1 小修：传闻类型补强**
+- `npc_boost` 不再只是提示：会在探索影响来源面板中体现为社交 +1，并提高该地点 NPC 遇见概率（`effect_value=10` 约等于 +10 个百分点，上限 80%）
+- `event_hint` 不再只是提示：会在探索影响来源面板中体现为情报优势，并在地图事件触发时让对应事件类型获得权重加成
+- 当前 `event_hint` 只实现 `academic -> academic_crisis` 映射，适配现有“教学楼小测风声”传闻
+
 ### 管理员 ✅
 - 事件管理基础 CRUD
 
@@ -172,7 +177,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 263, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 268, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -195,17 +200,18 @@ BUILD SUCCESS
 | `/dashboard` | 200 | 否 | 是 | 正常进入游戏主页 |
 | `/map` | 200 | 否 | 是 | 显示“有传闻”地点标记 |
 | `/exploration` | 200 | 否 | 是 | 显示“有传闻”探索卡标记 |
-| `/exploration/2` POST | 200 | 否 | 是 | 结果页显示“本次影响来源” |
+| `/exploration/4` POST | 200 | 否 | 是 | 结果页显示“本次影响来源”，检测到 `npc_boost` 带来的社交 +1 |
 | `/week/summary` | 200 | 否 | 是 | 周总结正常渲染 |
 
-备注：本轮 in-app Browser 返回 `Browser is not available: iab`，因此未完成真实截图级视觉验收。
+备注：HTTP 冒烟不能替代真实截图级视觉验收；此前 in-app Browser 返回过 `Browser is not available: iab`，视觉复核仍需后续单独完成。
 
 ## 剩余风险
 
 | 风险 | 说明 | 严重度 |
 |---|---|---|
 | 随机遇见 NPC 不改属性 | 探索后的随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性 | 低 — 保持遇见轻量，主动互动负责结算 |
-| `npc_boost` / `event_hint` 传闻尚未生效 | CP4 中 `explore_bonus`、`attr_bonus`、`safe_zone` 已实际影响探索；`npc_boost`、`event_hint` 当前不会产生数值变化，也不会进入影响来源面板 | 中 — 下一轮可做成 NPC 遇见概率/事件池修正 |
+| `event_hint` 映射范围有限 | CP4.1 已实现 `academic -> academic_crisis` 事件倾向；其他 target 暂未映射 | 低 — 当前 seed 只有一个 `academic` 类型 event_hint |
+| `npc_boost` 同时给社交 +1 | CP4.1 为了让 `npc_boost` 在影响来源面板中可感知，额外给社交 +1；语义上应理解为“拼桌/社交机会增加” | 低 — 数值很小，后续可改成纯提示型 influence |
 | 搭子外溢为确定性触发 | 当前本周搭子在匹配地点会稳定给小加成，尚未做概率救场 | 低 — Demo 阶段便于玩家感知，后续可改为“稳定小加成 + 随机救场” |
 | 传闻/周主题统计只依赖触发动作 | 周目标记录的是行动触发次数，不保存完整影响历史 | 低 — 当前周目标足够，历史复盘需要额外日志表 |
 | lastMetWeek 更新 | maybeMeetNpc 需要传入 currentWeek，如果调用方忘记传会导致周次不准 | 低 — 接口已强制参数 |

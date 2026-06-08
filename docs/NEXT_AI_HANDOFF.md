@@ -14,11 +14,11 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 263, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 268, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-最近一次 HTTP 冒烟：2026-06-08，端口 `8081`，登录 `student/student123` 后创建临时角色，`/dashboard`、`/map`、`/exploration`、`/exploration/2` POST、`/week/summary` 均为 200，无 Whitelabel；`/map` 和 `/exploration` 可见“有传闻”，探索结果页可见“本次影响来源”。
+最近一次 HTTP 冒烟：2026-06-08，端口 `8081`，登录 `student/student123` 后创建临时角色，`/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary` 均为 200，无 Whitelabel；`/map` 和 `/exploration` 可见“有传闻”，探索结果页可见“本次影响来源”，并检测到 `npc_boost` 带来的社交 +1。
 
 本地 `main` 当前领先 `origin/main` 多个提交，最近内容包含：
 
@@ -27,6 +27,7 @@ BUILD SUCCESS
 - Content Pack 4：传闻、周主题与探索奇遇机制化
 - NPC 搭子系统、NPC 主动互动、NPC 页面与 Dashboard 熟人入口
 - 机制型传闻、周主题修正、探索奇遇链、探索影响来源展示
+- CP4.1：`npc_boost` 接入 NPC 遇见概率，`event_hint` 接入事件池倾向
 
 ## 最近完成
 
@@ -45,18 +46,20 @@ Content Pack 4：传闻、周主题与探索奇遇机制化。
 - 探索结果页展示“本次影响来源”和奇遇链卡片
 - 地图页、探索页对有传闻地点显示“有传闻”标记
 - 周总结会根据本周奇遇进度生成不同评价
+- CP4.1 已补强 `npc_boost` 与 `event_hint`：
+  - `npc_boost` 在探索结果中表现为社交 +1，并提升 NPC 遇见概率
+  - `event_hint` 在探索结果中表现为情报优势，并让地图事件更偏向 `academic_crisis`
 
 ## 当前建议下一步
 
-建议先做 CP4.1 小修和视觉复核，不要马上继续堆 CP5。
+建议先做视觉复核和 CP4.2 设计，不要马上继续堆大系统。
 
 优先检查：
 
 - `/exploration/result` 影响来源面板在桌面端和移动端是否遮挡 Dock
 - `/map` 和 `/exploration` 的“有传闻”标记是否过密或位置突兀
 - `/week/summary` 奇遇评价是否能被玩家感知
-- `npc_boost` 传闻是否需要接入 NPC 遇见概率
-- `event_hint` 传闻是否需要接入事件池倾向
+- `event_hint` 是否需要扩展 `social/skill/health` 等 target 映射
 - 搭子外溢是否保持确定性小加成，还是改成概率救场
 
 ## 重要约束
@@ -69,7 +72,7 @@ Content Pack 4：传闻、周主题与探索奇遇机制化。
 
 ## 已知风险
 
-- `explore_bonus`、`attr_bonus`、`safe_zone` 已能影响探索；`npc_boost` 和 `event_hint` 当前不会产生数值变化，也不会进入影响来源面板。
+- `explore_bonus`、`attr_bonus`、`safe_zone`、`npc_boost`、`event_hint` 均已能影响探索反馈；其中 `event_hint` 目前只映射 `academic -> academic_crisis`。
 - 周主题目前主要影响探索结果，尚未影响组织收益、副本风险或事件概率。
 - 搭子外溢当前是匹配地点确定触发，不是概率救场。
 - 随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性。
