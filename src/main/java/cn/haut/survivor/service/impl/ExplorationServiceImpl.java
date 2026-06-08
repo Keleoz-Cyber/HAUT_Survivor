@@ -1,17 +1,27 @@
 package cn.haut.survivor.service.impl;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
+import cn.haut.survivor.domain.entity.ExplorationInfluence;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
+import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.ExplorationService;
+import cn.haut.survivor.service.ExplorationStoryService;
+import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorEffectService;
+import cn.haut.survivor.service.WeeklyGoalService;
+import cn.haut.survivor.service.WeeklyModifierService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -20,14 +30,32 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final UserLocationExplorationMapper explorationMapper;
     private final PlayerService playerService;
     private final PlayerAttributeMapper playerAttributeMapper;
+    private final WeeklyModifierService weeklyModifierService;
+    private final RumorEffectService rumorEffectService;
+    private final ExplorationStoryService explorationStoryService;
+    private final NpcService npcService;
+    private final WeeklyGoalService weeklyGoalService;
+    private final AchievementService achievementService;
 
     public ExplorationServiceImpl(
             UserLocationExplorationMapper explorationMapper,
             PlayerService playerService,
-            PlayerAttributeMapper playerAttributeMapper) {
+            PlayerAttributeMapper playerAttributeMapper,
+            WeeklyModifierService weeklyModifierService,
+            RumorEffectService rumorEffectService,
+            ExplorationStoryService explorationStoryService,
+            NpcService npcService,
+            WeeklyGoalService weeklyGoalService,
+            AchievementService achievementService) {
         this.explorationMapper = explorationMapper;
         this.playerService = playerService;
         this.playerAttributeMapper = playerAttributeMapper;
+        this.weeklyModifierService = weeklyModifierService;
+        this.rumorEffectService = rumorEffectService;
+        this.explorationStoryService = explorationStoryService;
+        this.npcService = npcService;
+        this.weeklyGoalService = weeklyGoalService;
+        this.achievementService = achievementService;
     }
 
     @Override
@@ -91,14 +119,88 @@ public class ExplorationServiceImpl implements ExplorationService {
         // 随机探索结果
         ExplorationOutcome outcome = rollExplorationOutcome(currentLevel, attribute);
 
+        // ===== 收集影响来源 =====
+        List<ExplorationInfluence> influences = new ArrayList<>();
+
+        // 周主题修正
+        ExplorationInfluence weeklyInfluence = weeklyModifierService.getExplorationInfluence(profile.getCurrentWeek(), locationId);
+        if (weeklyInfluence.hasEffect()) {
+            influences.add(weeklyInfluence);
+            weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "weekly_modifier_used", 1);
+            achievementService.unlockIfEligible(userId, "weekly_modifier_used", 1);
+        }
+
+        // 传闻效果
+        List<ExplorationInfluence> rumorInfluences =
+                rumorEffectService.getExplorationInfluences(userId, profile.getCurrentWeek(), locationId);
+        for (ExplorationInfluence influence : rumorInfluences) {
+            if (influence.hasEffect()) {
+                influences.add(influence);
+                weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "rumor_effect_used", 1);
+                achievementService.unlockIfEligible(userId, "rumor_effect_used", 1);
+            }
+        }
+
+        // NPC 搭子外溢
+        npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).ifPresent(buddy -> {
+            ExplorationInfluence buddyInfluence = buildBuddyAssistInfluence(buddy.getNpcId(), locationId);
+            if (buddyInfluence.hasEffect()) {
+                influences.add(buddyInfluence);
+                weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "buddy_assist", 1);
+                achievementService.unlockIfEligible(userId, "buddy_assist", 1);
+            }
+        });
+
+        // 探索奇遇链
+        Optional<ExplorationStoryService.ExplorationStoryResult> storyResult =
+                explorationStoryService.maybeTrigger(userId, locationId, profile.getCurrentWeek(), currentLevel);
+        storyResult.ifPresent(story -> {
+            influences.add(new ExplorationInfluence(
+                    "story",
+                    story.chain().getChainName(),
+                    story.storyText(),
+                    story.attributeChange(),
+                    0));
+            weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "exploration_story_step", 1);
+            achievementService.unlockIfEligible(userId, "exploration_story_step", 1);
+            if (story.completed()) {
+                achievementService.unlockIfEligible(userId, "exploration_story_completed", 1);
+            }
+        });
+
+        // ===== 汇总属性变化 =====
+        int academicDelta = outcome.academicChange;
+        int healthDelta = outcome.healthChange;
+        int moneyDelta = outcome.moneyChange;
+        int socialDelta = outcome.socialChange;
+        int skillDelta = outcome.skillChange;
+        int pressureDelta = outcome.pressureChange;
+        int disciplineDelta = outcome.disciplineChange;
+        int influenceExploreBonus = 0;
+
+        for (ExplorationInfluence influence : influences) {
+            AttributeChange change = influence.attributeChange();
+            if (change != null) {
+                academicDelta += change.academicChange();
+                healthDelta += change.healthChange();
+                moneyDelta += change.moneyChange();
+                socialDelta += change.socialChange();
+                skillDelta += change.skillChange();
+                pressureDelta += change.pressureChange();
+                disciplineDelta += change.disciplineChange();
+            }
+            influenceExploreBonus += influence.exploreBonus();
+        }
+        exploreLevelGain = Math.min(exploreLevelGain + influenceExploreBonus, 100 - currentLevel);
+
         // 应用属性变化
-        attribute.setAcademic(clamp(attribute.getAcademic() + outcome.academicChange));
-        attribute.setHealth(clamp(attribute.getHealth() + outcome.healthChange));
-        attribute.setMoney(clamp(attribute.getMoney() + outcome.moneyChange));
-        attribute.setSocial(clamp(attribute.getSocial() + outcome.socialChange));
-        attribute.setSkill(clamp(attribute.getSkill() + outcome.skillChange));
-        attribute.setPressure(clamp(attribute.getPressure() + outcome.pressureChange));
-        attribute.setDiscipline(clamp(attribute.getDiscipline() + outcome.disciplineChange));
+        attribute.setAcademic(clamp(attribute.getAcademic() + academicDelta));
+        attribute.setHealth(clamp(attribute.getHealth() + healthDelta));
+        attribute.setMoney(clamp(attribute.getMoney() + moneyDelta));
+        attribute.setSocial(clamp(attribute.getSocial() + socialDelta));
+        attribute.setSkill(clamp(attribute.getSkill() + skillDelta));
+        attribute.setPressure(clamp(attribute.getPressure() + pressureDelta));
+        attribute.setDiscipline(clamp(attribute.getDiscipline() + disciplineDelta));
         playerAttributeMapper.updateById(attribute);
 
         // 更新探索记录
@@ -117,13 +219,15 @@ public class ExplorationServiceImpl implements ExplorationService {
                 outcome.resultType,
                 outcome.description,
                 exploreLevelGain,
-                outcome.academicChange,
-                outcome.healthChange,
-                outcome.moneyChange,
-                outcome.socialChange,
-                outcome.skillChange,
-                outcome.pressureChange,
-                outcome.disciplineChange
+                academicDelta,
+                healthDelta,
+                moneyDelta,
+                socialDelta,
+                skillDelta,
+                pressureDelta,
+                disciplineDelta,
+                influences,
+                storyResult
         );
     }
 
@@ -137,6 +241,35 @@ public class ExplorationServiceImpl implements ExplorationService {
     public int getExploreLevel(Long userId, Long locationId) {
         UserLocationExploration exploration = findExploration(userId, locationId);
         return exploration != null ? exploration.getExploreLevel() : 0;
+    }
+
+    // ---- NPC 搭子探索外溢 ----
+
+    ExplorationInfluence buildBuddyAssistInfluence(Long buddyNpcId, Long locationId) {
+        if (buddyNpcId == null) {
+            return new ExplorationInfluence("buddy", "", "", AttributeChange.EMPTY, 0);
+        }
+        if (buddyNpcId == 1L && locationId == 3L) {
+            return new ExplorationInfluence("buddy", "室友阿杰", "搭子加成：阿杰让宿舍探索压力 -1。",
+                    new AttributeChange(0, 0, 0, 0, 0, -1, 0, 0), 0);
+        }
+        if (buddyNpcId == 2L && (locationId == 1L || locationId == 2L)) {
+            return new ExplorationInfluence("buddy", "学霸林然", "搭子加成：林然让学习地点学业 +1。",
+                    new AttributeChange(1, 0, 0, 0, 0, 0, 0, 0), 0);
+        }
+        if (buddyNpcId == 3L && (locationId == 4L || locationId == 7L)) {
+            return new ExplorationInfluence("buddy", "社牛周予", "搭子加成：周予让社交场景社交 +1。",
+                    new AttributeChange(0, 0, 0, 1, 0, 0, 0, 0), 0);
+        }
+        if (buddyNpcId == 4L && locationId == 6L) {
+            return new ExplorationInfluence("buddy", "师兄老郑", "搭子加成：老郑让实验室技能 +1。",
+                    new AttributeChange(0, 0, 0, 0, 1, 0, 0, 0), 0);
+        }
+        if (buddyNpcId == 5L && locationId == 8L) {
+            return new ExplorationInfluence("buddy", "运动搭子小马", "搭子加成：小马让操场健康 +1。",
+                    new AttributeChange(0, 1, 0, 0, 0, 0, 0, 0), 0);
+        }
+        return new ExplorationInfluence("buddy", "", "", AttributeChange.EMPTY, 0);
     }
 
     // ---- 探索结果随机表 ----

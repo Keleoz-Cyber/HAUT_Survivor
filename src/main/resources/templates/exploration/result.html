@@ -114,6 +114,28 @@
             </div>
         </div>
 
+        <!-- 影响来源面板 -->
+        <section th:if="${result.influences != null and !result.influences.isEmpty()}" class="influence-panel">
+            <p class="influence-panel__title">本次影响来源</p>
+            <div class="influence-panel__list">
+                <article class="influence-chip" th:each="influence : ${result.influences}">
+                    <span class="influence-chip__type" th:text="${influence.sourceType}">source</span>
+                    <div class="influence-chip__body">
+                        <strong th:text="${influence.sourceName}">来源名称</strong>
+                        <p th:text="${influence.description}">影响说明</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 探索奇遇 -->
+        <section th:if="${result.storyResult != null and result.storyResult.isPresent()}" class="story-progress-card">
+            <span class="story-progress-card__eyebrow">校园奇遇</span>
+            <h2 th:text="${result.storyResult.get().chain.chainName}">奇遇链</h2>
+            <p th:text="${result.storyResult.get().storyText}">奇遇内容</p>
+            <span th:if="${result.storyResult.get().completed}" class="story-progress-card__done">已完成</span>
+        </section>
+
         <!-- 当前状态速览 -->
         <div class="vn-result__stats">
             <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>

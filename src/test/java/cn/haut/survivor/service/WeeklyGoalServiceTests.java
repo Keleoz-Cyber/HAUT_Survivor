@@ -431,4 +431,35 @@ class WeeklyGoalServiceTests {
         assertThat(updated.getCurrentValue()).isEqualTo(10);
         assertThat(updated.getCompleted()).isEqualTo(1);
     }
+
+    @Test
+    void rumorEffectGoalStartsFromZeroAndProgresses() {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "rumor_hunter".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+
+        UserWeeklyGoal userGoal = weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+        assertThat(userGoal.getStartValue()).isZero();
+
+        weeklyGoalService.updateProgress(2L, 1, "rumor_effect_used", 2);
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCurrentValue()).isEqualTo(2);
+        assertThat(updated.getCompleted()).isEqualTo(1);
+    }
+
+    @Test
+    void storyStepGoalStartsFromZeroAndProgresses() {
+        WeeklyGoal goal = weeklyGoalService.listActiveGoals().stream()
+                .filter(g -> "story_chaser".equals(g.getGoalKey()))
+                .findFirst()
+                .orElseThrow();
+
+        weeklyGoalService.chooseGoal(2L, 1, goal.getId());
+        weeklyGoalService.updateProgress(2L, 1, "exploration_story_step", 2);
+
+        UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
+        assertThat(updated.getCompleted()).isEqualTo(1);
+    }
 }

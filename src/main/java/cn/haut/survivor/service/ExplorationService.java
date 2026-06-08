@@ -1,8 +1,11 @@
 package cn.haut.survivor.service;
 
+import cn.haut.survivor.domain.entity.ExplorationInfluence;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
+import cn.haut.survivor.service.ExplorationStoryService.ExplorationStoryResult;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExplorationService {
 
@@ -33,6 +36,8 @@ public interface ExplorationService {
             int socialChange,
             int skillChange,
             int pressureChange,
-            int disciplineChange
+            int disciplineChange,
+            List<ExplorationInfluence> influences,
+            Optional<ExplorationStoryResult> storyResult
     ) {}
 }

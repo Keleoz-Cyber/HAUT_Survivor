@@ -40,4 +40,9 @@ public class RumorServiceImpl implements RumorService {
 
         return rotated.subList(0, Math.min(count, rotated.size()));
     }
+
+    @Override
+    public List<Rumor> pickVisibleRumorsForUser(Long userId, int weekNumber) {
+        return pickRumorsForUser(userId, weekNumber, 3);
+    }
 }

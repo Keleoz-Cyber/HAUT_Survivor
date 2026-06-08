@@ -13,4 +13,7 @@ public interface RumorService {
 
     /** 为指定用户稳定抽取本周传闻（同一用户同一周刷新页面看到相同传闻） */
     List<Rumor> pickRumorsForUser(Long userId, int weekNumber, int count);
+
+    /** 为指定用户抽取本周可见传闻（默认3条），用于传闻效果计算 */
+    List<Rumor> pickVisibleRumorsForUser(Long userId, int weekNumber);
 }

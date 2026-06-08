@@ -71,6 +71,10 @@
                 <h2 class="explore-card__name" th:text="${loc.locationName}">地点名</h2>
                 <p class="explore-card__desc" th:text="${loc.description}">描述</p>
 
+                <!-- 传闻标记 -->
+                <span th:if="${rumorCountsByLocation != null and rumorCountsByLocation[loc.id] != null}"
+                      class="explore-card__badge explore-card__badge--rumor">有传闻</span>
+
                 <!-- 探索度进度 -->
                 <div class="explore-card__progress">
                     <div class="explore-card__progress-track">

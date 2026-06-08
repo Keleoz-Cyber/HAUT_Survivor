@@ -4,6 +4,7 @@ import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.CampusLocation;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.domain.entity.Rumor;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.EventService;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class ExplorationController {
@@ -75,6 +77,9 @@ public class ExplorationController {
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
         model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
+        model.addAttribute("rumorCountsByLocation", rumorService.pickVisibleRumorsForUser(userId, profile.getCurrentWeek()).stream()
+                .filter(r -> r.getLocationId() != null)
+                .collect(Collectors.groupingBy(Rumor::getLocationId, Collectors.counting())));
         return "exploration/index";
     }
 

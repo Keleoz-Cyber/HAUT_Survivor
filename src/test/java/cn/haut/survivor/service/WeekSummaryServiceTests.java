@@ -31,6 +31,9 @@ class WeekSummaryServiceTests {
     @Autowired
     private PlayerAttributeMapper playerAttributeMapper;
 
+    @Autowired
+    private ExplorationStoryService explorationStoryService;
+
     @BeforeEach
     void setUp() {
         playerService.createProfile(2L, "周总结测试玩家", "大二", "计算机类", "就业路线");
@@ -198,5 +201,14 @@ class WeekSummaryServiceTests {
         WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
 
         assertThat(view.summaryText()).contains("硬撑");
+    }
+
+    @Test
+    void summaryMentionsStoryProgressWhenTriggered() {
+        explorationStoryService.triggerSpecificStep(2L, "library_seat", 1, 1);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+
+        assertThat(view.summaryText()).contains("奇遇");
     }
 }

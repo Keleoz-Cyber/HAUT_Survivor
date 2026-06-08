@@ -152,4 +152,22 @@ class ExplorationServiceTests {
         assertThat(result.description()).isNotBlank();
         assertThat(result.resultType()).isNotBlank();
     }
+
+    @Test
+    void explorationResultContainsInfluences() {
+        ExplorationService.ExplorationResult result = explorationService.explore(2L, 2L);
+
+        assertThat(result.influences()).isNotNull();
+        assertThat(result.influences()).anyMatch(i -> "weekly_theme".equals(i.sourceType()) || "rumor".equals(i.sourceType()));
+    }
+
+    @Test
+    void explorationAppliesInfluenceDeltasToReturnedChange() {
+        int beforeAcademic = playerService.findAttributeByUserId(2L).getAcademic();
+
+        ExplorationService.ExplorationResult result = explorationService.explore(2L, 2L);
+        int afterAcademic = playerService.findAttributeByUserId(2L).getAcademic();
+
+        assertThat(afterAcademic).isEqualTo(beforeAcademic + result.academicChange());
+    }
 }

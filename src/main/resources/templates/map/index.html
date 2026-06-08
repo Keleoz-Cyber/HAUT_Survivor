@@ -75,6 +75,9 @@
             <div class="campus-node__body">
                 <h2 class="campus-node__name" th:text="${location.locationName}">地点名</h2>
                 <p class="campus-node__vibe" th:text="${location.description}">氛围短句</p>
+                <!-- 传闻标记 -->
+                <span th:if="${rumorCountsByLocation != null and rumorCountsByLocation[location.id] != null}"
+                      class="campus-node__badge campus-node__badge--rumor">有传闻</span>
                 <!-- 探索度 -->
                 <div class="campus-node__explore">
                     <div class="campus-node__explore-track">

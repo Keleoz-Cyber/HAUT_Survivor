@@ -276,7 +276,8 @@ public class WeeklyGoalServiceImpl implements WeeklyGoalService {
             case "academic_event" -> {
                 return 0; // 学业危机事件次数从 0 开始计数
             }
-            case "npc_interaction", "buddy_selected", "familiarity_gain" -> {
+            case "npc_interaction", "buddy_selected", "familiarity_gain",
+                 "rumor_effect_used", "exploration_story_step", "weekly_modifier_used", "buddy_assist" -> {
                 return 0;
             }
             case "pressure_keep" -> {

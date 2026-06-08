@@ -15,6 +15,9 @@ public class Rumor {
     private String rumorTitle;
     private String rumorText;
     private String effectHint;
+    private String effectType;
+    private Integer effectValue;
+    private String effectTarget;
     private String rarity;
     private Integer active;
 }

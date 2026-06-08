@@ -26,6 +26,8 @@ DROP TABLE IF EXISTS user_npc_weekly_action;
 DROP TABLE IF EXISTS npc_interaction;
 DROP TABLE IF EXISTS user_npc_relation;
 DROP TABLE IF EXISTS npc;
+DROP TABLE IF EXISTS exploration_story_progress;
+DROP TABLE IF EXISTS exploration_story_chain;
 DROP TABLE IF EXISTS rumor;
 DROP TABLE IF EXISTS `user`;
 
@@ -315,6 +317,9 @@ CREATE TABLE IF NOT EXISTS rumor (
     rumor_title VARCHAR(100) NOT NULL,
     rumor_text TEXT NOT NULL,
     effect_hint VARCHAR(100),
+    effect_type VARCHAR(50),
+    effect_value INT NOT NULL DEFAULT 0,
+    effect_target VARCHAR(50),
     rarity VARCHAR(20) NOT NULL DEFAULT 'common',
     active INT NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -445,4 +450,41 @@ CREATE TABLE IF NOT EXISTS user_week_summary (
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_uws_user FOREIGN KEY (user_id) REFERENCES `user`(id),
     UNIQUE KEY uk_user_week (user_id, week_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 探索奇遇链 ==========
+CREATE TABLE IF NOT EXISTS exploration_story_chain (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    chain_key VARCHAR(80) NOT NULL,
+    chain_name VARCHAR(100) NOT NULL,
+    location_id BIGINT NOT NULL,
+    week_number INT NOT NULL DEFAULT 0,
+    required_explore_level INT NOT NULL DEFAULT 0,
+    step_number INT NOT NULL,
+    scenario_text TEXT,
+    result_text TEXT,
+    academic_change INT NOT NULL DEFAULT 0,
+    health_change INT NOT NULL DEFAULT 0,
+    money_change INT NOT NULL DEFAULT 0,
+    social_change INT NOT NULL DEFAULT 0,
+    skill_change INT NOT NULL DEFAULT 0,
+    pressure_change INT NOT NULL DEFAULT 0,
+    discipline_change INT NOT NULL DEFAULT 0,
+    exp_change INT NOT NULL DEFAULT 0,
+    next_step_number INT,
+    active INT NOT NULL DEFAULT 1,
+    UNIQUE KEY uk_chain_step (chain_key, step_number),
+    CONSTRAINT fk_esc_location FOREIGN KEY (location_id) REFERENCES campus_location(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS exploration_story_progress (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    chain_key VARCHAR(80) NOT NULL,
+    current_step INT NOT NULL DEFAULT 1,
+    completed INT NOT NULL DEFAULT 0,
+    last_trigger_week INT,
+    update_time DATETIME,
+    UNIQUE KEY uk_user_chain (user_id, chain_key),
+    CONSTRAINT fk_esp_user FOREIGN KEY (user_id) REFERENCES `user`(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
