@@ -497,7 +497,7 @@ Optional<ExplorationStoryResult> storyResult
 | first_rumor_effect | 听劝一次 | 第一次触发传闻效果 | 情报新生 |
 | story_first_step | 奇遇开端 | 第一次触发奇遇链 | 校园目击者 |
 | story_completed | 有始有终 | 完成 1 条奇遇链 | 支线清理大师 |
-| theme_master | 看懂周节奏 | 触发 3 次周主题效果 | 节奏感选手 |
+| theme_master | 看懂周节奏 | 第一次触发周主题效果 | 节奏感选手 |
 | buddy_saved_me | 搭子救我 | 触发 1 次搭子外溢加成 | 有人罩着 |
 
 ## 8. UI/UX 设计
