@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-245 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-3 已上线。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动”的可玩版本。
+263 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-4 已上线。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化和探索奇遇链”的可玩版本。
 
 ## 已完成功能
 
@@ -151,6 +151,18 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 - NPC 主动互动真实修改属性，返回实际属性变化 delta
 - 接入周目标、成就和周总结反馈
 
+### 可玩性第四批：传闻、周主题与探索奇遇机制化 ✅
+
+**Content Pack 4：传闻/周主题/探索奇遇**
+- `rumor` 表扩展 `effect_type`、`effect_value`、`effect_target`，传闻可转化为探索加成或属性变化
+- 新增 `exploration_story_chain` 和 `exploration_story_progress` 两张表
+- 新增 16 条机制型传闻、5 条探索奇遇链（13 个阶段）、4 个周目标、5 个成就
+- 新增 `WeeklyModifierService`、`RumorEffectService`、`ExplorationStoryService`
+- 探索结果会汇总“本次影响来源”：周主题、传闻、奇遇链、NPC 搭子外溢
+- 地图页和探索页对有传闻地点显示“有传闻”标记
+- 周总结会识别本周是否推进过探索奇遇，并生成对应评价
+- CP4 已接入周目标和成就：情报猎人、校园奇遇追踪者、顺势而为、搭子救场等
+
 ### 管理员 ✅
 - 事件管理基础 CRUD
 
@@ -160,7 +172,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 245, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 263, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -170,17 +182,32 @@ BUILD SUCCESS
 |---|---|
 | 核心服务 | Player、Event、Exploration、Organization、Dungeon、NPC、WeeklyGoal、WeekSummary、Achievement、SemesterEnding |
 | 控制器 | Auth、Dashboard、Map、Dungeon、NPC、WeekSummary、Task、AdminEvent |
-| 内容包 | ContentPack1、ContentPack2、ContentPack3 种子数据 smoke tests |
+| 内容包 | ContentPack1、ContentPack2、ContentPack3、ContentPack4 种子数据 smoke tests |
 | 数据访问 | MapperContext、Rumor、User、Task 等基础验证 |
 | 页面渲染 | 多个 Controller 测试覆盖 Thymeleaf 模板解析和关键 model 属性 |
+
+## 最近一次 HTTP 冒烟
+
+验证时间：2026-06-08，本地端口 `8081`，先登录 `student/student123` 并创建临时角色后检查。
+
+| 页面 | HTTP | Whitelabel | game-dock | CP4 信号 |
+|---|---:|---|---|---|
+| `/dashboard` | 200 | 否 | 是 | 正常进入游戏主页 |
+| `/map` | 200 | 否 | 是 | 显示“有传闻”地点标记 |
+| `/exploration` | 200 | 否 | 是 | 显示“有传闻”探索卡标记 |
+| `/exploration/2` POST | 200 | 否 | 是 | 结果页显示“本次影响来源” |
+| `/week/summary` | 200 | 否 | 是 | 周总结正常渲染 |
+
+备注：本轮 in-app Browser 返回 `Browser is not available: iab`，因此未完成真实截图级视觉验收。
 
 ## 剩余风险
 
 | 风险 | 说明 | 严重度 |
 |---|---|---|
 | 随机遇见 NPC 不改属性 | 探索后的随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性 | 低 — 保持遇见轻量，主动互动负责结算 |
-| 周主题仅展示 | 周主题目前只影响 UI 文案和推荐，不影响事件概率或属性计算 | 中 — 下一批建议优先机制化 |
-| 传闻仅展示 | 传闻目前只做氛围提示，不影响实际玩法机制 | 中 — 下一批建议优先机制化 |
+| `npc_boost` / `event_hint` 传闻尚未生效 | CP4 中 `explore_bonus`、`attr_bonus`、`safe_zone` 已实际影响探索；`npc_boost`、`event_hint` 当前不会产生数值变化，也不会进入影响来源面板 | 中 — 下一轮可做成 NPC 遇见概率/事件池修正 |
+| 搭子外溢为确定性触发 | 当前本周搭子在匹配地点会稳定给小加成，尚未做概率救场 | 低 — Demo 阶段便于玩家感知，后续可改为“稳定小加成 + 随机救场” |
+| 传闻/周主题统计只依赖触发动作 | 周目标记录的是行动触发次数，不保存完整影响历史 | 低 — 当前周目标足够，历史复盘需要额外日志表 |
 | lastMetWeek 更新 | maybeMeetNpc 需要传入 currentWeek，如果调用方忘记传会导致周次不准 | 低 — 接口已强制参数 |
 | 移动端 Dock | 移动端 fixed Dock 在特殊内容长度下仍有边缘遮挡风险 | 低 — 已做多层防御 |
 | 管理员页面 | 管理员事件管理仍使用旧 nav，与玩家端 UI 2.0 不一致 | 低 — 管理员非核心体验 |
@@ -193,11 +220,11 @@ BUILD SUCCESS
 | 方向 | 说明 |
 |---|---|
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
-| 周主题影响机制 | 第 2 周社交事件概率上升，第 3 周压力变化更明显等 |
-| 传闻影响机制 | 传闻对应地点的事件/收益有实际加成 |
+| 深化周主题影响 | 第 2 周社交事件概率上升，第 3 周压力变化更明显等 |
+| 深化传闻影响 | 将 `npc_boost` 接入 NPC 遇见概率，将 `event_hint` 接入事件池倾向 |
 | 更多副本 | 图书馆席位战争、蓝桥杯突击、实习面试 |
 | 成就称号 | 收集要素，解锁条件绑定属性/探索/组织 |
 | 管理后台完善 | 组织/结局/副本/成就/NPC/传闻的 CRUD |
 | 多学期 | 学期间属性继承、成长曲线 |
 | NPC 深化 | NPC 好感度事件、专属支线、搭子组队加成 |
-| 传闻/周主题机制化 | 让传闻和周主题影响地点收益、事件池、NPC 遇见概率和副本风险 |
+| 影响历史日志 | 记录每周触发过哪些传闻/奇遇/搭子救场，支持历史周报 |
