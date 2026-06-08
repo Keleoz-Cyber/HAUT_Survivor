@@ -1,6 +1,6 @@
 # 项目完成状态
 
-最后更新：2026-06-06
+最后更新：2026-06-08
 
 ## 总体状态
 
@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-148 个测试全绿，UI 2.0 三批重构完成，可玩性第一批（周主题/传闻/NPC）已上线。
+245 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-3 已上线。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动”的可玩版本。
 
 ## 已完成功能
 
@@ -105,42 +105,82 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 - Rumor 表 + RumorMapper + RumorService
 - 在 dashboard 和 map/exploration 页面展示
 
-**NPC/搭子系统 MVP**
+**NPC/搭子系统**
 - 5 个 NPC（室友阿杰/学霸林然/社牛周予/师兄老郑/运动搭子小马）
 - NPC 有归属地点、性格、倾向属性、头像图标
 - 探索地点后 35% 概率遇见 NPC
 - UserNpcRelation 记录熟悉度、遇见次数、最近遇见周次
 - 遇见后显示倾向提示（如"和 TA 在一起学业容易进步"），不显示虚假属性变化
-- dashboard 显示熟人列表（头像 + 名称 + 熟悉度）
+- dashboard 显示熟人列表（头像 + 名称 + 熟悉度 + 关系阶段 + 本周搭子标记）
+- NPC 详情页支持主动互动，按熟悉度解锁不同互动
+- 每个 NPC 每周最多主动互动 1 次，互动消耗 1 AP
+- 每周可选择 1 名熟悉度达到 50 的 NPC 作为本周搭子
+- 本周搭子会给对应 NPC 互动提供额外属性/熟悉度加成
+- 周总结会根据是否选择搭子、是否互动、高压力状态生成不同评价
+
+### 可玩性第二批：周目标、成就、周总结 ✅
+
+**本周目标**
+- 每周可从候选目标中选择 1 个目标
+- 已支持探索、NPC 遇见、组织活动、副本阶段、压力保持、NPC 主动互动、选择搭子、熟悉度增长等目标类型
+- 目标完成后可领取经验和属性奖励
+- 压力保持目标在 dashboard 和周推进时都会检查
+
+**成就称号**
+- 成就可按条件或事件触发解锁
+- 已接入探索、NPC、组织、副本、周目标、压力保持、Java 课设等流程
+- 解锁成就会更新玩家当前称号
+- dashboard 展示成就称号货架
+
+**周回忆报告**
+- dashboard 的周推进前先进入 `/week/summary`
+- 周总结展示周主题、目标状态、属性快照、NPC 熟人、近期成就、评价文案和评级
+- 推进周次由周总结页触发，学期结束后进入结局页
+
+### 可玩性第三批：学业危机与 NPC 搭子内容包 ✅
+
+**Content Pack 2：学业危机**
+- 新增学业危机事件、DDL/期末相关周总结反馈和成就
+- Java 课设副本增强，加入 Git 合并地狱等更有大学生语境的内容
+- 数据库防御、Bug 暴走等副本体验增强
+
+**Content Pack 3：校园搭子与人际关系线**
+- 新增 `npc_interaction` 和 `user_npc_weekly_action` 两张表
+- 新增 15 条 NPC 主动互动、3 个 NPC 周目标、5 个 NPC 成就、10 条传闻
+- 新增 `/npcs/{id}` NPC 详情页和 NPC 互动结果页
+- NPC 主动互动真实修改属性，返回实际属性变化 delta
+- 接入周目标、成就和周总结反馈
 
 ### 管理员 ✅
 - 事件管理基础 CRUD
 
 ## 测试覆盖
 
-| 测试类 | 数量 |
+最近一次全量验证：
+
+```text
+.\mvnw.cmd clean test
+Tests run: 245, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+覆盖范围：
+
+| 范围 | 说明 |
 |---|---|
-| PlayerServiceTests | 14 |
-| EventServiceTests | 13 |
-| ExplorationServiceTests | 11 |
-| OrganizationServiceTests | 10 |
-| SemesterEndingServiceTests | 20 |
-| DungeonServiceTests | 12 |
-| DungeonControllerTests | 9 |
-| NpcServiceTests | 7 |
-| WeeklyThemeServiceTests | 7 |
-| DashboardControllerTests | 5 |
-| MapControllerTests | 4 |
-| 其他（Auth, Task, User, Admin, Rumor） | 36 |
-| **合计** | **148** |
+| 核心服务 | Player、Event、Exploration、Organization、Dungeon、NPC、WeeklyGoal、WeekSummary、Achievement、SemesterEnding |
+| 控制器 | Auth、Dashboard、Map、Dungeon、NPC、WeekSummary、Task、AdminEvent |
+| 内容包 | ContentPack1、ContentPack2、ContentPack3 种子数据 smoke tests |
+| 数据访问 | MapperContext、Rumor、User、Task 等基础验证 |
+| 页面渲染 | 多个 Controller 测试覆盖 Thymeleaf 模板解析和关键 model 属性 |
 
 ## 剩余风险
 
 | 风险 | 说明 | 严重度 |
 |---|---|---|
-| NPC 属性不落库 | 遇见 NPC 只显示倾向提示，不实际修改 player_attribute | 低 — 可后续迭代加入 |
-| 周主题仅展示 | 周主题目前只影响 UI 文案和推荐，不影响事件概率或属性计算 | 低 — 可后续迭代加入 |
-| 传闻仅展示 | 传闻目前只做氛围提示，不影响实际玩法机制 | 低 — 可后续迭代加入 |
+| 随机遇见 NPC 不改属性 | 探索后的随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性 | 低 — 保持遇见轻量，主动互动负责结算 |
+| 周主题仅展示 | 周主题目前只影响 UI 文案和推荐，不影响事件概率或属性计算 | 中 — 下一批建议优先机制化 |
+| 传闻仅展示 | 传闻目前只做氛围提示，不影响实际玩法机制 | 中 — 下一批建议优先机制化 |
 | lastMetWeek 更新 | maybeMeetNpc 需要传入 currentWeek，如果调用方忘记传会导致周次不准 | 低 — 接口已强制参数 |
 | 移动端 Dock | 移动端 fixed Dock 在特殊内容长度下仍有边缘遮挡风险 | 低 — 已做多层防御 |
 | 管理员页面 | 管理员事件管理仍使用旧 nav，与玩家端 UI 2.0 不一致 | 低 — 管理员非核心体验 |
@@ -160,3 +200,4 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 | 管理后台完善 | 组织/结局/副本/成就/NPC/传闻的 CRUD |
 | 多学期 | 学期间属性继承、成长曲线 |
 | NPC 深化 | NPC 好感度事件、专属支线、搭子组队加成 |
+| 传闻/周主题机制化 | 让传闻和周主题影响地点收益、事件池、NPC 遇见概率和副本风险 |
