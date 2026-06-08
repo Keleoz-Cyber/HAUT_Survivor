@@ -8,11 +8,11 @@ import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
 import cn.haut.survivor.domain.entity.Rumor;
-import cn.haut.survivor.domain.entity.Rumor;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorEffectService;
 import cn.haut.survivor.service.RumorService;
 import cn.haut.survivor.service.WeeklyGoalService;
 import cn.haut.survivor.service.WeeklyThemeService;
@@ -36,18 +36,21 @@ public class MapController {
     private final ExplorationService explorationService;
     private final WeeklyThemeService weeklyThemeService;
     private final RumorService rumorService;
+    private final RumorEffectService rumorEffectService;
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
 
     public MapController(EventService eventService, PlayerService playerService,
                          ExplorationService explorationService,
                          WeeklyThemeService weeklyThemeService, RumorService rumorService,
+                         RumorEffectService rumorEffectService,
                          WeeklyGoalService weeklyGoalService, AchievementService achievementService) {
         this.eventService = eventService;
         this.playerService = playerService;
         this.explorationService = explorationService;
         this.weeklyThemeService = weeklyThemeService;
         this.rumorService = rumorService;
+        this.rumorEffectService = rumorEffectService;
         this.weeklyGoalService = weeklyGoalService;
         this.achievementService = achievementService;
     }
@@ -92,7 +95,14 @@ public class MapController {
         }
 
         // 先检查是否有可触发的事件，没有则不消耗行动点
-        Event event = eventService.triggerRandomEvent(userId, locationId);
+        // event_hint 传闻可影响事件类型倾向
+        PlayerProfile profileForHint = playerService.findProfileByUserId(userId);
+        String eventHint = profileForHint != null
+                ? rumorEffectService.getEventHintTarget(userId, profileForHint.getCurrentWeek(), locationId)
+                : null;
+        Event event = eventHint != null
+                ? eventService.triggerRandomEventWithHint(userId, locationId, "academic_crisis")
+                : eventService.triggerRandomEvent(userId, locationId);
         if (event == null) {
             return buildMapRedirect(userId, model, "这里暂时没有可触发的事件。", false);
         }

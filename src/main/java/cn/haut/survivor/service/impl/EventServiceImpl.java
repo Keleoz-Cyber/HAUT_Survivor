@@ -86,22 +86,35 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event triggerRandomEvent(Long userId, Long locationId) {
+        return triggerRandomEventWithHint(userId, locationId, null);
+    }
+
+    @Override
+    public Event triggerRandomEventWithHint(Long userId, Long locationId, String preferredEventType) {
         PlayerProfile profile = requireProfile(userId);
         int exploreLevel = explorationService.getExploreLevel(userId, locationId);
         List<Event> events = listEnabledEventsForLocation(locationId, profile.getCurrentWeek(), exploreLevel);
         if (events.isEmpty()) {
             return null;
         }
-        int totalWeight = events.stream()
-                .map(Event::getProbability)
-                .mapToInt(probability -> Math.max(probability == null ? 1 : probability, 1))
-                .sum();
+        // If a preferred event type hint is provided, boost its weight by +30
+        int totalWeight = 0;
+        int[] weights = new int[events.size()];
+        for (int i = 0; i < events.size(); i++) {
+            Event e = events.get(i);
+            int baseWeight = Math.max(e.getProbability() == null ? 1 : e.getProbability(), 1);
+            if (preferredEventType != null && preferredEventType.equals(e.getEventType())) {
+                baseWeight += 30;
+            }
+            weights[i] = baseWeight;
+            totalWeight += baseWeight;
+        }
         int ticket = ThreadLocalRandom.current().nextInt(totalWeight);
         int cursor = 0;
-        for (Event event : events) {
-            cursor += Math.max(event.getProbability() == null ? 1 : event.getProbability(), 1);
+        for (int i = 0; i < events.size(); i++) {
+            cursor += weights[i];
             if (ticket < cursor) {
-                return event;
+                return events.get(i);
             }
         }
         return events.get(0);

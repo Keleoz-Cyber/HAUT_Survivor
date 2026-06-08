@@ -4,6 +4,7 @@ import cn.haut.survivor.domain.entity.AttributeChange;
 import cn.haut.survivor.domain.entity.Npc;
 import cn.haut.survivor.domain.entity.NpcInteraction;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
+import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserNpcWeeklyAction;
 import cn.haut.survivor.domain.entity.UserNpcRelation;
 import cn.haut.survivor.mapper.NpcInteractionMapper;
@@ -14,6 +15,7 @@ import cn.haut.survivor.mapper.UserNpcWeeklyActionMapper;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RumorEffectService;
 import cn.haut.survivor.service.WeeklyGoalService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
@@ -38,6 +40,7 @@ public class NpcServiceImpl implements NpcService {
     private final PlayerService playerService;
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
+    private final RumorEffectService rumorEffectService;
 
     public NpcServiceImpl(
             NpcMapper npcMapper,
@@ -47,7 +50,8 @@ public class NpcServiceImpl implements NpcService {
             PlayerAttributeMapper playerAttributeMapper,
             PlayerService playerService,
             WeeklyGoalService weeklyGoalService,
-            AchievementService achievementService) {
+            AchievementService achievementService,
+            RumorEffectService rumorEffectService) {
         this.npcMapper = npcMapper;
         this.relationMapper = relationMapper;
         this.interactionMapper = interactionMapper;
@@ -56,6 +60,7 @@ public class NpcServiceImpl implements NpcService {
         this.playerService = playerService;
         this.weeklyGoalService = weeklyGoalService;
         this.achievementService = achievementService;
+        this.rumorEffectService = rumorEffectService;
     }
 
     @Override
@@ -82,8 +87,15 @@ public class NpcServiceImpl implements NpcService {
     @Override
     @Transactional
     public Optional<NpcEncounter> maybeMeetNpc(Long userId, Long locationId, int currentWeek) {
-        // 概率判定
-        if (ThreadLocalRandom.current().nextDouble() > MEET_PROBABILITY) {
+        // 基础概率 + npc_boost 传闻加成
+        double meetProbability = MEET_PROBABILITY;
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        int week = profile != null ? profile.getCurrentWeek() : currentWeek;
+        int npcBoost = rumorEffectService.getNpcBoostForLocation(userId, week, locationId);
+        // npc_boost effect_value 10 → 约增加 10 个百分点遇见概率
+        meetProbability = Math.min(0.80, meetProbability + npcBoost / 100.0);
+
+        if (ThreadLocalRandom.current().nextDouble() > meetProbability) {
             return Optional.empty();
         }
 

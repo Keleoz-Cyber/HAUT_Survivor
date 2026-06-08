@@ -17,6 +17,9 @@ public interface EventService {
 
     Event triggerRandomEvent(Long userId, Long locationId);
 
+    /** Trigger a random event with an optional type hint that boosts matching events' weight. */
+    Event triggerRandomEventWithHint(Long userId, Long locationId, String preferredEventType);
+
     List<EventOption> listOptions(Long eventId);
 
     EventRecord chooseOption(Long userId, Long eventId, Long optionId);

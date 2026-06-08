@@ -52,12 +52,47 @@ public class RumorEffectServiceImpl implements RumorEffectService {
             return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, attrChange(target, amount), 0);
         }
         if ("npc_boost".equals(type)) {
-            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, AttributeChange.EMPTY, 0);
+            // npc_boost gives a social attribute bonus so it appears in the influence panel
+            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description,
+                    new AttributeChange(0, 0, 0, 1, 0, 0, 0, 0), 0);
         }
         if ("event_hint".equals(type)) {
-            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, AttributeChange.EMPTY, 0);
+            // event_hint gives a small academic/skill bonus as "情报优势"
+            AttributeChange hintChange = "academic".equals(target)
+                    ? new AttributeChange(1, 0, 0, 0, 0, 0, 0, 0)
+                    : new AttributeChange(0, 0, 0, 0, 1, 0, 0, 0);
+            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, hintChange, 0);
         }
         return new ExplorationInfluence("rumor", rumor.getRumorTitle(), "", AttributeChange.EMPTY, 0);
+    }
+
+    @Override
+    public int getNpcBoostForLocation(Long userId, int weekNumber, Long locationId) {
+        List<Rumor> visibleRumors = rumorService.pickVisibleRumorsForUser(userId, weekNumber);
+        int total = 0;
+        for (Rumor rumor : visibleRumors) {
+            if (rumor.getLocationId() != null && !rumor.getLocationId().equals(locationId)) {
+                continue;
+            }
+            if ("npc_boost".equals(rumor.getEffectType())) {
+                total += rumor.getEffectValue() != null ? rumor.getEffectValue() : 0;
+            }
+        }
+        return total;
+    }
+
+    @Override
+    public String getEventHintTarget(Long userId, int weekNumber, Long locationId) {
+        List<Rumor> visibleRumors = rumorService.pickVisibleRumorsForUser(userId, weekNumber);
+        for (Rumor rumor : visibleRumors) {
+            if (rumor.getLocationId() != null && !rumor.getLocationId().equals(locationId)) {
+                continue;
+            }
+            if ("event_hint".equals(rumor.getEffectType())) {
+                return rumor.getEffectTarget();
+            }
+        }
+        return null;
     }
 
     private AttributeChange attrChange(String target, int amount) {
