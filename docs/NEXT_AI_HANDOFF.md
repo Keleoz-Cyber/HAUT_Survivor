@@ -1,6 +1,6 @@
 # NEXT AI HANDOFF
 
-最后更新：2026-06-09
+最后更新：2026-06-10
 
 ## 当前项目状态
 
@@ -14,11 +14,17 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 268, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 295, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-最近一次 HTTP 冒烟：2026-06-08，端口 `8081`，登录 `student/student123` 后创建临时角色，`/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary` 均为 200，无 Whitelabel；`/map` 和 `/exploration` 可见“有传闻”，探索结果页可见“本次影响来源”，并检测到 `npc_boost` 带来的社交 +1。
+CP5 A/B 第二批补充：已基于 `user_npc_story_progress` 解锁 5 个 NPC 的轻量专属分支互动。分支互动复用现有 `/npcs/{npcId}/interactions/{interactionId}` 结算流程，使用 Java 层虚拟互动定义和 900xxx ID，不新增表；互动仍消耗 AP、受每周同 NPC 一次限制约束，并写入 `user_influence_log` 的 `npc_branch` 来源。
+
+CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复。本轮没有数据库变更、没有新增 seed、没有新增 Java 测试；核心改动集中在移动端安全区留白，覆盖 `game-shell`、`dorm-room`、探索页底部导航、NPC 页面和 NPC 结果页操作区。
+
+最近一次 HTTP 冒烟：2026-06-10，端口 `8080`，登录 `student/student123` 后创建角色，`/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/week/history`、`/npcs/2`、`/npcs/2/interactions/3004` POST、`/ending`、`/dungeons` 均为 200，无 Whitelabel，且玩家页均包含 `game-dock`。
+
+最近一次浏览器视觉复核：2026-06-10，使用 1366x768 与 375x812 检查 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST 后结果页、`/week/summary`、`/npcs/2`。桌面端 Dock 为 static 流式布局，未发现遮挡；移动端 `/week/summary`、`/npcs/2` 自动检测 overlap=false。`/dashboard`、`/map`、`/exploration` 的自动脚本曾报告 overlap，但人工复核 `target/visual-smoke/` 截图后判断为 padding 安全区计算导致的误报，按钮视觉上位于 Dock 上方，未被遮挡。截图输出目录为 `target/visual-smoke/`，执行 `clean test` 后需要重新生成。
 
 本地 `main` 当前领先 `origin/main` 多个提交，最近内容包含：
 
@@ -28,12 +34,51 @@ BUILD SUCCESS
 - NPC 搭子系统、NPC 主动互动、NPC 页面与 Dashboard 熟人入口
 - 机制型传闻、周主题修正、探索奇遇链、探索影响来源展示
 - CP4.1：`npc_boost` 接入 NPC 遇见概率，`event_hint` 接入事件池倾向
+- CP4 视觉复核 + UI 小修：移动端 Dock 留白、“有传闻”标记、“本次影响来源”面板
+- CP4.2：`event_hint` 支持 academic/social/skill/health/money 目标映射
+- CP4.3：`event_hint` 主偏向存在时保留周主题次级事件偏向
+- CP4.4：第 2 周“社团招新周”组织活动贡献/声望额外 +1，并在活动反馈文案中说明来源
+- CP4.5：第 3 周“DDL 高压周”副本阶段结算压力额外 +1，覆盖普通选项和小游戏动态结算
+- CP4.6：高压力探索时，本周搭子有可复现概率触发“搭子救场”，在探索结果中显示并压力 -2
+- CP4.7：`event_hint` 补充 `pressure -> 学习`，周主题事件/组织/副本钩子集中到 `WeeklyThemeService`
+- CP4.8：新增影响历史日志，探索触发的传闻、周主题、搭子/救场和奇遇会进入周总结“本周影响回放”
+- CP4.9：基于 `user_influence_log` 新增 `/week/history` 历史周报，按周倒序回放影响来源
+- CP5 A/B 均衡第一批：NPC 关系阶段、NPC story progress、学期档案摘要和结局成长画像
+- CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
+- CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
 
 ## 最近完成
 
-Content Pack 4：传闻、周主题与探索奇遇机制化。
+CP5 UI 收尾：移动端 Dock 遮挡修复与视觉冒烟复核。
 
 已完成：
+
+- 对 `/dashboard`、`/map`、`/exploration`、`POST /exploration/4` 后探索结果页、`/week/summary`、`/npcs/2` 做 1366x768 与 375x812 视觉复核
+- `src/main/resources/static/css/app.css` 做小范围 CSS-only 修复，增加移动端底部安全区留白
+- 实际微调 6 处移动端规则，其中 4 处为核心 Dock 安全区 padding 调整
+- 修复目标是避免移动端 fixed Dock 遮挡探索页底部操作和 NPC 结果页“回寝室”等按钮
+- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/week/history`、`/npcs/2`、`/npcs/2/interactions/3004` POST、`/ending`、`/dungeons`
+- 最近全量测试为 295 个测试全绿
+
+前置 CP5 A/B 均衡第一批：关系成长与学期档案。
+
+- 新增 NPC 关系阶段 read model：熟悉度会稳定映射为关系阶段、阶段说明和进度百分比
+- NPC 详情页、Dashboard 熟人列表和 NPC 互动结果页展示关系阶段/关系说明
+- 新增 NPC story progress：主动互动会推进 NPC 个人故事进度，结果页展示阶段反馈
+- 新增 `SemesterArchiveService`，基于 `user_influence_log` 和已知 NPC 关系聚合学期档案摘要
+- `/week/history` 顶部新增“学期档案”，展示成长关键词、影响统计、关键周、关键关系和亮点
+- `/ending` 在学期结算后展示“学期成长画像”
+- 新增/扩展 `SemesterArchiveServiceTests`、`SemesterEndingControllerTests`、`WeekSummaryControllerTests`、NPC 相关服务/控制器测试
+
+CP5 A/B 均衡第二批：NPC 专属分支互动。
+
+- 基于 `user_npc_story_progress` 解锁 5 个 NPC 的轻量专属互动
+- 专属互动复用现有 `/npcs/{npcId}/interactions/{interactionId}` 结算流程，不新增数据库表
+- 专属互动消耗 AP、受每周同 NPC 一次限制约束，并真实修改属性/熟悉度
+- 专属互动写入 `user_influence_log`，source_type 为 `npc_branch`，可进入当前周总结和 `/week/history`
+- 新增 `NpcStoryBranchCatalog` 集中管理 900xxx 虚拟互动 ID，并补充 ID 唯一性/分块规则测试
+
+前置 CP4 已完成内容包括：
 
 - `rumor` 表新增 `effect_type`、`effect_value`、`effect_target`
 - 新增 `exploration_story_chain`：探索奇遇链定义表
@@ -49,32 +94,63 @@ Content Pack 4：传闻、周主题与探索奇遇机制化。
 - CP4.1 已补强 `npc_boost` 与 `event_hint`：
   - `npc_boost` 在探索结果中表现为社交 +1，并提升 NPC 遇见概率
   - `event_hint` 在探索结果中表现为情报优势，并让地图事件更偏向 `academic_crisis`
+- CP4.2 已扩展 `event_hint`：
+  - `academic -> academic_crisis`
+  - `social -> 社交`
+  - `skill -> 技能`
+  - `health -> 健康`
+  - `money -> 金钱`
+- CP4.3 已组合事件偏向：
+  - `event_hint` 作为主偏向时仍获得 +30 权重
+  - 当前周主题若偏向不同事件类型，继续作为次级偏向获得 +15 权重
+  - 无 `event_hint` 时，周主题保持 +30 权重
+- CP4.4 已补强周主题组织收益：
+  - 第 2 周“社团招新周”参加组织活动时，贡献从 +3 提高到 +4
+  - 声望从 +2 提高到 +3
+  - 属性变化保持原有组织类型结算，活动反馈会提示周主题加成
+- CP4.5 已补强周主题副本风险：
+  - 第 3 周“DDL 高压周”结算副本阶段时，压力变化额外 +1
+  - 覆盖普通选项和数据库拼图/Bug 定位小游戏动态结算
+  - 不改变副本分数、风险旗标、最终评价和页面结构
+- CP4.6 已补强搭子外溢：
+  - 匹配地点的本周搭子稳定小加成保持不变
+  - 玩家压力较高（>= 60）时，探索会基于用户、搭子、地点、周次和探索次数做可复现救场判定
+  - 救场命中后追加 `buddy_rescue` 影响来源，压力 -2，并推进“搭子救场”周目标/成就进度
+- CP4.7 已整合影响系统钩子：
+  - `event_hint` 目标映射补充 `pressure -> 学习`
+  - 周主题事件偏向、组织活动收益加成、副本压力加成集中在 `WeeklyThemeService`
+  - 既有周主题行为保持不变：第 2 周社交/组织加成，第 3 周学习/副本压力，第 4 周健康事件偏向
+- CP4 视觉复核已完成：移动端 Dock 不遮挡目标页面内容，“有传闻”标记和探索结果影响来源面板已做小范围 UI 修正
 
 ## 当前建议下一步
 
-建议先做视觉复核和 CP4.2 设计，不要马上继续堆大系统。
+优先进入 CP6 莲花街校区扩展。当前保留两个可直接交给编码 AI 执行的计划：
 
-优先检查：
+- `docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md`
+  - 目标：新增莲花街校区内容包，包含组织、事件、传闻和“小组作业”副本。
+  - 边界：seed-heavy，不改核心循环，不新增数据库表。
+- `docs/superpowers/plans/2026-06-10-cp6-campus-map-image-integration.md`
+  - 目标：从 `docs/补充信息.docx` 提取真实校区地图并接入 `/map` 页面。
+  - 边界：真实地图图片 + 8 个热点 + 保留原地点卡片，不做完整地图引擎。
 
-- `/exploration/result` 影响来源面板在桌面端和移动端是否遮挡 Dock
-- `/map` 和 `/exploration` 的“有传闻”标记是否过密或位置突兀
-- `/week/summary` 奇遇评价是否能被玩家感知
-- `event_hint` 是否需要扩展 `social/skill/health` 等 target 映射
-- 搭子外溢是否保持确定性小加成，还是改成概率救场
+CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选、结局画像跳转或 NPC 分支扩展。
 
 ## 重要约束
 
 - 不要重写整个系统。
 - 继续小步迭代：设计文档 -> 实施计划 -> 测试驱动实现。
 - 前端继续复用 `game-shell`、`game-hud`、`game-dock`、`vn-result`、`sticky-note__btn` 等现有 UI 组件。
-- 数据库变更保持轻量；优先复用已有 `rumor`、`weekly_goal`、`campus_location`、`event`、`user_location_exploration`、`user_npc_relation`、`exploration_story_chain`、`exploration_story_progress`。
+- 数据库变更保持轻量；优先复用已有 `rumor`、`weekly_goal`、`campus_location`、`event`、`user_location_exploration`、`user_npc_relation`、`user_npc_story_progress`、`user_influence_log`、`exploration_story_chain`、`exploration_story_progress`。
 - 每次实现后必须运行 `.\mvnw.cmd clean test`，并做至少 dashboard/map/exploration/week summary 的 HTTP 冒烟。
 
 ## 已知风险
 
-- `explore_bonus`、`attr_bonus`、`safe_zone`、`npc_boost`、`event_hint` 均已能影响探索反馈；其中 `event_hint` 目前只映射 `academic -> academic_crisis`。
-- 周主题目前主要影响探索结果，尚未影响组织收益、副本风险或事件概率。
-- 搭子外溢当前是匹配地点确定触发，不是概率救场。
+- `explore_bonus`、`attr_bonus`、`safe_zone`、`npc_boost`、`event_hint` 均已能影响探索反馈；其中 `event_hint` 已映射 academic/social/skill/health/money/pressure，并会和周主题事件偏向组合，但仍依赖具体地点是否有对应事件类型。
+- 周主题目前影响探索结果、地图事件概率、第 2 周组织活动收益和第 3 周副本压力，相关钩子已集中到 `WeeklyThemeService`；第 1/4 周仍缺少更明确的玩法影响。
+- 搭子救场已进入 `user_influence_log`，会在当前周总结和 `/week/history` 历史周报中展示；历史页暂不提供筛选或统计。
+- 学期档案是 Java 层聚合，不是 SQL 报表；如果后续数据量扩大，需要再评估分页或聚合性能。
+- 结局成长画像只展示总结，不修改 `SemesterEndingService` 的结局匹配规则。
 - 随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性。
-- 移动端视觉需要实际截图检查，HTTP 冒烟不能替代视觉验收。
+- CP5 UI 收尾后，移动端 Dock 仍依赖底部 padding 与 `env(safe-area-inset-bottom)` 双保险；极端超长内容或非典型 Android WebView 仍建议实机复核。
+- 若后续继续改页面，仍需做 HTTP 冒烟；有浏览器能力时继续检查 1366x768 与 375x812。
 - 本地提交尚未推送到 GitHub。

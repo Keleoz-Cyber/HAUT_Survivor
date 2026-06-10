@@ -21,12 +21,16 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 这是一个 Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL + Thymeleaf 项目。
 - 当前 Demo 是周回合制大学生模拟器，核心循环已闭合：
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
-- 最近一次验证：
+- 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 268, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 295, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
-- 最近一次 HTTP 冒烟：/dashboard、/map、/exploration、/exploration/4 POST、/week/summary 均为 200，无 Whitelabel。
-- CP4.1 已完成：npc_boost 会影响 NPC 遇见概率并在探索结果里体现社交 +1；event_hint 会让地图事件偏向 academic_crisis。
+- 最近一次 HTTP 冒烟覆盖：
+  /dashboard、/map、/exploration、/exploration/4 POST、/week/summary、/week/history、
+  /npcs/2、/npcs/2/interactions/3004 POST、/ending、/dungeons。
+- CP4.1-CP4.9 已完成：传闻/周主题机制化、探索奇遇链、搭子救场、影响历史日志和历史周报。
+- CP5 A/B 均衡已完成：NPC 关系成长、NPC 剧情进度、NPC 专属分支互动、学期档案和结局成长画像。
+- CP5 UI 收尾已完成：移动端 Dock 遮挡复核和小范围 CSS 修复。
 
 重要约束：
 - 不要重写整个系统。
@@ -36,44 +40,20 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 每次修改后必须运行 .\mvnw.cmd clean test。
 - 如果做页面修改，必须做 HTTP 冒烟；如果有浏览器能力，额外做 1366×768 和 375×812 视觉检查。
 - 不要删除已有功能、seed 数据或测试，除非你能明确证明它们已经废弃。
+- 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-先做“视觉复核 + UI 小修”，不要马上开大型 CP5。
+优先执行 CP6 计划，而不是继续扩展 CP5。
 
-请检查这些页面：
-1. /dashboard
-2. /map
-3. /exploration
-4. POST /exploration/4 后的探索结果页
-5. /week/summary
+可选计划：
+1. docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md
+   - 莲花街校区内容包：组织、事件、传闻和“小组作业”副本。
+2. docs/superpowers/plans/2026-06-10-cp6-campus-map-image-integration.md
+   - 从 docs/补充信息.docx 提取真实校区地图，接入 /map 页面并加 8 个热点。
 
-视觉检查重点：
-- 移动端 Dock 是否遮挡内容或按钮。
-- “有传闻”标记是否太挤、太突兀或挡住主要信息。
-- “本次影响来源”面板是否像游戏反馈，而不是系统日志。
-- 属性变化、传闻效果、周主题修正是否容易理解。
-- 页面是否过于单调、过密或出现横向滚动。
-
-如果发现问题：
-- 只做小范围 CSS/模板修复。
-- 不要大改后端机制。
-- 不要重写 UI 体系。
-- 修完后运行 .\mvnw.cmd clean test。
-- 再做 HTTP 冒烟。
-
-完成后请汇报：
-1. 检查了哪些页面和尺寸。
-2. 发现了哪些视觉/交互问题。
-3. 修改了哪些文件。
-4. 测试结果。
-5. HTTP/浏览器冒烟结果。
-6. 剩余风险。
-
-如果要继续做机制扩展，优先考虑：
-- event_hint 支持 social/skill/health 等更多 target 映射。
-- 周主题影响组织收益、副本风险或事件概率。
-- 搭子外溢从“确定性小加成”升级为“稳定小加成 + 随机救场”。
-- 建立影响历史日志，用于历史周报和复盘。
+执行要求：
+- 严格按计划文件里的任务清单做。
+- 完成后按计划中的反馈模板汇报修改文件、测试结果、HTTP/浏览器冒烟和剩余风险。
 ```
 
 ## 当前文档阅读建议
@@ -84,5 +64,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 2. `docs/PROJECT_COMPLETION_STATUS.md`
 3. `docs/NEXT_AI_HANDOFF.md`
 4. `docs/requirements/README.md`
+5. `docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md`
+6. `docs/superpowers/plans/2026-06-10-cp6-campus-map-image-integration.md`
 
-历史实施计划和已完成内容包设计稿已经删除，避免下一个 AI 误以为还要实现 CP2、CP3 或 CP4。
+已完成的历史实施计划已经清理，避免下一个 AI 误以为 CP5 仍待实现。

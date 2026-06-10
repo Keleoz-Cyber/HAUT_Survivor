@@ -18,4 +18,4 @@
 - [../AI_CONTINUATION_PROMPT.md](../AI_CONTINUATION_PROMPT.md) — 给下一个 AI 的复制提示词
 - [../NEXT_AI_HANDOFF.md](../NEXT_AI_HANDOFF.md) — 当前交接状态和下一步建议
 - [../PROJECT_COMPLETION_STATUS.md](../PROJECT_COMPLETION_STATUS.md) — 当前完成状态
-- [../README.md](../README.md) — 项目说明和快速开始
+- [../../README.md](../../README.md) — 项目说明和快速开始
