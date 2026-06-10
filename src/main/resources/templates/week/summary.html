@@ -77,6 +77,25 @@
         </div>
     </section>
 
+    <!-- ===== 本周影响回放 ===== -->
+    <section class="week-summary-card week-summary-impact">
+        <p class="week-summary-card__title">本周影响回放</p>
+        <div th:if="${summary.impactRecaps != null and !summary.impactRecaps.isEmpty()}" class="week-summary-impact__list">
+            <article class="week-summary-impact__item" th:each="impact, iter : ${summary.impactRecaps}" th:if="${iter.index < 5}">
+                <div class="week-summary-impact__main">
+                    <span class="week-summary-impact__type" th:text="${impact.sourceLabel}">校园传闻</span>
+                    <strong class="week-summary-impact__name"
+                            th:text="${impact.sourceName != null and !impact.sourceName.isBlank() ? impact.sourceName : '校园影响'}">校园影响</strong>
+                </div>
+                <p class="week-summary-impact__desc" th:text="${impact.description}">影响说明</p>
+                <p class="week-summary-impact__change" th:text="${impact.changeText}">社交 +1</p>
+            </article>
+        </div>
+        <p th:if="${summary.impactRecaps == null or summary.impactRecaps.isEmpty()}" class="week-summary-memory__none">
+            本周还没有触发传闻、周主题、搭子或奇遇加成
+        </p>
+    </section>
+
     <!-- ===== NPC / 熟人 ===== -->
     <section class="week-summary-card week-summary-memory">
         <p class="week-summary-card__title">👥 校园熟人</p>
@@ -122,6 +141,9 @@
         </form>
         <a href="/dashboard" class="week-summary-actions__back">
             🏠 回寝室再想想
+        </a>
+        <a href="/week/history" class="week-summary-actions__back">
+            📚 查看历史周报
         </a>
     </section>
 

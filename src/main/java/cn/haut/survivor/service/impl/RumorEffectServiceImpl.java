@@ -57,11 +57,7 @@ public class RumorEffectServiceImpl implements RumorEffectService {
                     new AttributeChange(0, 0, 0, 1, 0, 0, 0, 0), 0);
         }
         if ("event_hint".equals(type)) {
-            // event_hint gives a small academic/skill bonus as "情报优势"
-            AttributeChange hintChange = "academic".equals(target)
-                    ? new AttributeChange(1, 0, 0, 0, 0, 0, 0, 0)
-                    : new AttributeChange(0, 0, 0, 0, 1, 0, 0, 0);
-            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, hintChange, 0);
+            return new ExplorationInfluence("rumor", rumor.getRumorTitle(), description, attrChange(target, amount), 0);
         }
         return new ExplorationInfluence("rumor", rumor.getRumorTitle(), "", AttributeChange.EMPTY, 0);
     }
@@ -95,6 +91,11 @@ public class RumorEffectServiceImpl implements RumorEffectService {
         return null;
     }
 
+    @Override
+    public String getEventHintPreferredEventType(Long userId, int weekNumber, Long locationId) {
+        return preferredEventTypeForTarget(getEventHintTarget(userId, weekNumber, locationId));
+    }
+
     private AttributeChange attrChange(String target, int amount) {
         return switch (target != null ? target : "") {
             case "academic" -> new AttributeChange(amount, 0, 0, 0, 0, 0, 0, 0);
@@ -105,6 +106,18 @@ public class RumorEffectServiceImpl implements RumorEffectService {
             case "pressure" -> new AttributeChange(0, 0, 0, 0, 0, amount, 0, 0);
             case "discipline" -> new AttributeChange(0, 0, 0, 0, 0, 0, amount, 0);
             default -> AttributeChange.EMPTY;
+        };
+    }
+
+    private String preferredEventTypeForTarget(String target) {
+        return switch (target != null ? target : "") {
+            case "academic" -> "academic_crisis";
+            case "social" -> "社交";
+            case "skill" -> "技能";
+            case "health" -> "健康";
+            case "money" -> "金钱";
+            case "pressure" -> "学习";
+            default -> null;
         };
     }
 }

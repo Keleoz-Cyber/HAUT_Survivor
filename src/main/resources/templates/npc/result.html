@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>搭子互动结果 - HAUT Survivor</title>
-    <link href="/webjars/bootstrap/5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
 <body class="game-shell">
@@ -18,6 +17,13 @@
         </div>
 
         <p class="vn-result__story" th:text="${result.resultText}">互动结果文案</p>
+
+        <article class="npc-story-feedback" th:if="${result.storyResult != null}">
+            <p class="npc-story-feedback__eyebrow">关系记忆推进</p>
+            <h2 th:text="${result.storyResult.title}">故事标题</h2>
+            <p th:text="${result.storyResult.description}">故事说明</p>
+            <span th:if="${result.storyResult.completed}" class="npc-story-feedback__tag">这段关系记忆已完成</span>
+        </article>
 
         <div th:if="${result.attributeChange != null and result.attributeChange.hasAnyChange()}" class="vn-result__changes">
             <p class="vn-result__changes-label">状态变化</p>
@@ -57,9 +63,16 @@
         </div>
 
         <div class="vn-result__stats">
-            <div><span>关系阶段</span><strong th:text="${result.relationStage}">认识</strong></div>
+            <div><span>关系阶段</span><strong th:text="${relationSummary != null ? relationSummary.label : result.relationStage}">点头之交</strong></div>
             <div><span>熟悉度</span><strong th:text="${result.relation.familiarity}">0</strong></div>
             <div><span>行动点</span><strong th:text="${profile.actionPoints}">3</strong></div>
+        </div>
+
+        <div class="npc-result-relation" th:if="${relationSummary != null}">
+            <div class="npc-relation-note__bar" aria-hidden="true">
+                <span th:style="'width:' + ${relationSummary.progressPercent} + '%'"></span>
+            </div>
+            <p th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
         </div>
 
         <div class="vn-result__actions">

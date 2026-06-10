@@ -3,8 +3,10 @@ package cn.haut.survivor.service;
 import cn.haut.survivor.domain.entity.Dungeon;
 import cn.haut.survivor.domain.entity.DungeonTask;
 import cn.haut.survivor.domain.entity.DungeonTaskOption;
+import cn.haut.survivor.domain.entity.PlayerProfile;
 import cn.haut.survivor.domain.entity.UserDungeonRecord;
 import cn.haut.survivor.domain.entity.UserDungeonTaskRecord;
+import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.service.DungeonService.BugQuestion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +32,9 @@ class DungeonServiceTests {
 
     @Autowired
     private PlayerService playerService;
+
+    @Autowired
+    private PlayerProfileMapper playerProfileMapper;
 
     @BeforeEach
     void setUpPlayer() {
@@ -58,6 +63,34 @@ class DungeonServiceTests {
         assertThat(taskRecord.getEvaluation()).isNotBlank();
         assertThat(updatedRecord.getCurrentTaskId()).isNotEqualTo(task.getId());
         assertThat(updatedRecord.getTotalScore()).isGreaterThan(0);
+    }
+
+    @Test
+    void ddlPressureWeekAddsSmallRiskToDungeonOptions() {
+        setCurrentWeek(3);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
+        DungeonTask task = dungeonService.findCurrentTask(record);
+        DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
+
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(
+                2L, record.getId(), task.getId(), option.getId(), null);
+
+        assertThat(taskRecord.getAttributeChange().pressureChange())
+                .isEqualTo(option.getPressureChange() + 1);
+    }
+
+    @Test
+    void ddlPressureWeekAddsSmallRiskToDungeonMinigames() {
+        setCurrentWeek(3);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
+        dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
+        UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
+
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(2L, minigameRecord.getId(), 2L,
+                List.of("user->player_attribute", "event->event_option", "dungeon->dungeon_task"), 18);
+
+        assertThat(taskRecord.getEvaluation()).isEqualTo("结构清晰");
+        assertThat(taskRecord.getAttributeChange().pressureChange()).isEqualTo(-4);
     }
 
     @Test
@@ -137,6 +170,12 @@ class DungeonServiceTests {
         dungeonService.chooseOption(2L, gitRecord.getId(), 8L, 16L, null);
         // Now at Bug 暴走 (task_id=3)
         return dungeonService.startOrResumeDungeon(2L, 1L);
+    }
+
+    private void setCurrentWeek(int currentWeek) {
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        profile.setCurrentWeek(currentWeek);
+        playerProfileMapper.updateById(profile);
     }
 
     @Test

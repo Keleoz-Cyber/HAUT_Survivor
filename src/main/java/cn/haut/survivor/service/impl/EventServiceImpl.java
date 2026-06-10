@@ -16,6 +16,7 @@ import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.service.EventService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,7 @@ public class EventServiceImpl implements EventService {
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerService playerService;
     private final ExplorationService explorationService;
+    private final WeeklyThemeService weeklyThemeService;
 
     public EventServiceImpl(
             CampusLocationMapper campusLocationMapper,
@@ -46,7 +48,8 @@ public class EventServiceImpl implements EventService {
             PlayerAttributeMapper playerAttributeMapper,
             PlayerProfileMapper playerProfileMapper,
             PlayerService playerService,
-            ExplorationService explorationService
+            ExplorationService explorationService,
+            WeeklyThemeService weeklyThemeService
     ) {
         this.campusLocationMapper = campusLocationMapper;
         this.eventMapper = eventMapper;
@@ -56,6 +59,7 @@ public class EventServiceImpl implements EventService {
         this.playerProfileMapper = playerProfileMapper;
         this.playerService = playerService;
         this.explorationService = explorationService;
+        this.weeklyThemeService = weeklyThemeService;
     }
 
     @Override
@@ -86,25 +90,50 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event triggerRandomEvent(Long userId, Long locationId) {
-        return triggerRandomEventWithHint(userId, locationId, null);
+        PlayerProfile profile = requireProfile(userId);
+        return triggerRandomEventForProfile(
+                userId,
+                locationId,
+                profile,
+                null,
+                getWeeklyThemePreferredEventType(profile.getCurrentWeek())
+        );
     }
 
     @Override
     public Event triggerRandomEventWithHint(Long userId, Long locationId, String preferredEventType) {
         PlayerProfile profile = requireProfile(userId);
+        return triggerRandomEventForProfile(
+                userId,
+                locationId,
+                profile,
+                preferredEventType,
+                getWeeklyThemePreferredEventType(profile.getCurrentWeek())
+        );
+    }
+
+    @Override
+    public String getWeeklyThemePreferredEventType(Integer currentWeek) {
+        return weeklyThemeService.preferredEventType(currentWeek);
+    }
+
+    private Event triggerRandomEventForProfile(Long userId, Long locationId, PlayerProfile profile,
+                                               String preferredEventType, String weeklyThemeEventType) {
         int exploreLevel = explorationService.getExploreLevel(userId, locationId);
         List<Event> events = listEnabledEventsForLocation(locationId, profile.getCurrentWeek(), exploreLevel);
         if (events.isEmpty()) {
             return null;
         }
-        // If a preferred event type hint is provided, boost its weight by +30
+        boolean hasPreferredHint = StringUtils.hasText(preferredEventType);
         int totalWeight = 0;
         int[] weights = new int[events.size()];
         for (int i = 0; i < events.size(); i++) {
             Event e = events.get(i);
             int baseWeight = Math.max(e.getProbability() == null ? 1 : e.getProbability(), 1);
-            if (preferredEventType != null && preferredEventType.equals(e.getEventType())) {
+            if (hasPreferredHint && preferredEventType.equals(e.getEventType())) {
                 baseWeight += 30;
+            } else if (weeklyThemeEventType != null && weeklyThemeEventType.equals(e.getEventType())) {
+                baseWeight += hasPreferredHint ? 15 : 30;
             }
             weights[i] = baseWeight;
             totalWeight += baseWeight;

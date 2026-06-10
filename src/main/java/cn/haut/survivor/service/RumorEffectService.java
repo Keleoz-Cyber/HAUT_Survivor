@@ -12,4 +12,7 @@ public interface RumorEffectService {
 
     /** Returns the event_hint effect_target for the given location, or null if none. */
     String getEventHintTarget(Long userId, int weekNumber, Long locationId);
+
+    /** Returns the preferred event type for the visible event_hint, or null if none is supported. */
+    String getEventHintPreferredEventType(Long userId, int weekNumber, Long locationId);
 }

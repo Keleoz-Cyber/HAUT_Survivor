@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @Transactional
 @AutoConfigureMockMvc
@@ -48,7 +49,8 @@ class WeekSummaryControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("week/summary"))
-                .andExpect(model().attributeExists("summary", "profile", "attribute"));
+                .andExpect(model().attributeExists("summary", "profile", "attribute"))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("本周影响回放")));
     }
 
     @Test
@@ -60,6 +62,27 @@ class WeekSummaryControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/dashboard"));
+    }
+
+    @Test
+    void weekHistoryRequiresProfile() throws Exception {
+        mockMvc.perform(get("/week/history")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+    }
+
+    @Test
+    void weekHistoryReturnsHistoryView() throws Exception {
+        playerService.createProfile(2L, "history-test", "grade", "major", "\u5c31\u4e1a\u8def\u7ebf");
+
+        mockMvc.perform(get("/week/history")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("week/history"))
+                .andExpect(model().attributeExists("historyWeeks", "archiveSummary", "profile", "attribute"));
     }
 
     @Test

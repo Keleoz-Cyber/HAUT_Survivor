@@ -115,6 +115,20 @@ class OrganizationServiceTests {
     }
 
     @Test
+    void recruitmentWeekAddsSmallOrganizationActivityGain() {
+        organizationService.discover(2L, 1L);
+        organizationService.join(2L, 1L);
+        playerService.advanceWeek(2L); // week 2: 社团招新周
+
+        OrganizationService.OrganizationActivityResult result = organizationService.attendActivityWithChange(2L, 1L);
+        UserOrganization relation = result.relation();
+
+        assertThat(relation.getContribution()).isEqualTo(4);
+        assertThat(relation.getReputation()).isEqualTo(3);
+        assertThat(result.activityResultText()).contains("社团招新周");
+    }
+
+    @Test
     void labActivityBoostsSkillAndAcademic() {
         organizationService.discover(2L, 2L);
         organizationService.join(2L, 2L);

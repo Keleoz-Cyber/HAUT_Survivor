@@ -6,6 +6,8 @@ import cn.haut.survivor.domain.entity.EventOption;
 import cn.haut.survivor.domain.entity.EventRecord;
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.mapper.CampusLocationMapper;
+import cn.haut.survivor.mapper.EventMapper;
 import cn.haut.survivor.mapper.EventRecordMapper;
 import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.PlayerProfileMapper;
@@ -45,6 +47,12 @@ class EventServiceTests {
     @Autowired
     private EventRecordMapper eventRecordMapper;
 
+    @Autowired
+    private CampusLocationMapper campusLocationMapper;
+
+    @Autowired
+    private EventMapper eventMapper;
+
     @BeforeEach
     void setUpPlayer() {
         playerService.createProfile(2L, "事件测试玩家", "大二", "计算机类", "就业路线");
@@ -77,6 +85,15 @@ class EventServiceTests {
 
         assertThat(events).extracting(Event::getEventName).contains("Java 代码报错", "实验数据异常");
         assertThat(events).allMatch(event -> event.getLocationId().equals(6L));
+    }
+
+    @Test
+    void weeklyThemeMapsToPreferredEventType() {
+        assertThat(eventService.getWeeklyThemePreferredEventType(1)).isNull();
+        assertThat(eventService.getWeeklyThemePreferredEventType(2)).isEqualTo("社交");
+        assertThat(eventService.getWeeklyThemePreferredEventType(3)).isEqualTo("学习");
+        assertThat(eventService.getWeeklyThemePreferredEventType(4)).isEqualTo("健康");
+        assertThat(eventService.getWeeklyThemePreferredEventType(99)).isEqualTo("健康");
     }
 
     @Test
@@ -147,6 +164,36 @@ class EventServiceTests {
     }
 
     @Test
+    void eventHintKeepsWeeklyThemeAsSecondaryEventBias() {
+        CampusLocation location = new CampusLocation();
+        location.setLocationName("组合偏向测试地点");
+        location.setCampus("测试校区");
+        location.setDescription("测试用地点");
+        location.setStatus(1);
+        campusLocationMapper.insert(location);
+
+        Event weeklyThemeEvent = insertWeightedEvent("周主题社交事件", "社交", location.getId());
+        insertWeightedEvent("传闻技能事件", "技能", location.getId());
+
+        PlayerProfile profile = playerService.findProfileByUserId(2L);
+        profile.setCurrentWeek(2);
+        playerProfileMapper.updateById(profile);
+
+        int weeklyThemeHits = 0;
+        int attempts = 800;
+        for (int i = 0; i < attempts; i++) {
+            Event event = eventService.triggerRandomEventWithHint(2L, location.getId(), "技能");
+            if (weeklyThemeEvent.getId().equals(event.getId())) {
+                weeklyThemeHits++;
+            }
+        }
+
+        assertThat(weeklyThemeHits)
+                .as("传闻偏向存在时，第 2 周社交主题仍应提供明显的次级事件偏向")
+                .isGreaterThan(160);
+    }
+
+    @Test
     void allEventsHaveAtLeastTwoOptions() {
         for (long eventId = 1; eventId <= 42; eventId++) {
             List<EventOption> options = eventService.listOptions(eventId);
@@ -156,6 +203,21 @@ class EventServiceTests {
                         .isGreaterThanOrEqualTo(2);
             }
         }
+    }
+
+    private Event insertWeightedEvent(String eventName, String eventType, Long locationId) {
+        Event event = new Event();
+        event.setEventName(eventName);
+        event.setEventType(eventType);
+        event.setLocationId(locationId);
+        event.setDescription(eventName);
+        event.setProbability(1);
+        event.setMinWeek(1);
+        event.setMaxWeek(20);
+        event.setMinExploreLevel(0);
+        event.setStatus(1);
+        eventMapper.insert(event);
+        return event;
     }
 
     // ==================== 探索度过滤测试 ====================

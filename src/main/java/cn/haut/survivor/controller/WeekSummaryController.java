@@ -2,7 +2,9 @@ package cn.haut.survivor.controller;
 
 import cn.haut.survivor.config.LoginInterceptor;
 import cn.haut.survivor.domain.entity.PlayerProfile;
+import cn.haut.survivor.service.InfluenceLogService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.SemesterArchiveService;
 import cn.haut.survivor.service.WeekSummaryService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -15,10 +17,17 @@ public class WeekSummaryController {
 
     private final PlayerService playerService;
     private final WeekSummaryService weekSummaryService;
+    private final InfluenceLogService influenceLogService;
+    private final SemesterArchiveService semesterArchiveService;
 
-    public WeekSummaryController(PlayerService playerService, WeekSummaryService weekSummaryService) {
+    public WeekSummaryController(PlayerService playerService,
+                                 WeekSummaryService weekSummaryService,
+                                 InfluenceLogService influenceLogService,
+                                 SemesterArchiveService semesterArchiveService) {
         this.playerService = playerService;
         this.weekSummaryService = weekSummaryService;
+        this.influenceLogService = influenceLogService;
+        this.semesterArchiveService = semesterArchiveService;
     }
 
     @GetMapping("/week/summary")
@@ -40,6 +49,21 @@ public class WeekSummaryController {
         model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
         model.addAttribute("semesterOver", false);
         return "week/summary";
+    }
+
+    @GetMapping("/week/history")
+    public String history(HttpSession session, Model model) {
+        Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
+
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        model.addAttribute("historyWeeks", influenceLogService.listSemesterInfluenceRecaps(userId));
+        model.addAttribute("archiveSummary", semesterArchiveService.buildSummary(userId));
+        model.addAttribute("profile", profile);
+        model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
+        return "week/history";
     }
 
     @PostMapping("/week/advance")

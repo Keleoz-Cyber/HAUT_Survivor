@@ -10,6 +10,7 @@ import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.ExplorationStoryService;
+import cn.haut.survivor.service.InfluenceLogService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorEffectService;
@@ -36,6 +37,7 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final NpcService npcService;
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
+    private final InfluenceLogService influenceLogService;
 
     public ExplorationServiceImpl(
             UserLocationExplorationMapper explorationMapper,
@@ -46,7 +48,8 @@ public class ExplorationServiceImpl implements ExplorationService {
             ExplorationStoryService explorationStoryService,
             NpcService npcService,
             WeeklyGoalService weeklyGoalService,
-            AchievementService achievementService) {
+            AchievementService achievementService,
+            InfluenceLogService influenceLogService) {
         this.explorationMapper = explorationMapper;
         this.playerService = playerService;
         this.playerAttributeMapper = playerAttributeMapper;
@@ -56,6 +59,7 @@ public class ExplorationServiceImpl implements ExplorationService {
         this.npcService = npcService;
         this.weeklyGoalService = weeklyGoalService;
         this.achievementService = achievementService;
+        this.influenceLogService = influenceLogService;
     }
 
     @Override
@@ -142,10 +146,24 @@ public class ExplorationServiceImpl implements ExplorationService {
         }
 
         // NPC 搭子外溢
+        int exploreCountBefore = exploration.getExploreCount() != null ? exploration.getExploreCount() : 0;
+        int pressureBefore = attribute.getPressure() != null ? attribute.getPressure() : 0;
         npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).ifPresent(buddy -> {
             ExplorationInfluence buddyInfluence = buildBuddyAssistInfluence(buddy.getNpcId(), locationId);
             if (buddyInfluence.hasEffect()) {
                 influences.add(buddyInfluence);
+                weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "buddy_assist", 1);
+                achievementService.unlockIfEligible(userId, "buddy_assist", 1);
+            }
+            ExplorationInfluence rescueInfluence = buildBuddyRescueInfluence(
+                    userId,
+                    buddy.getNpcId(),
+                    locationId,
+                    profile.getCurrentWeek(),
+                    exploreCountBefore,
+                    pressureBefore);
+            if (rescueInfluence.hasEffect()) {
+                influences.add(rescueInfluence);
                 weeklyGoalService.updateProgress(userId, profile.getCurrentWeek(), "buddy_assist", 1);
                 achievementService.unlockIfEligible(userId, "buddy_assist", 1);
             }
@@ -214,6 +232,8 @@ public class ExplorationServiceImpl implements ExplorationService {
             explorationMapper.updateById(exploration);
         }
 
+        influenceLogService.recordExplorationInfluences(userId, profile.getCurrentWeek(), locationId, influences);
+
         return new ExplorationResult(
                 exploration,
                 outcome.resultType,
@@ -272,6 +292,40 @@ public class ExplorationServiceImpl implements ExplorationService {
         return new ExplorationInfluence("buddy", "", "", AttributeChange.EMPTY, 0);
     }
 
+    ExplorationInfluence buildBuddyRescueInfluence(Long userId, Long buddyNpcId, Long locationId,
+                                                   int weekNumber, int exploreCount, int pressure) {
+        if (buddyNpcId == null || pressure < 60 || !shouldTriggerBuddyRescue(userId, buddyNpcId, locationId, weekNumber, exploreCount)) {
+            return new ExplorationInfluence("buddy_rescue", "", "", AttributeChange.EMPTY, 0);
+        }
+        String sourceName = switch (buddyNpcId.intValue()) {
+            case 1 -> "室友阿杰";
+            case 2 -> "学霸林然";
+            case 3 -> "社牛周予";
+            case 4 -> "师兄老郑";
+            case 5 -> "运动搭子小马";
+            default -> "本周搭子";
+        };
+        String description = switch (buddyNpcId.intValue()) {
+            case 1 -> "搭子救场：阿杰发来一句“别硬扛”，帮你把压力往下按了按，压力 -2。";
+            case 2 -> "搭子救场：林然临时帮你捋清优先级，DDL 的雾散了一点，压力 -2。";
+            case 3 -> "搭子救场：周予把你拉进互助群，事情突然没那么孤单，压力 -2。";
+            case 4 -> "搭子救场：老郑甩来一段排查思路，卡住的地方终于松动，压力 -2。";
+            case 5 -> "搭子救场：小马约你去操场透口气，脑子重新上线，压力 -2。";
+            default -> "搭子救场：本周搭子在关键时刻搭了把手，压力 -2。";
+        };
+        return new ExplorationInfluence("buddy_rescue", sourceName, description,
+                new AttributeChange(0, 0, 0, 0, 0, -2, 0, 0), 0);
+    }
+
+    private boolean shouldTriggerBuddyRescue(Long userId, Long buddyNpcId, Long locationId, int weekNumber, int exploreCount) {
+        long seed = value(userId) * 31L
+                + value(buddyNpcId) * 17L
+                + value(locationId) * 13L
+                + weekNumber * 7L
+                + exploreCount * 19L;
+        return Math.floorMod(seed, 100) < 35;
+    }
+
     // ---- 探索结果随机表 ----
 
     private ExplorationOutcome rollExplorationOutcome(int currentLevel, PlayerAttribute attribute) {
@@ -322,6 +376,10 @@ public class ExplorationServiceImpl implements ExplorationService {
 
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
+    }
+
+    private long value(Long value) {
+        return value != null ? value : 0L;
     }
 
     private record ExplorationOutcome(

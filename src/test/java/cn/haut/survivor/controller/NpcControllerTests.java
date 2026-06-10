@@ -17,6 +17,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 
 @Transactional
 @AutoConfigureMockMvc
@@ -48,8 +51,20 @@ class NpcControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("npc/detail"))
-                .andExpect(model().attributeExists("npc", "relation", "relationStage", "interactions"))
+                .andExpect(model().attributeExists("npc", "relation", "relationStage", "relationSummary", "interactions"))
                 .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()));
+    }
+
+    @Test
+    void npcDetailPageShowsUnlockedStoryBranchInteraction() throws Exception {
+        npcService.interact(2L, 2L, 3004L, 1);
+
+        mockMvc.perform(get("/npcs/2")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("interactions", hasItem(
+                        hasProperty("interactionKey", equalTo("linran_key_week_review")))));
     }
 
     @Test
@@ -68,6 +83,6 @@ class NpcControllerTests {
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("npc/result"))
-                .andExpect(model().attributeExists("result", "profile", "attribute"));
+                .andExpect(model().attributeExists("result", "relationSummary", "profile", "attribute"));
     }
 }

@@ -97,11 +97,11 @@ public class MapController {
         // 先检查是否有可触发的事件，没有则不消耗行动点
         // event_hint 传闻可影响事件类型倾向
         PlayerProfile profileForHint = playerService.findProfileByUserId(userId);
-        String eventHint = profileForHint != null
-                ? rumorEffectService.getEventHintTarget(userId, profileForHint.getCurrentWeek(), locationId)
+        String preferredEventType = profileForHint != null
+                ? rumorEffectService.getEventHintPreferredEventType(userId, profileForHint.getCurrentWeek(), locationId)
                 : null;
-        Event event = eventHint != null
-                ? eventService.triggerRandomEventWithHint(userId, locationId, "academic_crisis")
+        Event event = preferredEventType != null
+                ? eventService.triggerRandomEventWithHint(userId, locationId, preferredEventType)
                 : eventService.triggerRandomEvent(userId, locationId);
         if (event == null) {
             return buildMapRedirect(userId, model, "这里暂时没有可触发的事件。", false);

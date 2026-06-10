@@ -2,6 +2,7 @@ package cn.haut.survivor.service;
 
 import cn.haut.survivor.domain.entity.PlayerAttribute;
 import cn.haut.survivor.domain.entity.UserLocationExploration;
+import cn.haut.survivor.mapper.PlayerAttributeMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,12 @@ class ExplorationServiceTests {
 
     @Autowired
     private PlayerService playerService;
+
+    @Autowired
+    private NpcService npcService;
+
+    @Autowired
+    private PlayerAttributeMapper playerAttributeMapper;
 
     @Autowired
     private UserLocationExplorationMapper explorationMapper;
@@ -169,5 +176,38 @@ class ExplorationServiceTests {
         int afterAcademic = playerService.findAttributeByUserId(2L).getAcademic();
 
         assertThat(afterAcademic).isEqualTo(beforeAcademic + result.academicChange());
+    }
+
+    @Test
+    void weeklyBuddyCanTriggerRescueInfluenceDuringHighPressureExploration() {
+        npcService.increaseFamiliarity(2L, 2L, 55);
+        npcService.chooseWeeklyBuddy(2L, 2L, 1);
+        PlayerAttribute before = playerService.findAttributeByUserId(2L);
+        before.setPressure(70);
+        playerAttributeMapper.updateById(before);
+
+        ExplorationService.ExplorationResult result = explorationService.explore(2L, 1L);
+
+        assertThat(result.influences()).anyMatch(i ->
+                "buddy".equals(i.sourceType())
+                        && "学霸林然".equals(i.sourceName())
+                        && i.attributeChange().academicChange() == 1);
+        assertThat(result.influences()).anyMatch(i ->
+                "buddy_rescue".equals(i.sourceType())
+                        && i.description().contains("救场")
+                        && i.attributeChange().pressureChange() == -2);
+    }
+
+    @Test
+    void weeklyBuddyRescueDoesNotTriggerWhenPressureIsManageable() {
+        npcService.increaseFamiliarity(2L, 2L, 55);
+        npcService.chooseWeeklyBuddy(2L, 2L, 1);
+        PlayerAttribute before = playerService.findAttributeByUserId(2L);
+        before.setPressure(50);
+        playerAttributeMapper.updateById(before);
+
+        ExplorationService.ExplorationResult result = explorationService.explore(2L, 1L);
+
+        assertThat(result.influences()).noneMatch(i -> "buddy_rescue".equals(i.sourceType()));
     }
 }

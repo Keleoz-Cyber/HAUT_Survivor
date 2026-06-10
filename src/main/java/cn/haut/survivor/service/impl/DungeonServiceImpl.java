@@ -17,6 +17,7 @@ import cn.haut.survivor.mapper.UserDungeonRecordMapper;
 import cn.haut.survivor.mapper.UserDungeonTaskRecordMapper;
 import cn.haut.survivor.service.DungeonService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,7 @@ public class DungeonServiceImpl implements DungeonService {
     private final PlayerAttributeMapper playerAttributeMapper;
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerService playerService;
+    private final WeeklyThemeService weeklyThemeService;
 
     public DungeonServiceImpl(
             DungeonMapper dungeonMapper,
@@ -77,7 +79,8 @@ public class DungeonServiceImpl implements DungeonService {
             UserDungeonTaskRecordMapper userDungeonTaskRecordMapper,
             PlayerAttributeMapper playerAttributeMapper,
             PlayerProfileMapper playerProfileMapper,
-            PlayerService playerService
+            PlayerService playerService,
+            WeeklyThemeService weeklyThemeService
     ) {
         this.dungeonMapper = dungeonMapper;
         this.dungeonTaskMapper = dungeonTaskMapper;
@@ -87,6 +90,7 @@ public class DungeonServiceImpl implements DungeonService {
         this.playerAttributeMapper = playerAttributeMapper;
         this.playerProfileMapper = playerProfileMapper;
         this.playerService = playerService;
+        this.weeklyThemeService = weeklyThemeService;
     }
 
     @Override
@@ -553,7 +557,8 @@ public class DungeonServiceImpl implements DungeonService {
         attribute.setMoney(clamp(attribute.getMoney() + option.getMoneyChange()));
         attribute.setSocial(clamp(attribute.getSocial() + option.getSocialChange()));
         attribute.setSkill(clamp(attribute.getSkill() + option.getSkillChange()));
-        attribute.setPressure(clamp(attribute.getPressure() + option.getPressureChange()));
+        attribute.setPressure(clamp(attribute.getPressure() + option.getPressureChange()
+                + dungeonThemePressureBonus(profile)));
         attribute.setDiscipline(clamp(attribute.getDiscipline() + option.getDisciplineChange()));
         attribute.setUpdateTime(LocalDateTime.now());
         playerAttributeMapper.updateById(attribute);
@@ -571,7 +576,8 @@ public class DungeonServiceImpl implements DungeonService {
         attribute.setAcademic(clamp(attribute.getAcademic() + settlement.academicChange));
         attribute.setHealth(clamp(attribute.getHealth() + settlement.healthChange));
         attribute.setSkill(clamp(attribute.getSkill() + settlement.skillChange));
-        attribute.setPressure(clamp(attribute.getPressure() + settlement.pressureChange));
+        attribute.setPressure(clamp(attribute.getPressure() + settlement.pressureChange
+                + dungeonThemePressureBonus(profile)));
         attribute.setDiscipline(clamp(attribute.getDiscipline() + settlement.disciplineChange));
         attribute.setUpdateTime(LocalDateTime.now());
         playerAttributeMapper.updateById(attribute);
@@ -582,6 +588,13 @@ public class DungeonServiceImpl implements DungeonService {
 
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
+    }
+
+    private int dungeonThemePressureBonus(PlayerProfile profile) {
+        if (profile == null || profile.getCurrentWeek() == null) {
+            return 0;
+        }
+        return weeklyThemeService.dungeonPressureBonus(profile.getCurrentWeek());
     }
 
     private String buildFinalEvaluation(UserDungeonRecord record) {

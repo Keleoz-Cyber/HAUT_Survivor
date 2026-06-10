@@ -2,12 +2,15 @@ package cn.haut.survivor.service;
 
 import cn.haut.survivor.domain.entity.ExplorationInfluence;
 import cn.haut.survivor.domain.entity.Rumor;
+import cn.haut.survivor.domain.entity.AttributeChange;
+import cn.haut.survivor.mapper.RumorMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,6 +28,9 @@ class RumorEffectServiceTests {
 
     @Autowired
     private RumorService rumorService;
+
+    @Autowired
+    private RumorMapper rumorMapper;
 
     @Test
     void locationRumorProducesInfluence() {
@@ -108,6 +114,38 @@ class RumorEffectServiceTests {
     }
 
     @Test
+    void eventHintRumorUsesTargetAttributeForSocialSkillHealthAndMoney() {
+        insertEventHintRumor(91, 1L, "test social hint", "social");
+        insertEventHintRumor(92, 1L, "test skill hint", "skill");
+        insertEventHintRumor(93, 1L, "test health hint", "health");
+        insertEventHintRumor(98, 1L, "test money hint", "money");
+        insertEventHintRumor(99, 1L, "test pressure hint", "pressure");
+
+        assertEventHintInfluence(91, "test social hint", change -> change.socialChange() == 1);
+        assertEventHintInfluence(92, "test skill hint", change -> change.skillChange() == 1);
+        assertEventHintInfluence(93, "test health hint", change -> change.healthChange() == 1);
+        assertEventHintInfluence(98, "test money hint", change -> change.moneyChange() == 1);
+        assertEventHintInfluence(99, "test pressure hint", change -> change.pressureChange() == 1);
+    }
+
+    @Test
+    void getEventHintPreferredEventTypeMapsSupportedTargets() {
+        insertEventHintRumor(94, 1L, "test academic preferred event", "academic");
+        insertEventHintRumor(95, 1L, "test social preferred event", "social");
+        insertEventHintRumor(96, 1L, "test skill preferred event", "skill");
+        insertEventHintRumor(97, 1L, "test health preferred event", "health");
+        insertEventHintRumor(98, 1L, "test money preferred event", "money");
+        insertEventHintRumor(99, 1L, "test pressure preferred event", "pressure");
+
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 94, 1L)).isEqualTo("academic_crisis");
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 95, 1L)).isEqualTo("社交");
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 96, 1L)).isEqualTo("技能");
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 97, 1L)).isEqualTo("健康");
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 98, 1L)).isEqualTo("金钱");
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 99, 1L)).isEqualTo("学习");
+    }
+
+    @Test
     void getNpcBoostForLocationReturnsBoostValue() {
         // Week 1 has npc_boost rumor at canteen (location 4) with effect_value 10
         boolean found = false;
@@ -150,5 +188,31 @@ class RumorEffectServiceTests {
             }
         }
         throw new AssertionError("No deterministic user sees rumor title containing: " + titlePart);
+    }
+
+    private void assertEventHintInfluence(int weekNumber, String titlePart, Predicate<AttributeChange> changePredicate) {
+        Long userId = userSeeingRumor(weekNumber, titlePart);
+        List<ExplorationInfluence> influences = rumorEffectService.getExplorationInfluences(userId, weekNumber, 1L);
+
+        assertThat(influences).anyMatch(i ->
+                "rumor".equals(i.sourceType())
+                        && i.sourceName().contains(titlePart)
+                        && i.attributeChange() != null
+                        && changePredicate.test(i.attributeChange()));
+    }
+
+    private void insertEventHintRumor(int weekNumber, Long locationId, String title, String target) {
+        Rumor rumor = new Rumor();
+        rumor.setWeekNumber(weekNumber);
+        rumor.setLocationId(locationId);
+        rumor.setRumorTitle(title);
+        rumor.setRumorText(title);
+        rumor.setEffectHint("test hint");
+        rumor.setEffectType("event_hint");
+        rumor.setEffectValue(1);
+        rumor.setEffectTarget(target);
+        rumor.setRarity("common");
+        rumor.setActive(1);
+        rumorMapper.insert(rumor);
     }
 }

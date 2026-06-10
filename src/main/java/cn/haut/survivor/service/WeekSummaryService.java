@@ -40,6 +40,7 @@ public interface WeekSummaryService {
             int pressure,
             int discipline,
             String summaryText,
-            String ratingLabel
+            String ratingLabel,
+            List<InfluenceLogService.InfluenceLogEntry> impactRecaps
     ) {}
 }

@@ -119,7 +119,16 @@
             <p class="influence-panel__title">本次影响来源</p>
             <div class="influence-panel__list">
                 <article class="influence-chip" th:each="influence : ${result.influences}">
-                    <span class="influence-chip__type" th:text="${influence.sourceType}">source</span>
+                    <span class="influence-chip__type" th:switch="${influence.sourceType}">
+                        <span th:case="weekly_theme">周主题</span>
+                        <span th:case="rumor">校园传闻</span>
+                        <span th:case="story">奇遇线索</span>
+                        <span th:case="story_chain">奇遇线索</span>
+                        <span th:case="buddy">搭子加成</span>
+                        <span th:case="buddy_rescue">搭子救场</span>
+                        <span th:case="npc_buddy">搭子支援</span>
+                        <span th:case="*">现场变化</span>
+                    </span>
                     <div class="influence-chip__body">
                         <strong th:text="${influence.sourceName}">来源名称</strong>
                         <p th:text="${influence.description}">影响说明</p>

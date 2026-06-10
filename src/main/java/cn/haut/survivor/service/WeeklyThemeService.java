@@ -33,6 +33,27 @@ public class WeeklyThemeService {
         return THEMES.get(currentWeek - 1);
     }
 
+    /** Returns the event type boosted by the current weekly theme. */
+    public String preferredEventType(Integer currentWeek) {
+        int week = getTheme(currentWeek == null ? 1 : currentWeek).week();
+        return switch (week) {
+            case 2 -> "社交";
+            case 3 -> "学习";
+            case 4 -> "健康";
+            default -> null;
+        };
+    }
+
+    /** Small organization activity bonus for recruitment week. */
+    public int organizationActivityBonus(Integer currentWeek) {
+        return getTheme(currentWeek == null ? 1 : currentWeek).week() == 2 ? 1 : 0;
+    }
+
+    /** Extra pressure applied to dungeon settlements during DDL week. */
+    public int dungeonPressureBonus(Integer currentWeek) {
+        return getTheme(currentWeek == null ? 1 : currentWeek).week() == 3 ? 1 : 0;
+    }
+
     /** 获取所有周主题 */
     public List<WeekTheme> allThemes() {
         return THEMES;

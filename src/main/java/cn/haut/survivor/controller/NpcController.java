@@ -47,6 +47,7 @@ public class NpcController {
         model.addAttribute("npc", npc);
         model.addAttribute("relation", relation);
         model.addAttribute("relationStage", npcService.getRelationStage(relation != null ? relation.getFamiliarity() : 0));
+        model.addAttribute("relationSummary", npcService.getRelationSummary(relation != null ? relation.getFamiliarity() : 0));
         model.addAttribute("interactions", npcService.listAvailableInteractions(userId, npcId, profile.getCurrentWeek()));
         model.addAttribute("currentBuddy", npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).orElse(null));
         return "npc/detail";
@@ -80,6 +81,7 @@ public class NpcController {
             NpcService.NpcInteractionResult result =
                     npcService.interact(userId, npcId, interactionId, profile.getCurrentWeek());
             model.addAttribute("result", result);
+            model.addAttribute("relationSummary", npcService.getRelationSummary(result.relation().getFamiliarity()));
             model.addAttribute("profile", playerService.findProfileByUserId(userId));
             model.addAttribute("attribute", playerService.findAttributeByUserId(userId));
             model.addAttribute("semesterOver", playerService.isSemesterOver(userId));

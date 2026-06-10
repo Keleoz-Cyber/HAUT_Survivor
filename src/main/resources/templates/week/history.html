@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>历史周报 - HAUT Survivor</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="game-shell">
+
+<header th:replace="~{fragments/layout :: game-hud}"></header>
+
+<main class="dorm-room week-summary-page week-history-page">
+    <section class="week-summary-hero week-history-hero">
+        <span class="week-summary-hero__icon">📚</span>
+        <h1 class="week-summary-hero__title">历史周报</h1>
+        <p class="week-summary-hero__theme">这一学期留下的影响轨迹</p>
+        <p class="week-summary-hero__text">
+            传闻、周主题、搭子和奇遇带来的变化都会在这里按周回放。
+        </p>
+    </section>
+
+    <section class="week-summary-card semester-archive"
+             th:if="${archiveSummary != null}">
+        <div class="semester-archive__head">
+            <div>
+                <p class="semester-archive__eyebrow">学期档案</p>
+                <h2 class="semester-archive__title"
+                    th:text="${archiveSummary.growthKeyword}">探索新生</h2>
+            </div>
+            <span class="semester-archive__source"
+                  th:text="${archiveSummary.mainSourceLabel}">校园影响</span>
+        </div>
+
+        <p class="semester-archive__desc"
+           th:text="${archiveSummary.growthDescription}">
+            这个学期的档案刚刚展开，去探索、互动或推进周次后，会留下更具体的成长记录。
+        </p>
+
+        <div class="semester-archive__stats">
+            <div class="semester-archive__stat semester-archive__stat--positive">
+                <span>正向</span>
+                <strong th:text="${archiveSummary.positiveCount}">0</strong>
+            </div>
+            <div class="semester-archive__stat semester-archive__stat--neutral">
+                <span>中性</span>
+                <strong th:text="${archiveSummary.neutralCount}">0</strong>
+            </div>
+            <div class="semester-archive__stat semester-archive__stat--negative">
+                <span>压力</span>
+                <strong th:text="${archiveSummary.negativeCount}">0</strong>
+            </div>
+        </div>
+
+        <div class="semester-archive__snapshot">
+            <div>
+                <span>关键周</span>
+                <strong th:text="${archiveSummary.keyWeekNumber != null ? '第 ' + archiveSummary.keyWeekNumber + ' 周' : '尚未形成'}">尚未形成</strong>
+            </div>
+            <div>
+                <span>关键关系</span>
+                <strong th:text="${archiveSummary.keyNpcName != null ? archiveSummary.keyNpcName + ' · ' + archiveSummary.keyNpcStage : '暂无'}">暂无</strong>
+            </div>
+        </div>
+
+        <div class="semester-archive__highlights"
+             th:if="${archiveSummary.highlights != null and !archiveSummary.highlights.isEmpty()}">
+            <article class="semester-archive__highlight"
+                     th:each="highlight : ${archiveSummary.highlights}">
+                <span th:text="${highlight.label}">成长</span>
+                <strong th:text="${highlight.title}">探索新生</strong>
+                <p th:text="${highlight.description}">档案说明</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="week-summary-card week-history-empty"
+             th:if="${historyWeeks == null or historyWeeks.isEmpty()}">
+        <p class="week-summary-card__title">还没有可复盘的影响</p>
+        <p class="week-summary-memory__none">
+            去校园里踩点、触发传闻或推进奇遇后，这里会慢慢变成你的周报档案。
+        </p>
+    </section>
+
+    <section class="week-history-list"
+             th:if="${historyWeeks != null and !historyWeeks.isEmpty()}">
+        <article class="week-summary-card week-history-week"
+                 th:each="week : ${historyWeeks}">
+            <div class="week-history-week__head">
+                <p class="week-summary-card__title"
+                   th:text="'第 ' + ${week.weekNumber} + ' 周'">第 2 周</p>
+                <span class="week-history-week__count"
+                      th:text="${week.entries.size()} + ' 条影响'">2 条影响</span>
+            </div>
+
+            <div class="week-summary-impact__list">
+                <article class="week-summary-impact__item"
+                         th:each="impact : ${week.entries}">
+                    <div class="week-summary-impact__main">
+                        <span class="week-summary-impact__type"
+                              th:text="${impact.sourceLabel}">校园传闻</span>
+                        <strong class="week-summary-impact__name"
+                                th:text="${impact.sourceName != null and !impact.sourceName.isBlank() ? impact.sourceName : '校园影响'}">校园影响</strong>
+                    </div>
+                    <p class="week-summary-impact__desc"
+                       th:text="${impact.description}">影响说明</p>
+                    <p class="week-summary-impact__change"
+                       th:text="${impact.changeText}">社交 +1</p>
+                </article>
+            </div>
+        </article>
+    </section>
+
+    <section class="week-summary-actions week-history-actions">
+        <a href="/week/summary" class="week-summary-actions__advance">回到本周总结</a>
+        <a href="/dashboard" class="week-summary-actions__back">回寝室</a>
+    </section>
+</main>
+
+<nav th:replace="~{fragments/layout :: game-dock}"></nav>
+
+</body>
+</html>

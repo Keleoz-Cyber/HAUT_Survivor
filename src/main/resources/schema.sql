@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS achievement;
 DROP TABLE IF EXISTS user_weekly_goal;
 DROP TABLE IF EXISTS weekly_goal;
 DROP TABLE IF EXISTS user_week_summary;
+DROP TABLE IF EXISTS user_influence_log;
 DROP TABLE IF EXISTS campus_location;
 DROP TABLE IF EXISTS player_attribute;
 DROP TABLE IF EXISTS player_profile;
@@ -22,6 +23,7 @@ DROP TABLE IF EXISTS semester_ending;
 DROP TABLE IF EXISTS user_location_exploration;
 DROP TABLE IF EXISTS user_organization;
 DROP TABLE IF EXISTS organization;
+DROP TABLE IF EXISTS user_npc_story_progress;
 DROP TABLE IF EXISTS user_npc_weekly_action;
 DROP TABLE IF EXISTS npc_interaction;
 DROP TABLE IF EXISTS user_npc_relation;
@@ -386,6 +388,20 @@ CREATE TABLE IF NOT EXISTS user_npc_weekly_action (
     UNIQUE KEY uk_user_npc_week (user_id, npc_id, week_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS user_npc_story_progress (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    npc_id BIGINT NOT NULL,
+    story_key VARCHAR(80) NOT NULL,
+    stage INT NOT NULL DEFAULT 0,
+    completed INT NOT NULL DEFAULT 0,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_unsp_user FOREIGN KEY (user_id) REFERENCES `user`(id),
+    CONSTRAINT fk_unsp_npc FOREIGN KEY (npc_id) REFERENCES npc(id),
+    UNIQUE KEY uk_user_npc_story (user_id, npc_id, story_key)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS weekly_goal (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     goal_key VARCHAR(50) NOT NULL UNIQUE,
@@ -487,4 +503,26 @@ CREATE TABLE IF NOT EXISTS exploration_story_progress (
     update_time DATETIME,
     UNIQUE KEY uk_user_chain (user_id, chain_key),
     CONSTRAINT fk_esp_user FOREIGN KEY (user_id) REFERENCES `user`(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========== 影响历史日志 ==========
+CREATE TABLE IF NOT EXISTS user_influence_log (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    week_number INT NOT NULL,
+    location_id BIGINT,
+    source_type VARCHAR(40) NOT NULL,
+    source_name VARCHAR(120),
+    description TEXT,
+    academic_change INT NOT NULL DEFAULT 0,
+    health_change INT NOT NULL DEFAULT 0,
+    money_change INT NOT NULL DEFAULT 0,
+    social_change INT NOT NULL DEFAULT 0,
+    skill_change INT NOT NULL DEFAULT 0,
+    pressure_change INT NOT NULL DEFAULT 0,
+    discipline_change INT NOT NULL DEFAULT 0,
+    exp_change INT NOT NULL DEFAULT 0,
+    explore_bonus INT NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_uil_user FOREIGN KEY (user_id) REFERENCES `user`(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

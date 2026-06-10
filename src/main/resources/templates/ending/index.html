@@ -66,6 +66,31 @@
             成长路线：<strong th:text="${userEnding.growthRoute}">路线</strong>
         </p>
 
+        <div class="semester-growth-portrait"
+             th:if="${growthPortrait != null}">
+            <p class="semester-growth-portrait__label">学期成长画像</p>
+            <h2 th:text="${growthPortrait.growthKeyword}">探索新生</h2>
+            <p class="semester-growth-portrait__desc"
+               th:text="${growthPortrait.growthDescription}">
+                这个学期留下了新的成长记录。
+            </p>
+
+            <div class="semester-growth-portrait__facts">
+                <div>
+                    <span>关键关系</span>
+                    <strong th:text="${growthPortrait.keyNpcName != null ? growthPortrait.keyNpcName + ' · ' + growthPortrait.keyNpcStage : '暂无'}">暂无</strong>
+                </div>
+                <div>
+                    <span>关键周</span>
+                    <strong th:text="${growthPortrait.keyWeekNumber != null ? '第 ' + growthPortrait.keyWeekNumber + ' 周' : '尚未形成'}">尚未形成</strong>
+                </div>
+                <div>
+                    <span>主要影响</span>
+                    <strong th:text="${growthPortrait.mainSourceLabel}">校园影响</strong>
+                </div>
+            </div>
+        </div>
+
         <div class="semester-report__actions">
             <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
             <form method="post" action="/ending/restart" style="display:inline">

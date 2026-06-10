@@ -11,6 +11,7 @@ import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.mapper.UserOrganizationMapper;
 import cn.haut.survivor.service.OrganizationService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,17 +54,20 @@ public class OrganizationServiceImpl implements OrganizationService {
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerAttributeMapper playerAttributeMapper;
     private final PlayerService playerService;
+    private final WeeklyThemeService weeklyThemeService;
 
     public OrganizationServiceImpl(OrganizationMapper organizationMapper,
                                     UserOrganizationMapper userOrganizationMapper,
                                     PlayerProfileMapper playerProfileMapper,
                                     PlayerAttributeMapper playerAttributeMapper,
-                                    PlayerService playerService) {
+                                    PlayerService playerService,
+                                    WeeklyThemeService weeklyThemeService) {
         this.organizationMapper = organizationMapper;
         this.userOrganizationMapper = userOrganizationMapper;
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.playerService = playerService;
+        this.weeklyThemeService = weeklyThemeService;
     }
 
     @Override
@@ -143,9 +147,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         // 消耗行动点
         playerService.consumeActionPoint(userId);
 
-        // 增加贡献和声望
-        relation.setContribution(relation.getContribution() + 3);
-        relation.setReputation(relation.getReputation() + 2);
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        int recruitmentBonus = organizationActivityBonus(profile);
+
+        // 增加贡献和声望。社团招新周让组织活动收益更高，但不额外改变属性。
+        relation.setContribution(relation.getContribution() + 3 + recruitmentBonus);
+        relation.setReputation(relation.getReputation() + 2 + recruitmentBonus);
 
         // 按组织类型差异化属性结算
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
@@ -215,6 +222,17 @@ public class OrganizationServiceImpl implements OrganizationService {
         return Math.max(0, Math.min(100, value));
     }
 
+    private int organizationActivityBonus(PlayerProfile profile) {
+        if (profile == null || profile.getCurrentWeek() == null) {
+            return 0;
+        }
+        return weeklyThemeService.organizationActivityBonus(profile.getCurrentWeek());
+    }
+
+    private boolean isRecruitmentWeek(PlayerProfile profile) {
+        return organizationActivityBonus(profile) > 0;
+    }
+
     @Override
     public OrganizationActivityResult attendActivityWithChange(Long userId, Long organizationId) {
         Organization org = requireOrg(organizationId);
@@ -237,6 +255,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         // 随机选一条活动文案
         String activityResultText = generateActivityResultText(org.getOrgType());
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        if (isRecruitmentWeek(profile)) {
+            activityResultText += " 赶上社团招新周，摊位人气正旺，本次活动额外获得贡献 +1、声望 +1。";
+        }
 
         return new OrganizationActivityResult(relation, change, activityResultText);
     }

@@ -34,6 +34,9 @@ class WeekSummaryServiceTests {
     @Autowired
     private ExplorationStoryService explorationStoryService;
 
+    @Autowired
+    private InfluenceLogService influenceLogService;
+
     @BeforeEach
     void setUp() {
         playerService.createProfile(2L, "周总结测试玩家", "大二", "计算机类", "就业路线");
@@ -210,5 +213,22 @@ class WeekSummaryServiceTests {
         WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
 
         assertThat(view.summaryText()).contains("奇遇");
+    }
+    @Test
+    void buildCurrentWeekSummaryContainsInfluenceRecaps() {
+        influenceLogService.recordExplorationInfluences(2L, 1, 4L, java.util.List.of(
+                new cn.haut.survivor.domain.entity.ExplorationInfluence(
+                        "rumor",
+                        "canteen_hint",
+                        "social opening",
+                        new cn.haut.survivor.domain.entity.AttributeChange(0, 0, 0, 2, 0, 0, 0, 0),
+                        1)
+        ));
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+
+        assertThat(view.impactRecaps()).hasSize(1);
+        assertThat(view.impactRecaps().get(0).sourceType()).isEqualTo("rumor");
+        assertThat(view.impactRecaps().get(0).changeText()).contains("社交 +2", "探索 +1");
     }
 }

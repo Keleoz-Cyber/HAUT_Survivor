@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>校园搭子 - HAUT Survivor</title>
-    <link href="/webjars/bootstrap/5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
 <body class="game-shell">
@@ -18,9 +17,16 @@
             <h1 class="npc-profile-card__name" th:text="${npc.npcName}">NPC</h1>
             <p class="npc-profile-card__desc" th:text="${npc.description}">描述</p>
             <div class="npc-profile-card__meta">
-                <span th:text="'关系：' + ${relationStage}">关系：认识</span>
+                <span th:text="'关系：' + ${relationSummary.label}">关系：点头之交</span>
                 <span th:text="'熟悉度 ' + ${relation != null ? relation.familiarity : 0}">熟悉度 0</span>
                 <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}">本周搭子</span>
+            </div>
+            <div class="npc-relation-note" th:if="${relationSummary != null}">
+                <div class="npc-relation-note__bar" aria-hidden="true">
+                    <span th:style="'width:' + ${relationSummary.progressPercent} + '%'"></span>
+                </div>
+                <p class="npc-relation-note__desc" th:text="${relationSummary.description}">你们刚开始认识。</p>
+                <p class="npc-relation-note__hint" th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
             </div>
         </div>
     </section>

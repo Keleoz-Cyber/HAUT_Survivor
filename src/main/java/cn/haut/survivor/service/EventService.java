@@ -20,6 +20,9 @@ public interface EventService {
     /** Trigger a random event with an optional type hint that boosts matching events' weight. */
     Event triggerRandomEventWithHint(Long userId, Long locationId, String preferredEventType);
 
+    /** Returns the event type boosted by the current weekly theme, or null when the week has no bias. */
+    String getWeeklyThemePreferredEventType(Integer currentWeek);
+
     List<EventOption> listOptions(Long eventId);
 
     EventRecord chooseOption(Long userId, Long eventId, Long optionId);

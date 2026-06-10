@@ -33,6 +33,12 @@ class NpcServiceTests {
     @Autowired
     private PlayerService playerService;
 
+    @Autowired
+    private NpcStoryService npcStoryService;
+
+    @Autowired
+    private InfluenceLogService influenceLogService;
+
     @Test
     void listActiveNpcsReturnsSeedData() {
         List<Npc> npcs = npcService.listActiveNpcs();
@@ -210,5 +216,66 @@ class NpcServiceTests {
 
         assertThat(result.attributeChange().academicChange()).isEqualTo(5);
         assertThat(result.familiarityGain()).isEqualTo(5);
+    }
+
+    @Test
+    void storyProgressUnlocksExclusiveBranchInteraction() {
+        playerService.createProfile(2L, "npc branch unlock test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 25);
+
+        assertThat(npcService.listAvailableInteractions(2L, 2L, 1))
+                .extracting(NpcInteraction::getInteractionKey)
+                .doesNotContain("linran_key_week_review");
+
+        Npc linran = npcService.listActiveNpcs().stream()
+                .filter(candidate -> candidate.getId().equals(2L))
+                .findFirst()
+                .orElseThrow();
+        npcStoryService.advanceOnInteraction(2L, linran, 1);
+
+        assertThat(npcService.listAvailableInteractions(2L, 2L, 2))
+                .extracting(NpcInteraction::getInteractionKey)
+                .contains("linran_key_week_review");
+    }
+
+    @Test
+    void branchInteractionAppliesChangesAndRecordsInfluenceLog() {
+        playerService.createProfile(2L, "npc branch effect test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 2L, 25);
+        Npc linran = npcService.listActiveNpcs().stream()
+                .filter(candidate -> candidate.getId().equals(2L))
+                .findFirst()
+                .orElseThrow();
+        npcStoryService.advanceOnInteraction(2L, linran, 1);
+        PlayerAttribute before = playerService.findAttributeByUserId(2L);
+
+        NpcInteractionResult result = npcService.interact(2L, 2L, 900201L, 2);
+
+        PlayerAttribute after = playerService.findAttributeByUserId(2L);
+        assertThat(result.interaction().getInteractionKey()).isEqualTo("linran_key_week_review");
+        assertThat(result.attributeChange().academicChange()).isEqualTo(3);
+        assertThat(after.getAcademic()).isEqualTo(before.getAcademic() + 3);
+        assertThat(result.storyResult()).isNotNull();
+        assertThat(influenceLogService.listWeekInfluences(2L, 2))
+                .extracting(InfluenceLogService.InfluenceLogEntry::sourceType)
+                .contains("npc_branch");
+    }
+
+    @Test
+    void relationshipSummaryUsesCp5StageBoundaries() {
+        assertThat(npcService.getRelationSummary(0).stageKey()).isEqualTo("acquaintance");
+        assertThat(npcService.getRelationSummary(24).stageKey()).isEqualTo("acquaintance");
+        assertThat(npcService.getRelationSummary(25).stageKey()).isEqualTo("familiar");
+        assertThat(npcService.getRelationSummary(49).stageKey()).isEqualTo("familiar");
+        assertThat(npcService.getRelationSummary(50).stageKey()).isEqualTo("buddy");
+        assertThat(npcService.getRelationSummary(79).stageKey()).isEqualTo("buddy");
+        assertThat(npcService.getRelationSummary(80).stageKey()).isEqualTo("close");
+
+        NpcService.RelationSummary close = npcService.getRelationSummary(80);
+        assertThat(close.label()).isNotBlank();
+        assertThat(close.description()).isNotBlank();
+        assertThat(close.nextStageHint()).isNotBlank();
+        assertThat(close.nextStageAt()).isNull();
+        assertThat(close.progressPercent()).isEqualTo(100);
     }
 }

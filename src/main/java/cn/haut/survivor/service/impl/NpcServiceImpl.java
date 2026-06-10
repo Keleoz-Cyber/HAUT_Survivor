@@ -14,6 +14,7 @@ import cn.haut.survivor.mapper.UserNpcRelationMapper;
 import cn.haut.survivor.mapper.UserNpcWeeklyActionMapper;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
+import cn.haut.survivor.service.NpcStoryService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorEffectService;
 import cn.haut.survivor.service.WeeklyGoalService;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -41,6 +43,7 @@ public class NpcServiceImpl implements NpcService {
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
     private final RumorEffectService rumorEffectService;
+    private final NpcStoryService npcStoryService;
 
     public NpcServiceImpl(
             NpcMapper npcMapper,
@@ -51,7 +54,8 @@ public class NpcServiceImpl implements NpcService {
             PlayerService playerService,
             WeeklyGoalService weeklyGoalService,
             AchievementService achievementService,
-            RumorEffectService rumorEffectService) {
+            RumorEffectService rumorEffectService,
+            NpcStoryService npcStoryService) {
         this.npcMapper = npcMapper;
         this.relationMapper = relationMapper;
         this.interactionMapper = interactionMapper;
@@ -61,6 +65,7 @@ public class NpcServiceImpl implements NpcService {
         this.weeklyGoalService = weeklyGoalService;
         this.achievementService = achievementService;
         this.rumorEffectService = rumorEffectService;
+        this.npcStoryService = npcStoryService;
     }
 
     @Override
@@ -161,12 +166,16 @@ public class NpcServiceImpl implements NpcService {
     public List<NpcInteraction> listAvailableInteractions(Long userId, Long npcId, int weekNumber) {
         UserNpcRelation relation = requireRelation(userId, npcId);
         int familiarity = value(relation.getFamiliarity());
-        return interactionMapper.selectList(new LambdaQueryWrapper<NpcInteraction>()
+        List<NpcInteraction> interactions = new ArrayList<>(interactionMapper.selectList(new LambdaQueryWrapper<NpcInteraction>()
                 .eq(NpcInteraction::getNpcId, npcId)
                 .eq(NpcInteraction::getActive, 1)
                 .le(NpcInteraction::getRequiredFamiliarity, familiarity)
                 .orderByAsc(NpcInteraction::getRequiredFamiliarity)
-                .orderByAsc(NpcInteraction::getId));
+                .orderByAsc(NpcInteraction::getId)));
+        npcStoryService.listUnlockedBranchInteractions(userId, npcId).stream()
+                .filter(interaction -> value(interaction.getRequiredFamiliarity()) <= familiarity)
+                .forEach(interactions::add);
+        return interactions;
     }
 
     @Override
@@ -179,6 +188,14 @@ public class NpcServiceImpl implements NpcService {
 
         UserNpcRelation relation = requireRelation(userId, npcId);
         NpcInteraction interaction = interactionMapper.selectById(interactionId);
+        boolean branchInteraction = false;
+        if (interaction == null) {
+            interaction = npcStoryService.listUnlockedBranchInteractions(userId, npcId).stream()
+                    .filter(candidate -> interactionId.equals(candidate.getId()))
+                    .findFirst()
+                    .orElse(null);
+            branchInteraction = interaction != null;
+        }
         if (interaction == null || value(interaction.getActive()) != 1 || !npcId.equals(interaction.getNpcId())) {
             throw new IllegalArgumentException("互动不存在或不属于该NPC");
         }
@@ -238,6 +255,9 @@ public class NpcServiceImpl implements NpcService {
         weeklyGoalService.updateProgress(userId, weekNumber, "npc_interaction", 1);
         weeklyGoalService.updateProgress(userId, weekNumber, "familiarity_gain", familiarityGain);
         unlockNpcAchievements(userId, npc, relation);
+        NpcStoryService.NpcStoryResult storyResult = branchInteraction
+                ? npcStoryService.recordBranchInteraction(userId, npc, interaction, weekNumber).orElse(null)
+                : npcStoryService.advanceOnInteraction(userId, npc, weekNumber).orElse(null);
 
         return new NpcInteractionResult(
                 npc,
@@ -246,7 +266,8 @@ public class NpcServiceImpl implements NpcService {
                 change,
                 familiarityGain,
                 interaction.getResultText(),
-                getRelationStage(relation.getFamiliarity()));
+                getRelationStage(relation.getFamiliarity()),
+                storyResult);
     }
 
     @Override
@@ -285,17 +306,46 @@ public class NpcServiceImpl implements NpcService {
 
     @Override
     public String getRelationStage(Integer familiarity) {
+        return getRelationSummary(familiarity).label();
+    }
+
+    @Override
+    public RelationSummary getRelationSummary(Integer familiarity) {
         int value = value(familiarity);
         if (value >= 80) {
-            return "铁搭子";
+            return new RelationSummary(
+                    "close",
+                    "重要关系",
+                    "TA 已经是你这学期绕不开的重要关系。",
+                    null,
+                    "关系已经进入稳定阶段，后续互动会留下更清晰的学期记忆。",
+                    100);
         }
         if (value >= 50) {
-            return "搭子";
+            return new RelationSummary(
+                    "buddy",
+                    "搭子",
+                    "你们已经可以稳定约在一起做事。",
+                    80,
+                    "熟悉度达到 80 后，TA 会成为你的重要关系。",
+                    progressBetween(value, 50, 80));
         }
-        if (value >= 20) {
-            return "熟人";
+        if (value >= 25) {
+            return new RelationSummary(
+                    "familiar",
+                    "熟人",
+                    "见面会自然打招呼，也开始记得彼此的节奏。",
+                    50,
+                    "熟悉度达到 50 后，可以选择 TA 作为本周搭子。",
+                    progressBetween(value, 25, 50));
         }
-        return "认识";
+        return new RelationSummary(
+                "acquaintance",
+                "点头之交",
+                "你们刚开始认识，还需要更多共同经历。",
+                25,
+                "熟悉度达到 25 后，关系会进入熟人阶段。",
+                progressBetween(value, 0, 25));
     }
 
     private UserNpcRelation requireRelation(Long userId, Long npcId) {
@@ -397,6 +447,14 @@ public class NpcServiceImpl implements NpcService {
 
     private int clamp(int value) {
         return Math.max(0, Math.min(100, value));
+    }
+
+    private int progressBetween(int value, int start, int end) {
+        if (end <= start) {
+            return 100;
+        }
+        int clamped = Math.max(start, Math.min(end, value));
+        return Math.round((clamped - start) * 100.0f / (end - start));
     }
 
     private String generateEncounterText(Npc npc, UserNpcRelation relation) {

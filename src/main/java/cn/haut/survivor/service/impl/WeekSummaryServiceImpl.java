@@ -18,6 +18,7 @@ import cn.haut.survivor.mapper.UserWeeklyGoalMapper;
 import cn.haut.survivor.mapper.WeeklyGoalMapper;
 import cn.haut.survivor.mapper.UserWeekSummaryMapper;
 import cn.haut.survivor.service.AchievementService;
+import cn.haut.survivor.service.InfluenceLogService;
 import cn.haut.survivor.service.WeekSummaryService;
 import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -40,6 +41,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
     private final WeeklyThemeService weeklyThemeService;
     private final AchievementService achievementService;
     private final ExplorationStoryProgressMapper explorationStoryProgressMapper;
+    private final InfluenceLogService influenceLogService;
 
     public WeekSummaryServiceImpl(
             UserWeekSummaryMapper userWeekSummaryMapper,
@@ -51,7 +53,8 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
             NpcMapper npcMapper,
             WeeklyThemeService weeklyThemeService,
             AchievementService achievementService,
-            ExplorationStoryProgressMapper explorationStoryProgressMapper) {
+            ExplorationStoryProgressMapper explorationStoryProgressMapper,
+            InfluenceLogService influenceLogService) {
         this.userWeekSummaryMapper = userWeekSummaryMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.userWeeklyGoalMapper = userWeeklyGoalMapper;
@@ -62,6 +65,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         this.weeklyThemeService = weeklyThemeService;
         this.achievementService = achievementService;
         this.explorationStoryProgressMapper = explorationStoryProgressMapper;
+        this.influenceLogService = influenceLogService;
     }
 
     @Override
@@ -195,7 +199,8 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
                 attribute != null ? attribute.getPressure() : 0,
                 attribute != null ? attribute.getDiscipline() : 0,
                 summaryText,
-                ratingLabel
+                ratingLabel,
+                influenceLogService.listWeekInfluences(userId, weekNumber)
         );
     }
 

@@ -35,6 +35,8 @@ public interface NpcService {
 
     String getRelationStage(Integer familiarity);
 
+    RelationSummary getRelationSummary(Integer familiarity);
+
     /** NPC 遇见结果 */
     record NpcEncounter(
             Npc npc,
@@ -51,6 +53,16 @@ public interface NpcService {
             AttributeChange attributeChange,
             int familiarityGain,
             String resultText,
-            String relationStage
+            String relationStage,
+            NpcStoryService.NpcStoryResult storyResult
+    ) {}
+
+    record RelationSummary(
+            String stageKey,
+            String label,
+            String description,
+            Integer nextStageAt,
+            String nextStageHint,
+            int progressPercent
     ) {}
 }
