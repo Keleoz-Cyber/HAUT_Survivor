@@ -14,7 +14,7 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 313, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -143,7 +143,7 @@ CP6 莲花街校区内容包与真实地图接入。
 最近一次全量验证：
 ```text
 .\mvnw.cmd clean test
-Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 313, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -151,12 +151,18 @@ HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`�
 
 CP6 收尾补修：缺少角色档案时，`/organizations/{id}`、组织操作 POST、`/dungeons/{id}`、`/dungeons/{id}/start`、`/dungeons/{id}/play`、副本阶段提交 POST 均会重定向到 `/player/create`，不再打出 500。
 
+CP6.1 NPC 原型接入：
+- 新增 NPC：富少（6101）、小鱼（6102）、柳如烟（6103）。
+- 复用已有 NPC 室友阿杰（1），追加 2 条莲花街普通互动，未新增重复阿杰。
+- 新增普通 NPC 互动 610001-610011（共 11 条），ID 在 610xxx 段，未碰 900xxx 虚拟分支保留段。
+- 新增 `ContentPack6NpcTests`（4 个测试）和 `NpcControllerTests` CP6.1 烟雾测试。
+- 最近全量测试为 313 个测试全绿。
+
 ## 当前建议下一步
 
 CP6 第一批已经完成，已删除对应的执行计划稿，避免后续 AI 重复实现同一批内容。
 
 建议下一步优先级：
-- CP6.1 NPC 原型接入：富少、小鱼、阿杰、柳如烟。
 - CP6.2 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
 - CP6.3 周主题「开学迎新周」的机制化。
 

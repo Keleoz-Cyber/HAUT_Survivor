@@ -345,6 +345,22 @@ BUILD SUCCESS
 - 浏览器视觉复核：Chrome headless + Playwright 临时环境检查 1366x768 与 375x812，`/map` 图片加载完成，8 个热点均在地图范围内；核心玩家页无横向滚动，Dock 未遮挡可交互元素。
 - 新增 `MapControllerTests#mapPageProvidesRealCampusMapHotspots` 和 `MapTemplateResourceTests`。
 
+## CP6.1 NPC 原型接入
+
+状态：已完成
+
+本批次复用现有 NPC 系统和 CP6 莲花街内容包，不新增数据库表。
+
+新增/调整内容：
+- 新增 NPC：富少（6101）、小鱼（6102）、柳如烟（6103）。
+- 复用已有 NPC：室友阿杰（1），追加莲花街校区相关普通互动，不新增重复阿杰。
+- 新增普通 NPC 互动：610001-610011（阿杰 2 条 + 富少 3 条 + 小鱼 3 条 + 柳如烟 3 条）。
+- 未使用 900000-900999 虚拟分支互动保留段。
+
+验证：
+- `.\mvnw.cmd clean test`：Tests run: 313, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/npcs/1`、`/npcs/6101`、`/npcs/6102`、`/npcs/6103`，均为 200。
+
 ## 当前文档状态
 
 - CP6 莲花街校区内容包与真实地图接入已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
