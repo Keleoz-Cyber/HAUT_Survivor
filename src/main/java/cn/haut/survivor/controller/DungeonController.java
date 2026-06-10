@@ -60,6 +60,9 @@ public class DungeonController {
     @GetMapping("/dungeons/{dungeonId}")
     public String detail(@PathVariable Long dungeonId, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         Dungeon dungeon = dungeonService.findDungeonById(dungeonId);
         if (dungeon == null) return "redirect:/dungeons";
         model.addAttribute("dungeon", dungeon);
@@ -71,6 +74,9 @@ public class DungeonController {
     @GetMapping("/dungeons/{dungeonId}/start")
     public String startDungeon(@PathVariable Long dungeonId, HttpSession session) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         dungeonService.startOrResumeDungeon(userId, dungeonId);
         return "redirect:/dungeons/" + dungeonId + "/play";
     }
@@ -78,6 +84,9 @@ public class DungeonController {
     @GetMapping("/dungeons/{dungeonId}/play")
     public String playDungeon(@PathVariable Long dungeonId, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         DungeonTask task = dungeonService.findCurrentTask(record);
         if (task == null) {
@@ -112,6 +121,9 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(userId, record.getId(), taskId, optionId, minigameResult);
         UserDungeonRecord updatedRecord = dungeonService.findRecordById(userId, record.getId());
@@ -144,6 +156,9 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseMinigameRelations(userId, record.getId(), taskId,
                 selectedRelations == null ? List.of() : selectedRelations, elapsedSeconds);
@@ -176,6 +191,9 @@ public class DungeonController {
             Model model
     ) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(userId, dungeonId);
         UserDungeonTaskRecord taskRecord = dungeonService.chooseBugHunt(
                 userId, record.getId(), taskId, questionIds, answers, elapsedSeconds);

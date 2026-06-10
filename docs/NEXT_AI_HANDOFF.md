@@ -1,6 +1,6 @@
 # NEXT AI HANDOFF
 
-最后更新：2026-06-10
+最后更新：2026-06-11
 
 ## 当前项目状态
 
@@ -14,7 +14,7 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 301, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -22,9 +22,9 @@ CP5 A/B 第二批补充：已基于 `user_npc_story_progress` 解锁 5 个 NPC �
 
 CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复。本轮没有数据库变更、没有新增 seed、没有新增 Java 测试；核心改动集中在移动端安全区留白，覆盖 `game-shell`、`dorm-room`、探索页底部导航、NPC 页面和 NPC 结果页操作区。
 
-最近一次 HTTP 冒烟：2026-06-10，端口 `8080`，登录 `student/student123` 后创建角色，`/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/week/history`、`/npcs/2`、`/npcs/2/interactions/3004` POST、`/ending`、`/dungeons` 均为 200，无 Whitelabel，且玩家页均包含 `game-dock`。
+最近一次 HTTP 冒烟：2026-06-11，端口 `8080`，登录并创建角色后，`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/organizations`、`/organizations/1`、`/organizations/6001`、`/dungeons`、`/dungeons/1`、`/dungeons/6001`、`/dungeons/1/start`、`/dungeons/6001/start`、`/dungeons/1/play`、`/dungeons/6001/play` 均为 200，无 Whitelabel，且玩家页均包含 `game-dock`。缺少角色档案的组织/副本深链返回 302 到 `/player/create`。
 
-最近一次浏览器视觉复核：2026-06-10，使用 1366x768 与 375x812 检查 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST 后结果页、`/week/summary`、`/npcs/2`。桌面端 Dock 为 static 流式布局，未发现遮挡；移动端 `/week/summary`、`/npcs/2` 自动检测 overlap=false。`/dashboard`、`/map`、`/exploration` 的自动脚本曾报告 overlap，但人工复核 `target/visual-smoke/` 截图后判断为 padding 安全区计算导致的误报，按钮视觉上位于 Dock 上方，未被遮挡。截图输出目录为 `target/visual-smoke/`，执行 `clean test` 后需要重新生成。
+最近一次浏览器视觉复核：2026-06-11，使用 Chrome headless + 临时 Playwright 环境，以 1366x768 与 375x812 检查 `/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`。所有页面无横向滚动、Dock 未遮挡可交互元素；`/map` 图片加载完成，8 个热点均在地图范围内。
 
 本地 `main` 当前领先 `origin/main` 多个提交，最近内容包含：
 
@@ -46,19 +46,19 @@ CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复
 - CP5 A/B 均衡第一批：NPC 关系阶段、NPC story progress、学期档案摘要和结局成长画像
 - CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
 - CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
+- CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
 
 ## 最近完成
 
-CP5 UI 收尾：移动端 Dock 遮挡修复与视觉冒烟复核。
+CP6 莲花街校区内容包与真实地图接入。
 
 已完成：
 
-- 对 `/dashboard`、`/map`、`/exploration`、`POST /exploration/4` 后探索结果页、`/week/summary`、`/npcs/2` 做 1366x768 与 375x812 视觉复核
-- `src/main/resources/static/css/app.css` 做小范围 CSS-only 修复，增加移动端底部安全区留白
-- 实际微调 6 处移动端规则，其中 4 处为核心 Dock 安全区 padding 调整
-- 修复目标是避免移动端 fixed Dock 遮挡探索页底部操作和 NPC 结果页“回寝室”等按钮
-- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/week/history`、`/npcs/2`、`/npcs/2/interactions/3004` POST、`/ending`、`/dungeons`
-- 最近全量测试为 295 个测试全绿
+- `src/main/resources/data-content-pack-6.sql` 新增莲花街校区组织、事件、传闻和“小组作业”副本。
+- `/map` 顶部接入真实校区地图图片和 8 个热点，保留原地点卡片作为稳定入口。
+- 组织/副本深链在缺少角色档案时会重定向到 `/player/create`，不再出现 500。
+- HTTP 冒烟覆盖 CP6 组织、副本、地图、探索和周总结主链路。
+- 最近全量测试为 307 个测试全绿。
 
 前置 CP5 A/B 均衡第一批：关系成长与学期档案。
 
@@ -122,7 +122,7 @@ CP5 A/B 均衡第二批：NPC 专属分支互动。
   - 既有周主题行为保持不变：第 2 周社交/组织加成，第 3 周学习/副本压力，第 4 周健康事件偏向
 - CP4 视觉复核已完成：移动端 Dock 不遮挡目标页面内容，“有传闻”标记和探索结果影响来源面板已做小范围 UI 修正
 
-## 最近完成
+## CP6 完成细节
 
 CP6 莲花街校区内容包与真实地图接入。
 
@@ -143,24 +143,22 @@ CP6 莲花街校区内容包与真实地图接入。
 最近一次全量验证：
 ```text
 .\mvnw.cmd clean test
-Tests run: 301, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`、`/dungeons/6001` 均为 200，无 Whitelabel。地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
+HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/organizations`、`/organizations/1`、`/organizations/6001`、`/dungeons`、`/dungeons/1`、`/dungeons/6001`、`/dungeons/1/start`、`/dungeons/6001/start`、`/dungeons/1/play`、`/dungeons/6001/play` 均为 200，无 Whitelabel。地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
 
-已知预存问题（非 CP6 引入）：`/organizations/{id}` 详情页和 `/dungeons/{id}/start`、`/dungeons/{id}/play` 返回 500，影响所有 id 包括原有 id=1 和 id=2。
+CP6 收尾补修：缺少角色档案时，`/organizations/{id}`、组织操作 POST、`/dungeons/{id}`、`/dungeons/{id}/start`、`/dungeons/{id}/play`、副本阶段提交 POST 均会重定向到 `/player/create`，不再打出 500。
 
 ## 当前建议下一步
 
-优先进入 CP6 莲花街校区扩展。当前保留两个可直接交给编码 AI 执行的计划：
+CP6 第一批已经完成，已删除对应的执行计划稿，避免后续 AI 重复实现同一批内容。
 
-- `docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md`
-  - 目标：新增莲花街校区内容包，包含组织、事件、传闻和“小组作业”副本。
-  - 边界：seed-heavy，不改核心循环，不新增数据库表。
-- `docs/superpowers/plans/2026-06-10-cp6-campus-map-image-integration.md`
-  - 目标：从 `docs/补充信息.docx` 提取真实校区地图并接入 `/map` 页面。
-  - 边界：真实地图图片 + 8 个热点 + 保留原地点卡片，不做完整地图引擎。
+建议下一步优先级：
+- CP6.1 NPC 原型接入：富少、小鱼、阿杰、柳如烟。
+- CP6.2 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
+- CP6.3 周主题「开学迎新周」的机制化。
 
 CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选、结局画像跳转或 NPC 分支扩展。
 
@@ -176,13 +174,11 @@ CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选�
 - 热点坐标是按当前图片人工估算的，后续如果替换更高清地图，需要重新微调。
 - 移动端热点标签空间有限，目前以短标签为主。
 - 这不是完整地图系统，没有缩放、拖拽或楼层切换。
-- `/organizations/{id}` 详情页和 `/dungeons/{id}/start|play` 返回 500 是预存问题，非 CP6 引入。
 
 建议下一步：
-- CP6.1 修复预存的 org detail 和 dungeon start/play 500 错误。
-- CP6.2 NPC 原型接入：富少、小鱼、阿杰、柳如烟。
-- CP6.3 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
-- CP6.4 周主题「开学迎新周」的机制化。
+- CP6.1 NPC 原型接入：富少、小鱼、阿杰、柳如烟。
+- CP6.2 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
+- CP6.3 周主题「开学迎新周」的机制化。
 
 ## 重要约束
 
@@ -202,4 +198,3 @@ CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选�
 - 随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性。
 - CP5 UI 收尾后，移动端 Dock 仍依赖底部 padding 与 `env(safe-area-inset-bottom)` 双保险；极端超长内容或非典型 Android WebView 仍建议实机复核。
 - 若后续继续改页面，仍需做 HTTP 冒烟；有浏览器能力时继续检查 1366x768 与 375x812。
-- 本地提交尚未推送到 GitHub。

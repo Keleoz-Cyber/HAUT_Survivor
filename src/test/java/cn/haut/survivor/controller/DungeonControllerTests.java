@@ -55,6 +55,56 @@ class DungeonControllerTests {
     }
 
     @Test
+    void dungeonStartRedirectsToPlayerCreationWhenProfileMissing() throws Exception {
+        mockMvc.perform(get("/dungeons/1/start")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+    }
+
+    @Test
+    void dungeonDetailRedirectsToPlayerCreationWhenProfileMissing() throws Exception {
+        mockMvc.perform(get("/dungeons/1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+    }
+
+    @Test
+    void dungeonPlayRedirectsToPlayerCreationWhenProfileMissing() throws Exception {
+        mockMvc.perform(get("/dungeons/1/play")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+    }
+
+    @Test
+    void dungeonActionsRedirectToPlayerCreationWhenProfileMissing() throws Exception {
+        mockMvc.perform(post("/dungeons/1/task/1/option/1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+
+        mockMvc.perform(post("/dungeons/1/task/2/minigame")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+
+        mockMvc.perform(post("/dungeons/1/task/3/bughunt")
+                        .param("questionIds", "0")
+                        .param("answers", "1")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 999L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/player/create"));
+    }
+
+    @Test
     void startDemoDungeonRedirectsToPlayPage() throws Exception {
         mockMvc.perform(get("/dungeons/1/start")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)

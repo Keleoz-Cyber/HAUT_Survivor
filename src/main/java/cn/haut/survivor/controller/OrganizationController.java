@@ -66,6 +66,9 @@ public class OrganizationController {
     @GetMapping("/organizations/{id}")
     public String detail(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
         Organization org = organizationService.listAll().stream()
@@ -92,6 +95,9 @@ public class OrganizationController {
     @PostMapping("/organizations/{id}/discover")
     public String discover(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         // 检查探索度门槛
         Organization org = organizationService.listAll().stream()
                 .filter(o -> o.getId().equals(id)).findFirst().orElse(null);
@@ -108,6 +114,9 @@ public class OrganizationController {
     @PostMapping("/organizations/{id}/join")
     public String join(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         try {
             organizationService.join(userId, id);
             // 成就：加入组织
@@ -122,6 +131,9 @@ public class OrganizationController {
     @PostMapping("/organizations/{id}/activity")
     public String attendActivity(@PathVariable Long id, HttpSession session, Model model) {
         Long userId = currentUserId(session);
+        if (!playerService.hasProfile(userId)) {
+            return "redirect:/player/create";
+        }
         try {
             OrganizationService.OrganizationActivityResult result = organizationService.attendActivityWithChange(userId, id);
             model.addAttribute("activityChange", result.attributeChange());

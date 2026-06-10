@@ -1,6 +1,6 @@
 # 项目完成状态
 
-最后更新：2026-06-10
+最后更新：2026-06-11
 
 ## 总体状态
 
@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-295 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-4 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批和 CP5 UI 收尾。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案和移动端游戏化界面复核”的可玩版本。
+307 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
 ## 已完成功能
 
@@ -213,7 +213,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 295, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -222,14 +222,14 @@ BUILD SUCCESS
 | 范围 | 说明 |
 |---|---|
 | 核心服务 | Player、Event、Exploration、Organization、Dungeon、NPC、WeeklyGoal、WeekSummary、Achievement、SemesterEnding |
-| 控制器 | Auth、Dashboard、Map、Dungeon、NPC、WeekSummary、Task、AdminEvent |
-| 内容包 | ContentPack1、ContentPack2、ContentPack3、ContentPack4 种子数据 smoke tests |
+| 控制器 | Auth、Dashboard、Map、Organization、Dungeon、NPC、WeekSummary、Task、AdminEvent |
+| 内容包 | ContentPack1、ContentPack2、ContentPack3、ContentPack4、ContentPack6 种子数据 smoke tests |
 | 数据访问 | MapperContext、Rumor、User、Task 等基础验证 |
 | 页面渲染 | 多个 Controller 测试覆盖 Thymeleaf 模板解析和关键 model 属性 |
 
 ## 最近一次 HTTP 冒烟
 
-验证时间：2026-06-10，本地端口 `8080`，登录 `student/student123` 并创建角色后检查。
+验证时间：2026-06-11，本地端口 `8080`，登录并创建角色后检查。
 
 | 页面 | HTTP | Whitelabel | game-dock | 验证信号 |
 |---|---:|---|---|---|
@@ -243,8 +243,12 @@ BUILD SUCCESS
 | `/npcs/2/interactions/3004` POST | 200 | 否 | 是 | NPC 互动结果正常渲染 |
 | `/ending` | 200 | 否 | 是 | 未结算/已结算状态均正常；已结算状态包含成长画像 |
 | `/dungeons` | 200 | 否 | 是 | 副本海报墙正常渲染 |
+| `/organizations/1`、`/organizations/6001` | 200 | 否 | 是 | 组织详情页正常渲染 |
+| `/dungeons/1`、`/dungeons/6001` | 200 | 否 | 是 | 副本详情页正常渲染 |
+| `/dungeons/1/start`、`/dungeons/6001/start` | 200 | 否 | 是 | 副本开始后跳转到进行页 |
+| `/dungeons/1/play`、`/dungeons/6001/play` | 200 | 否 | 是 | 副本进行页正常渲染 |
 
-备注：CP5 UI 收尾已用浏览器检查 1366x768 与 375x812 的 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST 后结果页、`/week/summary`、`/npcs/2`。桌面端 Dock 为 static 流式布局，无遮挡问题；移动端 `/week/summary`、`/npcs/2` 自动检测 overlap=false。`/dashboard`、`/map`、`/exploration` 的自动脚本曾报告 overlap，但人工复核 `target/visual-smoke/` 截图后判断为 padding 安全区计算导致的误报，按钮视觉上位于 Dock 上方，未被遮挡。截图输出目录为 `target/visual-smoke/`，执行 `clean test` 后需要重新生成。
+备注：CP6 收尾已用 Chrome headless + 临时 Playwright 环境检查 1366x768 与 375x812 的 `/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`。所有页面无横向滚动，Dock 未遮挡可交互元素；`/map` 图片加载完成，8 个热点均在地图范围内。缺少角色档案时，组织和副本深链返回 302 到 `/player/create`。
 
 ## 剩余风险
 
@@ -319,8 +323,9 @@ BUILD SUCCESS
 - 信息学院学生会描述已做中性化处理，未直接使用原始负面表述。
 
 验证：
-- `.\mvnw.cmd clean test`：Tests run: 301, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
-- HTTP 冒烟：`/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`、`/dungeons/6001` 均为 200，无 Whitelabel。
+- `.\mvnw.cmd clean test`：Tests run: 307, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/organizations`、`/organizations/1`、`/organizations/6001`、`/dungeons`、`/dungeons/1`、`/dungeons/6001`、`/dungeons/1/start`、`/dungeons/6001/start`、`/dungeons/1/play`、`/dungeons/6001/play` 均为 200，无 Whitelabel。
+- 缺少角色档案时，组织和副本深链会重定向到 `/player/create`，不再返回 500。
 
 ## CP6 真实校园地图接入
 
@@ -335,15 +340,16 @@ BUILD SUCCESS
 - 未新增数据库表，未修改地图核心机制。
 
 验证：
-- `.\mvnw.cmd clean test`：Tests run: 301, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- `.\mvnw.cmd clean test`：Tests run: 307, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟：`/map` 返回 200，地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
+- 浏览器视觉复核：Chrome headless + Playwright 临时环境检查 1366x768 与 375x812，`/map` 图片加载完成，8 个热点均在地图范围内；核心玩家页无横向滚动，Dock 未遮挡可交互元素。
 - 新增 `MapControllerTests#mapPageProvidesRealCampusMapHotspots` 和 `MapTemplateResourceTests`。
 
-## 当前待执行计划
+## 当前文档状态
 
-- `docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md`：莲花街校区内容包，计划新增组织、事件、传闻和“小组作业”副本。
-- `docs/superpowers/plans/2026-06-10-cp6-campus-map-image-integration.md`：真实校园地图接入，计划从 `docs/补充信息.docx` 提取地图图片并在 `/map` 页面增加热点层。
+- CP6 莲花街校区内容包与真实地图接入已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
+- 下一步扩展方向以“可扩展方向”表和 `docs/NEXT_AI_HANDOFF.md` 的 CP6.1/CP6.2/CP6.3 为准。
 
 ## 可扩展方向
 
@@ -353,8 +359,9 @@ BUILD SUCCESS
 |---|---|
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
 | 深化周主题影响 | 让第 1/4 周主题继续影响副本、组织或 NPC 行为 |
-| CP6 莲花街内容包 | 按当前计划接入真实校园组织、事件、传闻和“小组作业”副本 |
-| CP6 真实地图 | 按当前计划把 `docs/补充信息.docx` 中的莲花街校区地图接入 `/map` |
+| CP6.1 NPC 原型 | 接入富少、小鱼、阿杰、柳如烟，注意不要和现有 NPC 关系/故事线 ID 冲突 |
+| CP6.2 地点细分 | 图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅 |
+| CP6.3 开学迎新周 | 把周主题进一步机制化，影响组织、事件或 NPC 行为 |
 | 更多副本 | 图书馆席位战争、蓝桥杯突击、实习面试 |
 | 成就称号 | 收集要素，解锁条件绑定属性/探索/组织 |
 | 管理后台完善 | 组织/结局/副本/成就/NPC/传闻的 CRUD |
