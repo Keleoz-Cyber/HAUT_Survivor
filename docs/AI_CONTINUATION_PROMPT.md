@@ -45,11 +45,10 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-不要重复实现 CP6 第一批和 CP6.1。优先从 CP6.2/CP6.3 中选一个继续：
+不要重复实现 CP6 第一批、CP6.1 或 CP6.2。优先从以下方向继续：
 
 可选方向：
-1. CP6.2 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
-2. CP6.3 周主题「开学迎新周」机制化，影响组织、事件或 NPC 行为。
+1. CP6.3 周主题「开学迎新周」机制化，影响组织、事件或 NPC 行为。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。

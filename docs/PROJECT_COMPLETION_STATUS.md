@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-307 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
+317 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
 ## 已完成功能
 
@@ -360,6 +360,25 @@ BUILD SUCCESS
 验证：
 - `.\mvnw.cmd clean test`：Tests run: 313, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/npcs/1`、`/npcs/6101`、`/npcs/6102`、`/npcs/6103`，均为 200。
+
+## CP6.2 莲花街校区地点细分
+
+状态：已完成
+
+本批次复用现有地点、事件、传闻、探索奇遇链、周目标和成就系统，不新增数据库表。
+
+新增内容：
+- 事件：10 条，ID 6201-6210，覆盖图书馆（2）、惟学楼（6）、博闻楼营业厅/生活服务点（8）、韶华楼（7）、知味/知雅餐厅（4）。
+- 事件选项：30 条，ID 620101-621003，每个事件 3 个选项。
+- 传闻：6 条，ID 6201-6206，继续使用现有 effect_type（explore_bonus/event_hint/safe_zone/npc_boost/attr_bonus）。
+- 探索奇遇链：4 条链、12 个阶段，ID 6201-6212（library_floor_trace/weixue_lab_route/bowen_service_window/canteen_peak_shift）。
+- 周目标：2 个，ID 6201-6202。
+- 成就：2 个，ID 6201-6202。
+
+验证：
+- `.\mvnw.cmd clean test`：Tests run: 317, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/map/location/2/event`、`/map/location/4/event`、`/map/location/6/event`、`/map/location/8/event`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/npcs/6101`、`/dungeons`、`/organizations`，均为 200，无 Whitelabel。
+- 未修改 UI 文件，未执行浏览器视觉检查。
 
 ## 当前文档状态
 
