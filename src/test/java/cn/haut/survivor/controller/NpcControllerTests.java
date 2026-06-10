@@ -85,4 +85,30 @@ class NpcControllerTests {
                 .andExpect(view().name("npc/result"))
                 .andExpect(model().attributeExists("result", "relationSummary", "profile", "attribute"));
     }
+
+    @Test
+    void cp6NpcDetailPageRenders() throws Exception {
+        npcService.increaseFamiliarity(2L, 6101L, 25);
+
+        mockMvc.perform(get("/npcs/6101")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("npc/detail"))
+                .andExpect(model().attributeExists("npc", "relation", "relationSummary", "interactions"))
+                .andExpect(model().attribute("interactions", hasItem(
+                        hasProperty("interactionKey", equalTo("cp6_fushao_canteen_tip")))));
+    }
+
+    @Test
+    void cp6NpcInteractionShowsResultPage() throws Exception {
+        npcService.increaseFamiliarity(2L, 6101L, 25);
+
+        mockMvc.perform(post("/npcs/6101/interactions/610003")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("npc/result"))
+                .andExpect(model().attributeExists("result", "relationSummary", "profile", "attribute"));
+    }
 }

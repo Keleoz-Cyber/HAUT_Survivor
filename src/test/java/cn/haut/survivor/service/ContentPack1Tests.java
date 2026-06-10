@@ -108,9 +108,9 @@ class ContentPack1Tests {
     }
 
     @Test
-    void seedNpcsCountIs5() {
+    void seedNpcsCountIsAtLeast5() {
         long count = npcMapper.selectCount(new LambdaQueryWrapper<Npc>().eq(Npc::getActive, 1));
-        assertThat(count).isEqualTo(5);
+        assertThat(count).isGreaterThanOrEqualTo(8);
     }
 
     @Test
