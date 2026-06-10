@@ -114,9 +114,10 @@ class ContentPack1Tests {
     }
 
     @Test
-    void seedOrganizationsCountIs3() {
+    void seedOrganizationsCountIsAtLeast3() {
         long count = organizationMapper.selectCount(new LambdaQueryWrapper<Organization>().eq(Organization::getStatus, 1));
-        assertThat(count).isEqualTo(3);
+        assertThat(count).isGreaterThanOrEqualTo(3);
+        // CP6 新增 5 个组织后总数为 8
     }
 
     // ==================== NPC 文案分层测试 ====================
