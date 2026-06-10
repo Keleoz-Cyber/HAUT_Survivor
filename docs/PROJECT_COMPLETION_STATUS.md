@@ -305,6 +305,40 @@ BUILD SUCCESS
 - HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/week/history`、`/npcs/2`、`/npcs/2/interactions/3004` POST、`/ending`、`/dungeons`，均为 200、无 Whitelabel、玩家页包含 `game-dock`。
 - 浏览器视觉复核覆盖 1366x768 和 375x812；已人工确认 Playwright 对部分 padding 安全区按钮的 overlap 报告为误报，不影响实际视觉和点击体验。
 
+## CP6 莲花街校区真实校园内容包
+
+状态：已完成
+
+范围：
+- 新增 `data-content-pack-6.sql`，使用 6001+ id 段。
+- 新增 5 个莲花街校区组织（计算机协会、信息学院学生会、信息学院辩论队、轮滑社、校合唱团）。
+- 新增 8 个校园生活事件（实验数据蒸发、突发实训任务、大佬讲座、断网危机、健康餐挑战、通宵自习室陌生人、社团招新、座位之战），每个事件 3 个选项。
+- 新增 6 条机制型传闻，复用 `attr_bonus`、`npc_boost`、`explore_bonus`、`safe_zone`、`event_hint`。
+- 新增副本「小组作业」，5 个阶段（公布名单→线上开会→各自开荒→整合攻坚→卡点提交），每阶段 3 个选项。
+- 未新增数据库表，未修改核心机制。
+- 信息学院学生会描述已做中性化处理，未直接使用原始负面表述。
+
+验证：
+- `.\mvnw.cmd clean test`：Tests run: 301, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟：`/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`、`/dungeons/6001` 均为 200，无 Whitelabel。
+
+## CP6 真实校园地图接入
+
+状态：已完成
+
+范围：
+- 从 `docs/补充信息.docx` 提取莲花街校区地图图片。
+- 新增静态资源 `src/main/resources/static/images/lianhuajie-campus-map.jpeg`（1267×679，174KB）。
+- `/map` 页面顶部新增真实地图展示层和 8 个地点热点（百分比坐标定位）。
+- 热点复用现有地点 id 和 `/map/location/{id}/event` 事件流程。
+- 保留原有地点卡片作为稳定入口。
+- 未新增数据库表，未修改地图核心机制。
+
+验证：
+- `.\mvnw.cmd clean test`：Tests run: 301, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟：`/map` 返回 200，地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
+- 新增 `MapControllerTests#mapPageProvidesRealCampusMapHotspots` 和 `MapTemplateResourceTests`。
+
 ## 当前待执行计划
 
 - `docs/superpowers/plans/2026-06-10-cp6-lianhuajie-campus-content-pack.md`：莲花街校区内容包，计划新增组织、事件、传闻和“小组作业”副本。

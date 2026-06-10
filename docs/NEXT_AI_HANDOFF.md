@@ -14,7 +14,7 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 295, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 301, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -122,6 +122,35 @@ CP5 A/B 均衡第二批：NPC 专属分支互动。
   - 既有周主题行为保持不变：第 2 周社交/组织加成，第 3 周学习/副本压力，第 4 周健康事件偏向
 - CP4 视觉复核已完成：移动端 Dock 不遮挡目标页面内容，“有传闻”标记和探索结果影响来源面板已做小范围 UI 修正
 
+## 最近完成
+
+CP6 莲花街校区内容包与真实地图接入。
+
+内容包阶段：
+- `src/main/resources/data-content-pack-6.sql` — 5 个组织、8 个事件、6 条传闻、1 个副本（5 阶段）。
+- `src/test/java/cn/haut/survivor/service/ContentPack6Tests.java` — 4 个 seed 验证测试。
+- `application.yml` 已加载 CP6 seed 文件。
+- 修复 `ContentPack1Tests` 组织计数断言（3 → ≥3）。
+
+真实地图接入阶段：
+- 从 `docs/补充信息.docx` 提取地图图片至 `src/main/resources/static/images/lianhuajie-campus-map.jpeg`（1267×679，174KB）。
+- `MapController` 新增 `CampusMapHotspot` record 和 `buildCampusMapHotspots()` 方法，提供 8 个热点坐标。
+- `/map` 页面顶部新增真实地图展示层，热点点击复用 `/map/location/{id}/event` 流程。
+- 原地点卡片未删除，仍作为主要稳定入口。
+- 新增 `MapControllerTests#mapPageProvidesRealCampusMapHotspots` 和 `MapTemplateResourceTests`。
+- 新增桌面端和移动端 CSS（`.campus-map-photo`、`.campus-map-hotspot`）。
+
+最近一次全量验证：
+```text
+.\mvnw.cmd clean test
+Tests run: 301, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`、`/dungeons/6001` 均为 200，无 Whitelabel。地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
+
+已知预存问题（非 CP6 引入）：`/organizations/{id}` 详情页和 `/dungeons/{id}/start`、`/dungeons/{id}/play` 返回 500，影响所有 id 包括原有 id=1 和 id=2。
+
 ## 当前建议下一步
 
 优先进入 CP6 莲花街校区扩展。当前保留两个可直接交给编码 AI 执行的计划：
@@ -134,6 +163,26 @@ CP5 A/B 均衡第二批：NPC 专属分支互动。
   - 边界：真实地图图片 + 8 个热点 + 保留原地点卡片，不做完整地图引擎。
 
 CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选、结局画像跳转或 NPC 分支扩展。
+
+## CP6 交接备注
+
+设计边界：
+- CP6 第一批只做 seed-heavy 内容包 + 地图图片接入。
+- 未扩展地点表结构，未新增数据库表。
+- 未新增 NPC 原型，避免和当前 NPC 关系/故事线改动交叉。
+- 信息学院学生会描述已做中性化处理，未直接使用原始负面表述。
+
+剩余风险：
+- 热点坐标是按当前图片人工估算的，后续如果替换更高清地图，需要重新微调。
+- 移动端热点标签空间有限，目前以短标签为主。
+- 这不是完整地图系统，没有缩放、拖拽或楼层切换。
+- `/organizations/{id}` 详情页和 `/dungeons/{id}/start|play` 返回 500 是预存问题，非 CP6 引入。
+
+建议下一步：
+- CP6.1 修复预存的 org detail 和 dungeon start/play 500 错误。
+- CP6.2 NPC 原型接入：富少、小鱼、阿杰、柳如烟。
+- CP6.3 地点细分：图书馆楼层、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
+- CP6.4 周主题「开学迎新周」的机制化。
 
 ## 重要约束
 
