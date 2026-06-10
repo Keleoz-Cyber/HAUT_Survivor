@@ -900,7 +900,7 @@ body {
     color: #e2e8f0;
     min-height: 100vh;
     overflow-x: hidden;
-    padding-bottom: 96px; /* 移动端：给 fixed Dock 留空间 */
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); /* 移动端：给 fixed Dock 留空间 */
 }
 
 /* 桌面端：Dock 不 fixed，不需要额外 body 底部留白 */
@@ -1013,6 +1013,9 @@ body {
     background: rgba(12, 18, 34, 0.96);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     bottom: 0;
+    box-shadow: 0 -16px 32px rgba(2, 6, 23, 0.32);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     display: flex;
     justify-content: space-around;
     left: 0;
@@ -1720,7 +1723,7 @@ body.bg-light .game-hud {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 16px 96px; /* 移动端：留足够空间给 fixed Dock */
+    padding: 24px 16px calc(112px + env(safe-area-inset-bottom, 0px)); /* 移动端：留足够空间给 fixed Dock */
     position: relative;
 }
 
@@ -2400,6 +2403,50 @@ body.bg-light .game-hud {
 /* ---------- 移动端适配（第二批） ---------- */
 
 @media (max-width: 640px) {
+    .explore-page {
+        padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .campus-map {
+        padding-bottom: calc(192px + env(safe-area-inset-bottom, 0px));
+        padding-top: 20px;
+    }
+
+    .campus-map__back {
+        padding-bottom: calc(168px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .campus-map__header {
+        margin-bottom: 18px;
+    }
+
+    .campus-map__title {
+        font-size: 2rem;
+    }
+
+    .campus-map__sub {
+        margin-top: 6px;
+    }
+
+    .campus-map .week-theme-card {
+        gap: 10px;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+    }
+
+    .campus-map .rumor-board {
+        margin-bottom: 12px;
+        padding: 10px;
+    }
+
+    .campus-map .rumor-board__list {
+        gap: 8px;
+    }
+
+    .campus-map .rumor-note {
+        padding: 8px 10px;
+    }
+
     .campus-map__grid {
         grid-template-columns: 1fr;
     }
@@ -2407,16 +2454,44 @@ body.bg-light .game-hud {
     .campus-map__dungeon-hook {
         flex-direction: column;
         align-items: flex-start;
+        margin-bottom: 24px;
     }
 
     .campus-node__marker span {
-        height: 36px;
-        width: 36px;
-        font-size: 1.1rem;
+        height: 32px;
+        width: 32px;
+        font-size: 1rem;
+    }
+
+    .campus-node {
+        padding: 12px;
+    }
+
+    .campus-node__marker {
+        margin-bottom: 6px;
+    }
+
+    .campus-node__name {
+        font-size: 1rem;
+    }
+
+    .campus-node__vibe {
+        line-height: 1.35;
+        margin-bottom: 6px;
+    }
+
+    .campus-node__explore,
+    .campus-node__cost {
+        margin-bottom: 8px;
+    }
+
+    .campus-node__go {
+        font-size: 0.84rem;
+        padding: 7px 14px;
     }
 
     .vn-stage {
-        padding: 16px 16px 96px;
+        padding: 16px 16px calc(168px + env(safe-area-inset-bottom, 0px));
         align-items: flex-start;
     }
 
@@ -2483,6 +2558,7 @@ body.bg-light .game-hud {
 
     .vn-result__actions {
         flex-direction: column;
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
     }
 
     .vn-result__actions .sticky-note__btn {
@@ -2491,6 +2567,11 @@ body.bg-light .game-hud {
 
     .explore-page__grid {
         grid-template-columns: 1fr;
+        margin-bottom: 36px;
+    }
+
+    .explore-page__nav {
+        padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
     }
 
     .explore-card__marker span {
@@ -3442,6 +3523,64 @@ body.bg-light .game-hud {
     color: #a5b4fc;
 }
 
+.semester-growth-portrait {
+    border: 1px solid rgba(103, 232, 249, 0.18);
+    border-radius: 8px;
+    background:
+        linear-gradient(135deg, rgba(45, 212, 191, 0.08), rgba(15, 23, 42, 0.42)),
+        rgba(255, 255, 255, 0.05);
+    margin: 0 auto 20px;
+    max-width: 720px;
+    padding: 16px;
+    text-align: left;
+}
+
+.semester-growth-portrait__label {
+    color: #67e8f9;
+    font-size: 0.76rem;
+    font-weight: 800;
+    margin: 0 0 6px;
+}
+
+.semester-growth-portrait h2 {
+    color: #f8fafc;
+    font-size: 1.2rem;
+    margin: 0 0 8px;
+}
+
+.semester-growth-portrait__desc {
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.9rem;
+    line-height: 1.65;
+    margin: 0 0 12px;
+}
+
+.semester-growth-portrait__facts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.semester-growth-portrait__facts div {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.42);
+    padding: 10px;
+}
+
+.semester-growth-portrait__facts span {
+    color: rgba(255, 255, 255, 0.56);
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.semester-growth-portrait__facts strong {
+    color: #f8fafc;
+    font-size: 0.88rem;
+}
+
 .semester-report__actions {
     display: flex;
     justify-content: center;
@@ -3543,6 +3682,14 @@ body.bg-light .game-hud {
 
     .semester-report__attrs {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .semester-growth-portrait {
+        padding: 14px;
+    }
+
+    .semester-growth-portrait__facts {
+        grid-template-columns: 1fr;
     }
 
     .memory-gallery__grid {
@@ -4065,6 +4212,246 @@ body.bg-light .game-hud {
     color: #fbbf24;
 }
 
+/* ----- 本周影响回放 ----- */
+
+.week-summary-impact__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.week-summary-impact__item {
+    background: rgba(15, 23, 42, 0.36);
+    border: 1px solid rgba(45, 212, 191, 0.18);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.week-summary-impact__main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.week-summary-impact__type {
+    flex: 0 0 auto;
+    border: 1px solid rgba(251, 191, 36, 0.28);
+    border-radius: 999px;
+    color: #fbbf24;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    text-transform: uppercase;
+}
+
+.week-summary-impact__name {
+    color: #f8fafc;
+    font-size: 0.86rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.week-summary-impact__desc {
+    color: #cbd5e1;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    margin: 7px 0 0;
+    overflow-wrap: anywhere;
+}
+
+.week-summary-impact__change {
+    color: #67e8f9;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 7px 0 0;
+}
+
+/* ----- 历史周报 ----- */
+
+.week-history-page {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+.week-history-hero {
+    background:
+        linear-gradient(135deg, rgba(45, 212, 191, 0.1), rgba(251, 191, 36, 0.08)),
+        rgba(15, 23, 42, 0.58);
+}
+
+.semester-archive {
+    background:
+        linear-gradient(135deg, rgba(45, 212, 191, 0.1), rgba(168, 85, 247, 0.08)),
+        rgba(15, 23, 42, 0.64);
+}
+
+.semester-archive__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.semester-archive__eyebrow {
+    color: #67e8f9;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0;
+    margin: 0 0 4px;
+}
+
+.semester-archive__title {
+    color: #f8fafc;
+    font-size: 1.35rem;
+    margin: 0;
+}
+
+.semester-archive__source {
+    flex: 0 0 auto;
+    border: 1px solid rgba(251, 191, 36, 0.25);
+    border-radius: 999px;
+    color: #fde68a;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 4px 10px;
+}
+
+.semester-archive__desc {
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.65;
+    margin: 0 0 14px;
+}
+
+.semester-archive__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.semester-archive__stat {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.07);
+    padding: 10px;
+}
+
+.semester-archive__stat span,
+.semester-archive__snapshot span,
+.semester-archive__highlight span {
+    display: block;
+    color: rgba(255, 255, 255, 0.58);
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.semester-archive__stat strong {
+    color: #fff;
+    font-size: 1.25rem;
+}
+
+.semester-archive__stat--positive strong {
+    color: #86efac;
+}
+
+.semester-archive__stat--neutral strong {
+    color: #93c5fd;
+}
+
+.semester-archive__stat--negative strong {
+    color: #fca5a5;
+}
+
+.semester-archive__snapshot {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.semester-archive__snapshot div {
+    border-left: 2px solid rgba(103, 232, 249, 0.44);
+    background: rgba(15, 23, 42, 0.42);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.semester-archive__snapshot strong {
+    color: #f8fafc;
+    font-size: 0.92rem;
+}
+
+.semester-archive__highlights {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.semester-archive__highlight {
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.055);
+    padding: 10px;
+}
+
+.semester-archive__highlight strong {
+    color: #f8fafc;
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.semester-archive__highlight p {
+    color: rgba(255, 255, 255, 0.68);
+    font-size: 0.8rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.week-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.week-history-week {
+    margin-bottom: 0;
+}
+
+.week-history-week__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.week-history-week__head .week-summary-card__title {
+    margin-bottom: 0;
+}
+
+.week-history-week__count {
+    flex: 0 0 auto;
+    border: 1px solid rgba(103, 232, 249, 0.24);
+    border-radius: 999px;
+    color: #67e8f9;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 8px;
+}
+
+.week-history-empty {
+    background:
+        linear-gradient(135deg, rgba(148, 163, 184, 0.08), rgba(15, 23, 42, 0.56)),
+        rgba(15, 23, 42, 0.44);
+}
+
+.week-history-actions {
+    margin-top: 18px;
+}
+
 /* ----- NPC / 熟人 / 成就 ----- */
 
 .week-summary-memory__count {
@@ -4124,7 +4511,7 @@ body.bg-light .game-hud {
     display: flex;
     gap: 12px;
     margin-top: 24px;
-    padding-bottom: 96px; /* mobile Dock 留白 */
+    padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); /* mobile Dock 留白 */
 }
 
 .week-summary-actions__advance {
@@ -4187,6 +4574,34 @@ body.bg-light .game-hud {
 
     .week-summary-actions__advance {
         text-align: center;
+    }
+
+    .week-history-week__head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .week-history-week__count {
+        width: fit-content;
+    }
+
+    .semester-archive__head {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .semester-archive__source {
+        width: fit-content;
+    }
+
+    .semester-archive__stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .semester-archive__snapshot,
+    .semester-archive__highlights {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -4284,6 +4699,90 @@ body.bg-light .game-hud {
     font-size: 0.82rem;
 }
 
+.npc-relation-note {
+    margin-top: 12px;
+    display: grid;
+    gap: 7px;
+}
+
+.npc-relation-note__bar {
+    overflow: hidden;
+    width: min(100%, 340px);
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.13);
+}
+
+.npc-relation-note__bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #38bdf8, #facc15);
+}
+
+.npc-relation-note__desc,
+.npc-relation-note__hint {
+    max-width: 54ch;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 0.9rem;
+    line-height: 1.55;
+}
+
+.npc-relation-note__hint {
+    color: rgba(250, 204, 21, 0.88);
+}
+
+.npc-result-relation {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(125, 211, 252, 0.2);
+}
+
+.npc-result-relation p {
+    margin: 8px 0 0;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.92rem;
+}
+
+.npc-story-feedback {
+    margin: 14px 0;
+    padding: 14px;
+    border-radius: 8px;
+    background: rgba(250, 204, 21, 0.11);
+    border: 1px solid rgba(250, 204, 21, 0.22);
+}
+
+.npc-story-feedback__eyebrow {
+    margin: 0 0 4px;
+    color: rgba(250, 204, 21, 0.9);
+    font-size: 0.78rem;
+}
+
+.npc-story-feedback h2 {
+    margin: 0 0 6px;
+    color: #fff;
+    font-size: 1.05rem;
+}
+
+.npc-story-feedback p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    line-height: 1.55;
+}
+
+.npc-story-feedback__tag {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 0.8rem;
+}
+
 .npc-actions-panel__header {
     display: flex;
     align-items: center;
@@ -4335,12 +4834,17 @@ body.bg-light .game-hud {
 @media (max-width: 640px) {
     .npc-page {
         width: min(100% - 20px, 560px);
-        padding-bottom: 128px;
+        padding-bottom: calc(152px + env(safe-area-inset-bottom, 0px));
     }
 
-    .npc-profile-card,
-    .npc-interaction-card {
+    .npc-profile-card {
         grid-template-columns: 1fr;
+    }
+
+    .npc-interaction-card {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 10px;
     }
 
     .npc-actions-panel__header {
@@ -4353,6 +4857,15 @@ body.bg-light .game-hud {
         height: 72px;
         font-size: 2rem;
     }
+
+    .npc-interaction-card form {
+        justify-self: end;
+    }
+
+    .npc-actions-panel > .vn-result__actions {
+        margin-top: 72px;
+        padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+    }
 }
 
 /* ========== 影响来源面板 ========== */
@@ -4362,14 +4875,17 @@ body.bg-light .game-hud {
     padding: 14px;
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(15, 23, 42, 0.7);
+    background:
+        linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(15, 23, 42, 0.72)),
+        rgba(15, 23, 42, 0.7);
 }
 
 .influence-panel__title,
 .story-progress-card__eyebrow {
     margin: 0 0 10px;
-    color: rgba(255, 255, 255, 0.74);
+    color: #fde68a;
     font-size: 0.86rem;
+    font-weight: 700;
 }
 
 .influence-panel__list {
@@ -4379,20 +4895,26 @@ body.bg-light .game-hud {
 
 .influence-chip {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: minmax(72px, auto) 1fr;
     gap: 10px;
     align-items: start;
     padding: 10px;
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.075);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .influence-chip__type {
+    display: inline-flex;
+    justify-content: center;
+    width: fit-content;
     padding: 3px 8px;
     border-radius: 999px;
-    background: rgba(34, 197, 94, 0.18);
-    color: #bbf7d0;
+    background: rgba(251, 191, 36, 0.16);
+    color: #fde68a;
     font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
 }
 
 .influence-chip__body strong,
@@ -4404,6 +4926,7 @@ body.bg-light .game-hud {
 .story-progress-card p {
     margin: 4px 0 0;
     color: rgba(255, 255, 255, 0.72);
+    line-height: 1.55;
 }
 
 .story-progress-card__done {
@@ -4418,12 +4941,29 @@ body.bg-light .game-hud {
 /* 传闻标记 */
 .explore-card__badge--rumor,
 .campus-node__badge--rumor {
-    display: inline-block;
-    padding: 2px 8px;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 2px 7px;
     border-radius: 999px;
-    background: rgba(251, 191, 36, 0.18);
+    background: rgba(251, 191, 36, 0.14);
     color: #fde68a;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.35;
     margin-left: 6px;
     vertical-align: middle;
+}
+
+@media (max-width: 576px) {
+    .influence-chip {
+        grid-template-columns: 1fr;
+        gap: 7px;
+    }
+
+    .explore-card__badge--rumor,
+    .campus-node__badge--rumor {
+        margin-left: 0;
+        margin-top: 6px;
+    }
 }
