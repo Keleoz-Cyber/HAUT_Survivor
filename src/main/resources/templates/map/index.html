@@ -51,6 +51,38 @@
     <!-- 信息提示 -->
     <div th:if="${message}" class="campus-map__msg" th:text="${message}">提示</div>
 
+    <!-- ========== 莲花街校区真实地图 ========== -->
+    <section class="campus-map-photo" th:if="${!semesterOver}">
+        <div class="campus-map-photo__header">
+            <p class="campus-map-photo__eyebrow">真实校区图</p>
+            <h2 class="campus-map-photo__title">莲花街校区一览</h2>
+        </div>
+        <div class="campus-map-photo__frame" aria-label="莲花街校区真实地图">
+            <img src="/images/lianhuajie-campus-map.jpeg"
+                 alt="河南工业大学莲花街校区地图"
+                 class="campus-map-photo__image">
+
+            <a th:if="${profile.actionPoints > 0}"
+               th:each="hotspot : ${campusMapHotspots}"
+               class="campus-map-hotspot"
+               th:href="@{/map/location/{id}/event(id=${hotspot.locationId})}"
+               th:style="|--hotspot-x:${hotspot.x}%;--hotspot-y:${hotspot.y}%;|"
+               th:attr="aria-label=|前往${hotspot.label}|">
+                <span class="campus-map-hotspot__dot"></span>
+                <span class="campus-map-hotspot__label" th:text="${hotspot.shortLabel}">地点</span>
+            </a>
+
+            <span th:if="${profile.actionPoints == 0}"
+                  th:each="hotspot : ${campusMapHotspots}"
+                  class="campus-map-hotspot campus-map-hotspot--disabled"
+                  th:style="|--hotspot-x:${hotspot.x}%;--hotspot-y:${hotspot.y}%;|"
+                  th:attr="aria-label=|行动点不足，无法前往${hotspot.label}|">
+                <span class="campus-map-hotspot__dot"></span>
+                <span class="campus-map-hotspot__label" th:text="${hotspot.shortLabel}">地点</span>
+            </span>
+        </div>
+    </section>
+
     <!-- ========== 校园节点地图 ========== -->
     <section class="campus-map__grid" th:if="${!semesterOver}">
         <article class="campus-node"

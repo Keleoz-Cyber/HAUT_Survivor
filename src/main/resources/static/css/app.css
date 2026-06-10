@@ -1496,6 +1496,99 @@ body.bg-light .game-hud {
     margin-bottom: 16px;
 }
 
+/* ========== 莲花街校区真实地图 ========== */
+
+.campus-map-photo {
+    background: rgba(15, 23, 42, 0.78);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    border-radius: 12px;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+.campus-map-photo__header {
+    align-items: baseline;
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+}
+
+.campus-map-photo__eyebrow {
+    color: #86efac;
+    font-size: 0.76rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.campus-map-photo__title {
+    color: #f8fafc;
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.campus-map-photo__frame {
+    aspect-ratio: 1267 / 679;
+    background: #0f172a;
+    overflow: hidden;
+    position: relative;
+}
+
+.campus-map-photo__image {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+.campus-map-hotspot {
+    align-items: center;
+    background: rgba(15, 23, 42, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 999px;
+    color: #f8fafc;
+    display: inline-flex;
+    gap: 5px;
+    left: var(--hotspot-x);
+    max-width: 92px;
+    padding: 4px 8px 4px 5px;
+    position: absolute;
+    text-decoration: none;
+    top: var(--hotspot-y);
+    transform: translate(-50%, -50%);
+    transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+    white-space: nowrap;
+}
+
+.campus-map-hotspot:hover {
+    background: rgba(22, 163, 74, 0.92);
+    box-shadow: 0 8px 22px rgba(2, 6, 23, 0.35);
+    color: #ffffff;
+    transform: translate(-50%, -50%) scale(1.04);
+}
+
+.campus-map-hotspot__dot {
+    background: #fbbf24;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    flex: 0 0 auto;
+    height: 12px;
+    width: 12px;
+}
+
+.campus-map-hotspot__label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.campus-map-hotspot--disabled {
+    opacity: 0.58;
+}
+
 /* 校园节点网格 */
 .campus-map__grid {
     display: grid;
@@ -2410,6 +2503,37 @@ body.bg-light .game-hud {
     .campus-map {
         padding-bottom: calc(192px + env(safe-area-inset-bottom, 0px));
         padding-top: 20px;
+    }
+
+    .campus-map-photo {
+        margin-bottom: 14px;
+    }
+
+    .campus-map-photo__header {
+        padding: 10px 12px 8px;
+    }
+
+    .campus-map-photo__title {
+        font-size: 0.92rem;
+    }
+
+    .campus-map-photo__frame {
+        aspect-ratio: 1267 / 679;
+    }
+
+    .campus-map-hotspot {
+        gap: 3px;
+        max-width: 58px;
+        padding: 3px 5px 3px 4px;
+    }
+
+    .campus-map-hotspot__dot {
+        height: 9px;
+        width: 9px;
+    }
+
+    .campus-map-hotspot__label {
+        font-size: 0.62rem;
     }
 
     .campus-map__back {

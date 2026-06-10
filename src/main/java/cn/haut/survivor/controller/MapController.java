@@ -31,6 +31,9 @@ import java.util.stream.Collectors;
 @Controller
 public class MapController {
 
+    public record CampusMapHotspot(Long locationId, String label, String shortLabel, int x, int y) {
+    }
+
     private final EventService eventService;
     private final PlayerService playerService;
     private final ExplorationService explorationService;
@@ -72,6 +75,7 @@ public class MapController {
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("exploreLevels", exploreLevels);
+        model.addAttribute("campusMapHotspots", buildCampusMapHotspots());
         model.addAttribute("statusLines", buildStatusLines(profile, attribute));
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
@@ -164,6 +168,7 @@ public class MapController {
         model.addAttribute("profile", profile);
         model.addAttribute("attribute", attribute);
         model.addAttribute("exploreLevels", buildExploreLevelMap(userId));
+        model.addAttribute("campusMapHotspots", buildCampusMapHotspots());
         model.addAttribute("statusLines", buildStatusLines(profile, attribute));
         model.addAttribute("semesterOver", semesterOver);
         return "map/index";
@@ -176,6 +181,19 @@ public class MapController {
             exploreLevels.put(e.getLocationId(), e.getExploreLevel());
         }
         return exploreLevels;
+    }
+
+    private List<CampusMapHotspot> buildCampusMapHotspots() {
+        return List.of(
+                new CampusMapHotspot(1L, "教学楼群", "教学", 75, 66),
+                new CampusMapHotspot(2L, "图书馆", "图书馆", 55, 51),
+                new CampusMapHotspot(3L, "宿舍区", "宿舍", 62, 18),
+                new CampusMapHotspot(4L, "食堂", "食堂", 35, 43),
+                new CampusMapHotspot(5L, "操场", "操场", 31, 16),
+                new CampusMapHotspot(6L, "实验楼", "实验", 50, 69),
+                new CampusMapHotspot(7L, "社团区", "社团", 68, 35),
+                new CampusMapHotspot(8L, "快递站", "快递", 39, 65)
+        );
     }
 
     private CampusLocation findLocation(Long locationId) {

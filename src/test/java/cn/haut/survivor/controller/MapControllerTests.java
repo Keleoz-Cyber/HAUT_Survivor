@@ -14,6 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -111,5 +113,30 @@ class MapControllerTests {
 
         PlayerProfile after = playerService.findProfileByUserId(2L);
         assertThat(after.getActionPoints()).isEqualTo(apBefore - 1);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void mapPageProvidesRealCampusMapHotspots() throws Exception {
+        var result = mockMvc.perform(get("/map")
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
+                        .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("map/index"))
+                .andExpect(model().attributeExists("campusMapHotspots"))
+                .andReturn();
+
+        List<MapController.CampusMapHotspot> hotspots =
+                (List<MapController.CampusMapHotspot>) result.getModelAndView()
+                        .getModel()
+                        .get("campusMapHotspots");
+
+        assertThat(hotspots).hasSize(8);
+        assertThat(hotspots).extracting(MapController.CampusMapHotspot::locationId)
+                .containsExactly(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L);
+        assertThat(hotspots).extracting(MapController.CampusMapHotspot::label)
+                .containsExactly("教学楼群", "图书馆", "宿舍区", "食堂", "操场", "实验楼", "社团区", "快递站");
+        assertThat(hotspots).allMatch(hotspot -> hotspot.x() >= 0 && hotspot.x() <= 100);
+        assertThat(hotspots).allMatch(hotspot -> hotspot.y() >= 0 && hotspot.y() <= 100);
     }
 }
