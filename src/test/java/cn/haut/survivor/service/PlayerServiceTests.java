@@ -104,41 +104,44 @@ class PlayerServiceTests {
 
     @Test
     void advanceWeekUpdatesSemesterPhase() {
-        playerService.advanceWeek(2L); // week 2 → early
-        playerService.advanceWeek(2L); // week 3 → mid
+        for (int i = 0; i < 5; i++) {
+            playerService.advanceWeek(2L);
+        }
 
         PlayerProfile profile = playerService.findProfileByUserId(2L);
-        assertThat(profile.getCurrentWeek()).isEqualTo(3);
+        assertThat(profile.getCurrentWeek()).isEqualTo(6);
         assertThat(profile.getSemesterPhase()).isEqualTo("mid");
     }
 
     @Test
     void advanceToFinalPhase() {
-        playerService.advanceWeek(2L); // week 2
-        playerService.advanceWeek(2L); // week 3
-        playerService.advanceWeek(2L); // week 4
+        for (int i = 0; i < 11; i++) {
+            playerService.advanceWeek(2L);
+        }
 
         PlayerProfile profile = playerService.findProfileByUserId(2L);
-        assertThat(profile.getCurrentWeek()).isEqualTo(4);
+        assertThat(profile.getCurrentWeek()).isEqualTo(12);
         assertThat(profile.getSemesterPhase()).isEqualTo("final");
     }
 
     @Test
-    void semesterEndsAfterFourWeeks() {
-        playerService.advanceWeek(2L); // week 2
-        playerService.advanceWeek(2L); // week 3
-        playerService.advanceWeek(2L); // week 4
-        playerService.advanceWeek(2L); // week 5 → over
+    void semesterEndsAfterSixteenWeeks() {
+        for (int i = 0; i < 15; i++) {
+            playerService.advanceWeek(2L);
+        }
+        assertThat(playerService.findProfileByUserId(2L).getCurrentWeek()).isEqualTo(16);
+        assertThat(playerService.isSemesterOver(2L)).isFalse();
 
+        playerService.advanceWeek(2L);
+
+        assertThat(playerService.findProfileByUserId(2L).getCurrentWeek()).isEqualTo(17);
         assertThat(playerService.isSemesterOver(2L)).isTrue();
         assertThat(playerService.getWeekPhaseLabel(playerService.findProfileByUserId(2L))).contains("学期结束");
     }
 
     @Test
     void cannotAdvanceAfterSemesterEnds() {
-        for (int i = 0; i < 4; i++) {
-            playerService.advanceWeek(2L);
-        }
+        advanceToSemesterEnd();
         assertThatThrownBy(() -> playerService.advanceWeek(2L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("学期已结束");
@@ -146,9 +149,7 @@ class PlayerServiceTests {
 
     @Test
     void cannotActAfterSemesterEnds() {
-        for (int i = 0; i < 4; i++) {
-            playerService.advanceWeek(2L);
-        }
+        advanceToSemesterEnd();
         assertThatThrownBy(() -> playerService.consumeActionPoint(2L))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("学期已结束");
@@ -168,22 +169,18 @@ class PlayerServiceTests {
     @Test
     void weekPhaseLabelShowsCorrectPhase() {
         PlayerProfile profile = playerService.findProfileByUserId(2L);
-        assertThat(playerService.getWeekPhaseLabel(profile)).contains("第 1 周").contains("开学适应期");
+        assertThat(playerService.getWeekPhaseLabel(profile))
+                .contains("第 1 周")
+                .contains("开学适应")
+                .contains("共 16 周");
     }
 
     // ==================== 重开学期保留历史结局测试 ====================
 
     @Test
     void resetSemesterPreservesHistoryEndings() {
-        // 推进到学期结束
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
+        advanceToSemesterEnd();
 
-        // 结算（需要 SemesterEndingService，通过 context 获取）
-        // 我们不能直接注入 SemesterEndingService，但可以验证 semesterNumber 递增
-        // 这里验证 resetSemester 后 semesterNumber 递增
         assertThat(playerService.isSemesterOver(2L)).isTrue();
 
         playerService.resetSemester(2L);
@@ -197,13 +194,8 @@ class PlayerServiceTests {
 
     @Test
     void resetSemesterResetsAttributes() {
-        // 消耗一些行动点和改变状态
         playerService.consumeActionPoint(2L);
         playerService.consumeActionPoint(2L);
-
-        // 推进到学期结束
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
         playerService.advanceWeek(2L);
 
         playerService.resetSemester(2L);
@@ -217,11 +209,7 @@ class PlayerServiceTests {
 
     @Test
     void resetSemesterClearsDungeonRecords() {
-        // 推进到学期结束
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
+        advanceToSemesterEnd();
 
         playerService.resetSemester(2L);
 
@@ -229,5 +217,11 @@ class PlayerServiceTests {
         PlayerProfile profile = playerService.findProfileByUserId(2L);
         assertThat(profile.getCurrentWeek()).isEqualTo(1);
         assertThat(profile.getSemesterNumber()).isEqualTo(2);
+    }
+
+    private void advanceToSemesterEnd() {
+        for (int i = 0; i < 16; i++) {
+            playerService.advanceWeek(2L);
+        }
     }
 }

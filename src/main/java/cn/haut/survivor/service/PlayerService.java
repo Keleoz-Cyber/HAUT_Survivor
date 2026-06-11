@@ -19,7 +19,7 @@ public interface PlayerService {
     /** 结束当前周，推进到下一周，恢复行动点，执行周结算。 */
     PlayerProfile advanceWeek(Long userId);
 
-    /** 检查学期是否结束（Demo 版 4 周）。 */
+    /** 检查学期是否结束。 */
     boolean isSemesterOver(Long userId);
 
     /** 获取学期阶段描述。 */

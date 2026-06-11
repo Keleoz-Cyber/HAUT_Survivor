@@ -12,6 +12,7 @@ import cn.haut.survivor.mapper.UserDungeonTaskRecordMapper;
 import cn.haut.survivor.mapper.UserLocationExplorationMapper;
 import cn.haut.survivor.mapper.UserOrganizationMapper;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.WeeklyGoalService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
@@ -24,9 +25,6 @@ import java.util.List;
 @Service
 public class PlayerServiceImpl implements PlayerService {
 
-    /** Demo 版学期总周数 */
-    private static final int MAX_SEMESTER_WEEKS = 4;
-
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerAttributeMapper playerAttributeMapper;
     private final UserLocationExplorationMapper explorationMapper;
@@ -34,6 +32,7 @@ public class PlayerServiceImpl implements PlayerService {
     private final UserDungeonRecordMapper userDungeonRecordMapper;
     private final UserDungeonTaskRecordMapper userDungeonTaskRecordMapper;
     private final WeeklyGoalService weeklyGoalService;
+    private final SemesterCalendarService semesterCalendarService;
 
     public PlayerServiceImpl(PlayerProfileMapper playerProfileMapper,
                              PlayerAttributeMapper playerAttributeMapper,
@@ -41,7 +40,8 @@ public class PlayerServiceImpl implements PlayerService {
                              UserOrganizationMapper userOrganizationMapper,
                              UserDungeonRecordMapper userDungeonRecordMapper,
                              UserDungeonTaskRecordMapper userDungeonTaskRecordMapper,
-                             WeeklyGoalService weeklyGoalService) {
+                             WeeklyGoalService weeklyGoalService,
+                             SemesterCalendarService semesterCalendarService) {
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.explorationMapper = explorationMapper;
@@ -49,6 +49,7 @@ public class PlayerServiceImpl implements PlayerService {
         this.userDungeonRecordMapper = userDungeonRecordMapper;
         this.userDungeonTaskRecordMapper = userDungeonTaskRecordMapper;
         this.weeklyGoalService = weeklyGoalService;
+        this.semesterCalendarService = semesterCalendarService;
     }
 
     @Override
@@ -70,9 +71,9 @@ public class PlayerServiceImpl implements PlayerService {
         profile.setLevel(1);
         profile.setExp(0);
         profile.setCurrentWeek(1);
-        profile.setActionPoints(4);
-        profile.setMaxActionPoints(4);
-        profile.setSemesterPhase("early");
+        profile.setActionPoints(semesterCalendarService.weeklyActionPoints());
+        profile.setMaxActionPoints(semesterCalendarService.weeklyActionPoints());
+        profile.setSemesterPhase(semesterCalendarService.legacySemesterPhaseForWeek(1));
         profile.setCurrentTitle("新生求生者");
         profile.setCreateTime(LocalDateTime.now());
         playerProfileMapper.insert(profile);
@@ -142,13 +143,7 @@ public class PlayerServiceImpl implements PlayerService {
         profile.setActionPoints(profile.getMaxActionPoints());
 
         // 更新学期阶段
-        if (nextWeek <= 2) {
-            profile.setSemesterPhase("early");
-        } else if (nextWeek <= 3) {
-            profile.setSemesterPhase("mid");
-        } else {
-            profile.setSemesterPhase("final");
-        }
+        profile.setSemesterPhase(semesterCalendarService.legacySemesterPhaseForWeek(nextWeek));
 
         // 周结算：压力过高扣健康
         PlayerAttribute attribute = findAttributeByUserId(userId);
@@ -172,21 +167,13 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public boolean isSemesterOver(Long userId) {
         PlayerProfile profile = findProfileByUserId(userId);
-        return profile != null && profile.getCurrentWeek() > MAX_SEMESTER_WEEKS;
+        return profile != null && semesterCalendarService.isSemesterOver(profile.getCurrentWeek());
     }
 
     @Override
     public String getWeekPhaseLabel(PlayerProfile profile) {
         if (profile == null) return "";
-        int week = profile.getCurrentWeek();
-        if (week > MAX_SEMESTER_WEEKS) return "学期结束";
-        String phase = switch (profile.getSemesterPhase()) {
-            case "early" -> "开学适应期";
-            case "mid" -> "期中节奏期";
-            case "final" -> "DDL 高压期";
-            default -> "学期中";
-        };
-        return "第 " + week + " 周 · " + phase + "（共 " + MAX_SEMESTER_WEEKS + " 周）";
+        return semesterCalendarService.weekPhaseLabel(profile.getCurrentWeek());
     }
 
     private PlayerProfile requireProfile(Long userId) {
@@ -253,9 +240,9 @@ public class PlayerServiceImpl implements PlayerService {
         // 重置 profile，学期号 +1
         int nextSemester = profile.getSemesterNumber() == null ? 2 : profile.getSemesterNumber() + 1;
         profile.setCurrentWeek(1);
-        profile.setActionPoints(4);
-        profile.setMaxActionPoints(4);
-        profile.setSemesterPhase("early");
+        profile.setActionPoints(semesterCalendarService.weeklyActionPoints());
+        profile.setMaxActionPoints(semesterCalendarService.weeklyActionPoints());
+        profile.setSemesterPhase(semesterCalendarService.legacySemesterPhaseForWeek(1));
         profile.setSemesterNumber(nextSemester);
         playerProfileMapper.updateById(profile);
 

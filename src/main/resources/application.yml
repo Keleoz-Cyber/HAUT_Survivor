@@ -16,3 +16,6 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 server:
   port: 8080
+gameplay:
+  semester-weeks: 16
+  weekly-action-points: 4
