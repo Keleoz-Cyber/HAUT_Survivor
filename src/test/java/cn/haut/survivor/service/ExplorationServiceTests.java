@@ -97,11 +97,10 @@ class ExplorationServiceTests {
 
     @Test
     void exploreFailsWhenSemesterOver() {
-        // 推进到学期结束
-        playerService.advanceWeek(2L); // week 2
-        playerService.advanceWeek(2L); // week 3
-        playerService.advanceWeek(2L); // week 4
-        playerService.advanceWeek(2L); // week 5 → over
+        // 推进到学期结束（16 周）
+        for (int i = 0; i < 16; i++) {
+            playerService.advanceWeek(2L);
+        }
 
         assertThatThrownBy(() -> explorationService.explore(2L, 1L))
                 .isInstanceOf(IllegalArgumentException.class)

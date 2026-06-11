@@ -55,9 +55,8 @@ class SemesterEndingControllerTests {
     }
 
     private void advanceToSemesterEnd() {
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
-        playerService.advanceWeek(2L);
+        for (int i = 0; i < 16; i++) {
+            playerService.advanceWeek(2L);
+        }
     }
 }

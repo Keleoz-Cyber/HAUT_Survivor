@@ -331,9 +331,8 @@ class SemesterEndingServiceTests {
     private cn.haut.survivor.mapper.UserDungeonRecordMapper dungeonRecordMapper;
 
     private void advanceToSemesterEnd() {
-        playerService.advanceWeek(2L); // week 2
-        playerService.advanceWeek(2L); // week 3
-        playerService.advanceWeek(2L); // week 4
-        playerService.advanceWeek(2L); // week 5 → over
+        for (int i = 0; i < 16; i++) {
+            playerService.advanceWeek(2L);
+        }
     }
 }

@@ -15,6 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @Transactional
 @AutoConfigureMockMvc
@@ -74,7 +75,9 @@ class DashboardControllerTests {
                         "weekTheme", "rumors", "knownNpcs",
                         "goalCandidates",
                         "unlockedAchievements", "recentAchievements"))
-                .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()));
+                .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("第 1 周")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("共 16 周")));
     }
 
     @Test

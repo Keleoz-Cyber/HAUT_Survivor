@@ -89,12 +89,12 @@ class WeekSummaryControllerTests {
     void advanceWeekOnLastWeekRedirectsToEnding() throws Exception {
         playerService.createProfile(2L, "最后一周测试", "大一", "计算机类", "就业路线");
 
-        // Advance to week 4 (last week)
-        for (int i = 0; i < 3; i++) {
+        // Advance to week 16 (last week)
+        for (int i = 0; i < 15; i++) {
             playerService.advanceWeek(2L);
         }
 
-        // Now at week 4, advance should go to ending
+        // Now at week 16, advance should go to ending
         mockMvc.perform(post("/week/advance")
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ID, 2L)
                         .sessionAttr(LoginInterceptor.LOGIN_USER_ROLE, "USER"))
@@ -106,8 +106,8 @@ class WeekSummaryControllerTests {
     void semesterOverRedirectsToEnding() throws Exception {
         playerService.createProfile(2L, "学期结束测试", "大一", "计算机类", "就业路线");
 
-        // Advance past week 4
-        for (int i = 0; i < 4; i++) {
+        // Advance past week 16
+        for (int i = 0; i < 16; i++) {
             playerService.advanceWeek(2L);
         }
 
