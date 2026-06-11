@@ -4,15 +4,17 @@
 
 ## 总体状态
 
-HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Demo**，核心循环闭合：
+**Full Game V1 已结项。**
+
+HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器**，核心循环闭合：
 
 ```
-创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
+创建角色 → 探索/行动/组织/NPC/副本 → 周总结 → 推进周次 → 学期结局 → 重开新学期
 ```
 
-333 个测试全绿 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从”基础周回合模拟器”推进到”有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
+16 周单学期、6 阶段、5 条成长路线、80+ 事件、8 个 NPC、8 个组织、4 个副本、12 种结局（含路线评分匹配）。Docker Compose 一键运行已支持。
 
-最近一次全量验证（Route Ending Integration 后）：
+最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
@@ -20,10 +22,31 @@ Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-最近一次稳定化复核（2026-06-11）：
-- HTTP 冒烟覆盖 `/login`、`/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/organizations`、`/npcs/6101`、`/dungeons`、`/ending`，均为 200，无 Whitelabel。
-- 通过 CSS 审查复核 640px 以下移动端断点；本轮未执行 headless 浏览器截图。
-- 仅澄清 `data-v1-stage-fill.sql` 头部注释，未修改 Java、模板、CSS、schema 或 seed 语义。
+## Docker 封装（已完成）
+
+V1 结项新增 Docker Compose 运行支持，不影响本地 Maven 开发：
+
+| 文件 | 说明 |
+|---|---|
+| `Dockerfile` | 多阶段构建：maven:3.9-eclipse-temurin-17 构建，eclipse-temurin:17-jre 运行 |
+| `.dockerignore` | 排除 target、.git、.idea、docs 等 |
+| `docker-compose.yml` | mysql:8.0 + app，MySQL healthcheck + depends_on service_healthy |
+| `application-docker.yml` | Docker 专用 datasource 配置，不覆盖本地配置 |
+
+运行方式：`docker compose up --build`，访问 http://localhost:8080
+
+后台管理范围：仅基础事件管理 CRUD（`/admin/events`），不是完整运营后台。
+
+## 剩余风险
+
+| 风险 | 说明 | 严重度 |
+|---|---|---|
+| 管理后台不完整 | 管理员仅支持事件 CRUD，不支持组织/副本/成就/NPC/传闻管理 | 低 — V1 不以管理后台为交付目标 |
+| Docker 首次启动延迟 | MySQL 容器初始化约 30 秒，app 等待 healthcheck 通过后启动 | 低 — depends_on service_healthy 已处理 |
+| 内容密度可扩展 | 各阶段事件密度不均，midterm/route/project/final 各仅 6 条专属事件 | 低 — 不阻塞 V1 结项，后续 V1.1 可补 |
+| 路线结局评分触发 | 玩家可能从未去过图书馆但 academic 评分 >= 70 就匹配了图书馆常驻民 | 低 — 评分是综合画像，后续可在结局文案中区分触发来源 |
+| survival 评分自然膨胀 | 每周 -5 压力衰减使 survival 维度容易达到 85+，需 health >= 80 双条件 | 低 — 已在 matchRouteEnding 中用双条件防御 |
+| EndingScoreService 重复调用 | settleSemester 和结局页各调用一次 buildScoreReport | 极低 — 结算为低频操作 |
 
 ## 已完成功能
 
@@ -40,10 +63,10 @@ BUILD SUCCESS
 - 等级和经验值
 
 ### 周回合制 ✅
-- 4 周压缩 Demo 学期
+- 16 周单学期（Full Game V1 升级，原 4 周 Demo）
 - 每周 4 行动点，所有行动消耗行动点
 - 周结算：压力自然衰减、健康惩罚、行动点上限调整
-- 学期阶段标签（开学适应期/期中节奏期/DDL 高压期）
+- 6 阶段标签（开学适应/节奏建立/期中波动/路线分化/项目与DDL/期末与体测），各有专属事件偏向、探索收益和周总结叙事
 
 ### 探索系统 ✅
 - 8 个地点探索度 0-100
@@ -226,7 +249,7 @@ BUILD SUCCESS
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 383, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -266,20 +289,7 @@ BUILD SUCCESS
 
 备注：CP6 收尾已用 Chrome headless + 临时 Playwright 环境检查 1366x768 与 375x812 的 `/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`。所有页面无横向滚动，Dock 未遮挡可交互元素；`/map` 图片加载完成，8 个热点均在地图范围内。缺少角色档案时，组织和副本深链返回 302 到 `/player/create`。
 
-## 剩余风险
-
-| 风险 | 说明 | 严重度 |
-|---|---|---|
-| 随机遇见 NPC 不改属性 | 探索后的随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性 | 低 — 保持遇见轻量，主动互动负责结算 |
-| `event_hint` 依赖事件池分布 | CP4.2 已映射 academic/social/skill/health/money，CP4.7 补充 pressure -> 学习，CP4.3 已保留周主题次级偏向；如果某地点没有对应事件类型，偏好加权不会产生明显命中变化 | 低 — 复用现有事件池，不新增 seed |
-| 周主题玩法影响仍较轻 | CP4.4 覆盖第 2 周组织活动贡献/声望，CP4.5 覆盖第 3 周副本压力 +1，CP6.3 覆盖第 1 周事件/组织/NPC，CP6.4 覆盖第 4 周图书馆/操场探索收益和 physical 副本压力缓冲；所有钩子集中在 `WeeklyThemeService` | 低 — 四个周主题均有明确玩法影响 |
-| `npc_boost` 同时给社交 +1 | CP4.1 为了让 `npc_boost` 在影响来源面板中可感知，额外给社交 +1；语义上应理解为“拼桌/社交机会增加” | 低 — 数值很小，后续可改成纯提示型 influence |
-| 历史周报仍是轻量回放 | `/week/history` 已按周展示影响来源，但暂不支持筛选、统计或对比 | 低 — 当前目标是复盘入口，不做大型分析系统 |
-| 传闻/周主题统计只依赖触发动作 | 周目标记录的是行动触发次数，不保存完整影响历史 | 低 — 当前周目标足够，历史复盘需要额外日志表 |
-| lastMetWeek 更新 | maybeMeetNpc 需要传入 currentWeek，如果调用方忘记传会导致周次不准 | 低 — 接口已强制参数 |
-| 移动端 Dock | CP5 UI 收尾已增加移动端底部安全区留白；极端超长内容或非典型 Android WebView 仍建议实机复核 | 低 — 已用 padding + safe-area 做多层防御 |
-| 管理员页面 | 管理员事件管理仍使用旧 nav，与玩家端 UI 2.0 不一致 | 低 — 管理员非核心体验 |
-| NPC 删除 | 如果 NPC 被从数据库删除，listKnownNpcs 返回的 relation.npc 可能为 null | 低 — 模板已加 null 检查 |
+## 历史风险（V1 结项后保留参考）
 
 ## CP4.8 补充：影响历史日志与周报回放
 
@@ -547,10 +557,12 @@ BUILD SUCCESS
 
 ## 当前文档状态
 
-- CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
-- 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
-- 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 1-5 和 Phase 5 后 Stabilization 已完成；Route Ending Integration 已完成（评分接入结局匹配）；V1 内容补齐告一段落，后续可继续深化具体阶段内容或推进多学期。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 已结项，Docker Compose 一键运行已支持。
+- CP6 莲花街校区内容包与真实地图接入、CP6.1-CP6.4 已完成，对应执行计划稿已保留作为历史追溯。
+- CP5 历史设计稿和实施计划已保留作为历史追溯。
+- 项目方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
+- Full Game V1 Phase 1-5、Stabilization、Route Ending Integration 已全部完成。
+- V1 内容补齐告一段落，后续可继续深化具体阶段内容或推进多学期。
 
 ## 可扩展方向
 

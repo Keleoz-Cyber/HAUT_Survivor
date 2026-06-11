@@ -4,13 +4,17 @@
 
 ## 当前项目状态
 
-HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。核心循环已闭合：
+**Full Game V1 已结项。** Docker Compose 一键运行已支持。
+
+HAUT Survivor 是一个功能完整的周回合制大学生模拟器，核心循环闭合：
 
 ```text
-创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
+创建角色 → 探索/事件/组织/副本/NPC → 周总结 → 推进周次 → 学期结局 → 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成，Phase 5 后稳定化复核已完成，Route Ending Integration（评分接入结局匹配）已完成。
+技术栈：Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL 8 + Thymeleaf + Docker Compose。
+
+16 周单学期、6 阶段、5 条成长路线、80+ 事件、8 个 NPC、8 个组织、4 个副本、12 种结局（含路线评分匹配）。
 
 最近一次全量验证：
 
@@ -20,293 +24,77 @@ Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
-## Full Game V1 Stabilization 已完成
+## V1 结项交付物
 
-Phase 5 后已做一轮收尾复核：`/login`、`/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/organizations`、`/npcs/6101`、`/dungeons`、`/ending` 均为 200，无 Whitelabel。
+Full Game V1 Phase 1-5 全部完成，Phase 5 后 Stabilization 和 Route Ending Integration 已完成，Docker 封装已完成。
 
-复核信号：
-- `/dashboard` 包含 stage-progress、route-tendency、game-dock 和“共 16 周”。
-- `/map` 包含 campus-map。
-- `/ending` 未结算状态显示“学期尚未结束”；结算后的 route-score-card 已由 `SemesterEndingControllerTests` 覆盖。
-- `data-v1-stage-fill.sql` 头部注释已澄清 final 阶段覆盖来源，明确 final 事件由 CP6.4 迁移内容提供。
+| 阶段 | 内容 |
+|---|---|
+| Phase 1 | 16 周单学期骨架、SemesterCalendarService、6 阶段映射 |
+| Phase 2 | 周主题升级与阶段反馈深化、6 阶段专属叙事 |
+| Phase 3 | 路线倾向推导、阶段加权周目标、Dashboard/周总结路线反馈 |
+| Phase 4 | 结局评分升级（EndingScoreService）、5 维评分、路线画像 |
+| Phase 5 | 16 周阶段内容补齐、midterm/route/project/final 四阶段事件/传闻/奇遇链/周目标/成就 |
+| Route Ending Integration | 评分接入结局匹配，过程条件 OR 评分门槛双通道 |
+| Docker 封装 | Dockerfile + docker-compose.yml + application-docker.yml，一键运行 |
 
-本轮无 Java、模板、CSS、schema 或 seed 语义变更。最近一次全量测试仍为 402 个测试全绿。剩余风险：未执行 headless/实机浏览器截图，移动端结论来自 CSS 审查和 HTML 结构检查。
+## V1 结项后续迭代建议
 
-## Full Game V1 Route Ending Integration 已完成
+以下方向可作为 V1.1 或 V2，**当前不需要继续收尾，V1 可结项**：
 
-`SemesterEndingServiceImpl` 注入 `EndingScoreService`，在 `settleSemester(...)` 中构建 `EndingScoreReport` 并传入 `matchRouteEnding(...)`。路线结局匹配从纯过程条件升级为"过程条件 OR 评分门槛"双通道：
+1. **V1.1 NPC 关系线深化**：更多 NPC 专属分支互动、好感度事件、搭子组队加成
+2. **更多路线专属副本**：图书馆席位战争、蓝桥杯突击、实习面试等
+3. **完整管理后台**：组织/结局/副本/成就/NPC/传闻的 CRUD（当前仅有事件管理）
+4. **结局解释文案细化**：区分"过程触发"和"评分触发"路线结局，丰富结局叙事
+5. **更多阶段内容包**：继续补齐各阶段事件密度、路线专属事件
+6. **多学期兼容**：学期间属性继承、成长曲线、跨学期成就
 
-- 课设战神：仍仅由 `dungeon1Evaluation == "课设战神"` 触发（稀缺条件不变）。
-- 实验室编外研究员：`labExplore >= 40 && skill >= 55` 或 `skill dimension >= 70`。
-- 社团风云人物：`orgContribution >= 6 && social >= 65` 或 `social dimension >= 70`。
-- 图书馆常驻民：`libraryExplore >= 40 && academic >= 65` 或 `academic dimension >= 70`。
-- 体测幸存者：`dungeon2Completed` 或 `survival dimension >= 85 && health >= 80`（双条件避免被每周自然减压稀释）。
+## 运行方式
 
-未新增表，未改 schema，未改 ending/index.html，未改 seed，未新增复杂策略类。新增 `getDimensionScore(report, key)` 私有辅助方法。保留现有稀缺硬条件优先级和 fallback 到 `evaluateCondition(...)` 属性匹配。
+### 本地
 
-新增 6 个测试：`highAcademicScoreCanMatchLibraryResidentEnding`、`highSkillScoreCanMatchLabResearcherEnding`、`highSocialScoreCanMatchClubInfluencerEnding`、`highSurvivalScoreCanMatchPhysicalSurvivorEnding`、`courseDesignWarriorStillHasTopPriority`、`noScoreRouteMatchFallsBackToAttributeEnding`。
-
-最近验证：408 个测试全绿。HTTP 冒烟覆盖 `/dashboard`、`/ending`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
-
-## Full Game V1 Phase 5 已完成
-
-新增 `data-v1-stage-fill.sql`，ID 段 7001+，覆盖 midterm（6-8）、route（9-11）、project（12-14）、final（15-16）四个薄弱阶段。旧 CP6.4 种子（事件/传闻/奇遇链）从 week 4 迁移到 week 15-16，匹配 16 周学期中的 final 阶段位置。
-
-新增内容：
-- 事件 18 条（每阶段 6 条，每条 3 选项）：期中考试/复习/实验报告、考研/就业/竞赛/社团/摆烂、课设/小组作业/DDL/论文、Git 合并/服务器宕机等。
-- 传闻 16 条（每阶段 4 条）：覆盖 week 6-16，使用现有 effect_type。
-- 探索奇遇链 3 条（9 步）：期中复习路线、路线分化招聘会、DDL 生存路线。
-- 周目标 6 个：期中复习/期中抗压/路线探索/路线社交/项目副本/技能专注。
-- 成就 6 个：期中幸存者/备考达人/路线抉择者/技能达人/项目终结者/学期老手。
-
-未新增表，未改 schema，未重写 UI，未改 Phase 1-4 机制。新增 `FullGameV1StageFillTests`（19 个测试），修改 `ContentPack6FinalWeekTests`（传闻 week 断言从 4 改为 15）。HTTP 冒烟通过。
-
-## Full Game V1 Phase 4 已完成
-
-新增 `EndingScoreService`，基于 16 周学期经历计算 5 维评分 read model（学业表现/技能成长/社交影响/生存能力/均衡发展）和关键证据。复用 RouteTendencyService 推导路线倾向，收集探索度、组织贡献、NPC 关系数、副本完成数和周目标完成数。评分结果和游戏结算风格证据文案、学期总结通过 `endingScoreReport` model 属性传递给结局页。结局页新增路线评分卡片（route-score-card），展示路线画像、5 维评分条、关键证据和学期总结。未新增表，未新增 seed，未修改结局匹配规则。HTTP 冒烟通过。
-
-## Full Game V1 Phase 3 已完成
-
-新增 `RouteTendencyService`，基于玩家当前属性推导成长路线倾向（academic/social/skill/survival/balanced），chosenRoute 一致性 +10 bonus。`WeeklyGoalServiceImpl.pickCandidateGoals` 改为阶段加权 + 路线加权选择，不再从全量目标池等权哈希抽取。Dashboard 新增路线倾向提示区域。`WeekSummaryView` 新增 routeTendencyName、routeTendencyDesc 字段，周总结页在 route/project/final 阶段显示路线倾向反馈。未新增表，未新增 seed。HTTP 冒烟通过。
-
-## Full Game V1 Phase 2 已完成
-
-`SemesterStage` record 扩展 7 个玩法字段，所有阶段数值集中定义。`WeeklyThemeService` 改为消费 `stage.getXxx()` 读取数值，不再各自硬编码 stageKey 字符串比较。`WeeklyModifierService` 改为消费 `stage.primaryLocationIds().contains(locationId)`，不再硬编码地点 ID。新增 midterm 和 route 阶段探索影响。`WeekSummaryServiceImpl` 为 6 个阶段各写专属叙事文案，`WeekSummaryView` 新增 stageKey、stageSummaryHint、weeksLeftInStage、semesterWeeks 字段。Dashboard 新增学期阶段进度条和阶段剩余周数提示。未新增表，未新增 seed。HTTP 冒烟通过。
-
-## Full Game V1 Phase 1 已完成
-
-新增 `SemesterCalendarService`，统一管理 16 周学期日历、6 阶段映射、阶段文案、事件偏向和核心地点。`PlayerServiceImpl` 不再持有硬编码 4 周，`WeeklyThemeService` 和 `WeeklyModifierService` 均消费 `SemesterCalendarService` 的阶段映射。旧 CP6.3/CP6.4 机制语义已迁移到 16 周阶段：开学适应（1-2）、节奏建立（3-5）、期中波动（6-8）、路线分化（9-11）、项目与 DDL（12-14）、期末与体测（15-16）。Dashboard 和 Ending 页面文案已更新为"这一学期"。HTTP 冒烟通过。
-
-CP5 A/B 第二批补充：已基于 `user_npc_story_progress` 解锁 5 个 NPC 的轻量专属分支互动。分支互动复用现有 `/npcs/{npcId}/interactions/{interactionId}` 结算流程，使用 Java 层虚拟互动定义和 900xxx ID，不新增表；互动仍消耗 AP、受每周同 NPC 一次限制约束，并写入 `user_influence_log` 的 `npc_branch` 来源。
-
-CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复。本轮没有数据库变更、没有新增 seed、没有新增 Java 测试；核心改动集中在移动端安全区留白，覆盖 `game-shell`、`dorm-room`、探索页底部导航、NPC 页面和 NPC 结果页操作区。
-
-最近一次 HTTP 冒烟：2026-06-11，端口 `8080`，登录并创建角色后，`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/organizations`、`/organizations/1`、`/organizations/6001`、`/dungeons`、`/dungeons/1`、`/dungeons/6001`、`/dungeons/1/start`、`/dungeons/6001/start`、`/dungeons/1/play`、`/dungeons/6001/play` 均为 200，无 Whitelabel，且玩家页均包含 `game-dock`。缺少角色档案的组织/副本深链返回 302 到 `/player/create`。
-
-最近一次浏览器视觉复核：2026-06-11，使用 Chrome headless + 临时 Playwright 环境，以 1366x768 与 375x812 检查 `/dashboard`、`/map`、`/exploration`、`/week/summary`、`/organizations`、`/dungeons`。所有页面无横向滚动、Dock 未遮挡可交互元素；`/map` 图片加载完成，8 个热点均在地图范围内。
-
-本地 `main` 当前领先 `origin/main` 多个提交，最近内容包含：
-
-- Content Pack 3：校园搭子与人际关系线
-- Content Pack 4 设计文档与实施计划
-- Content Pack 4：传闻、周主题与探索奇遇机制化
-- NPC 搭子系统、NPC 主动互动、NPC 页面与 Dashboard 熟人入口
-- 机制型传闻、周主题修正、探索奇遇链、探索影响来源展示
-- CP4.1：`npc_boost` 接入 NPC 遇见概率，`event_hint` 接入事件池倾向
-- CP4 视觉复核 + UI 小修：移动端 Dock 留白、“有传闻”标记、“本次影响来源”面板
-- CP4.2：`event_hint` 支持 academic/social/skill/health/money 目标映射
-- CP4.3：`event_hint` 主偏向存在时保留周主题次级事件偏向
-- CP4.4：第 2 周“社团招新周”组织活动贡献/声望额外 +1，并在活动反馈文案中说明来源
-- CP4.5：第 3 周“DDL 高压周”副本阶段结算压力额外 +1，覆盖普通选项和小游戏动态结算
-- CP4.6：高压力探索时，本周搭子有可复现概率触发“搭子救场”，在探索结果中显示并压力 -2
-- CP4.7：`event_hint` 补充 `pressure -> 学习`，周主题事件/组织/副本钩子集中到 `WeeklyThemeService`
-- CP4.8：新增影响历史日志，探索触发的传闻、周主题、搭子/救场和奇遇会进入周总结“本周影响回放”
-- CP4.9：基于 `user_influence_log` 新增 `/week/history` 历史周报，按周倒序回放影响来源
-- CP5 A/B 均衡第一批：NPC 关系阶段、NPC story progress、学期档案摘要和结局成长画像
-- CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
-- CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
-- CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
-- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成；Phase 5 后 Stabilization 已完成；Route Ending Integration 已完成
-
-## 最近完成
-
-Full Game V1 Route Ending Integration：评分接入结局匹配。
-
-已完成：
-
-- `SemesterEndingServiceImpl` 注入 `EndingScoreService`，路线结局匹配升级为"过程条件 OR 评分门槛"双通道。
-- 5 个路线结局各有过程条件和评分门槛两个匹配路径，保留稀缺条件优先级。
-- 体测幸存者评分门槛使用 `survival >= 85 && health >= 80` 双条件，避免被每周自然减压稀释。
-- 新增 6 个测试覆盖评分触发、优先级保持和 fallback 行为。
-- 最近全量测试为 408 个测试全绿。
-
-前置 Full Game V1 Phase 5：16 周阶段内容补齐。
-
-已完成：
-
-- 新增 `src/main/resources/data-v1-stage-fill.sql`，ID 段 7001+，补齐 midterm、route、project、final 四个薄弱阶段内容。
-- 新增 18 条阶段专属事件、54 条事件选项、16 条传闻、3 条探索奇遇链（9 步）、6 个周目标和 6 个成就。
-- CP6.4 旧 final 内容从 week 4 迁移到 week 15-16，匹配 16 周学期中的期末与体测阶段。
-- `application.yml` 已加载 `data-v1-stage-fill.sql`，新增 `FullGameV1StageFillTests` 覆盖 seed 分布和合法性。
-- 最近全量测试为 402 个测试全绿。
-
-前置 CP5 A/B 均衡第一批：关系成长与学期档案。
-
-- 新增 NPC 关系阶段 read model：熟悉度会稳定映射为关系阶段、阶段说明和进度百分比
-- NPC 详情页、Dashboard 熟人列表和 NPC 互动结果页展示关系阶段/关系说明
-- 新增 NPC story progress：主动互动会推进 NPC 个人故事进度，结果页展示阶段反馈
-- 新增 `SemesterArchiveService`，基于 `user_influence_log` 和已知 NPC 关系聚合学期档案摘要
-- `/week/history` 顶部新增“学期档案”，展示成长关键词、影响统计、关键周、关键关系和亮点
-- `/ending` 在学期结算后展示“学期成长画像”
-- 新增/扩展 `SemesterArchiveServiceTests`、`SemesterEndingControllerTests`、`WeekSummaryControllerTests`、NPC 相关服务/控制器测试
-
-CP5 A/B 均衡第二批：NPC 专属分支互动。
-
-- 基于 `user_npc_story_progress` 解锁 5 个 NPC 的轻量专属互动
-- 专属互动复用现有 `/npcs/{npcId}/interactions/{interactionId}` 结算流程，不新增数据库表
-- 专属互动消耗 AP、受每周同 NPC 一次限制约束，并真实修改属性/熟悉度
-- 专属互动写入 `user_influence_log`，source_type 为 `npc_branch`，可进入当前周总结和 `/week/history`
-- 新增 `NpcStoryBranchCatalog` 集中管理 900xxx 虚拟互动 ID，并补充 ID 唯一性/分块规则测试
-
-前置 CP4 已完成内容包括：
-
-- `rumor` 表新增 `effect_type`、`effect_value`、`effect_target`
-- 新增 `exploration_story_chain`：探索奇遇链定义表
-- 新增 `exploration_story_progress`：玩家奇遇进度表
-- 新增 16 条机制型传闻
-- 新增 5 条探索奇遇链，共 13 个阶段
-- 新增 4 个 CP4 周目标：情报猎人、校园奇遇追踪者、顺势而为、搭子救场
-- 新增 5 个 CP4 成就：情报新生、校园目击者、支线清理大师、节奏感选手、有人罩着
-- 新增 `WeeklyModifierService`、`RumorEffectService`、`ExplorationStoryService`
-- 探索结果页展示“本次影响来源”和奇遇链卡片
-- 地图页、探索页对有传闻地点显示“有传闻”标记
-- 周总结会根据本周奇遇进度生成不同评价
-- CP4.1 已补强 `npc_boost` 与 `event_hint`：
-  - `npc_boost` 在探索结果中表现为社交 +1，并提升 NPC 遇见概率
-  - `event_hint` 在探索结果中表现为情报优势，并让地图事件更偏向 `academic_crisis`
-- CP4.2 已扩展 `event_hint`：
-  - `academic -> academic_crisis`
-  - `social -> 社交`
-  - `skill -> 技能`
-  - `health -> 健康`
-  - `money -> 金钱`
-- CP4.3 已组合事件偏向：
-  - `event_hint` 作为主偏向时仍获得 +30 权重
-  - 当前周主题若偏向不同事件类型，继续作为次级偏向获得 +15 权重
-  - 无 `event_hint` 时，周主题保持 +30 权重
-- CP4.4 已补强周主题组织收益：
-  - 第 2 周“社团招新周”参加组织活动时，贡献从 +3 提高到 +4
-  - 声望从 +2 提高到 +3
-  - 属性变化保持原有组织类型结算，活动反馈会提示周主题加成
-- CP4.5 已补强周主题副本风险：
-  - 第 3 周“DDL 高压周”结算副本阶段时，压力变化额外 +1
-  - 覆盖普通选项和数据库拼图/Bug 定位小游戏动态结算
-  - 不改变副本分数、风险旗标、最终评价和页面结构
-- CP4.6 已补强搭子外溢：
-  - 匹配地点的本周搭子稳定小加成保持不变
-  - 玩家压力较高（>= 60）时，探索会基于用户、搭子、地点、周次和探索次数做可复现救场判定
-  - 救场命中后追加 `buddy_rescue` 影响来源，压力 -2，并推进“搭子救场”周目标/成就进度
-- CP4.7 已整合影响系统钩子：
-  - `event_hint` 目标映射补充 `pressure -> 学习`
-  - 周主题事件偏向、组织活动收益加成、副本压力加成集中在 `WeeklyThemeService`
-  - 既有周主题行为保持不变：第 2 周社交/组织加成，第 3 周学习/副本压力，第 4 周健康事件偏向
-- CP4 视觉复核已完成：移动端 Dock 不遮挡目标页面内容，“有传闻”标记和探索结果影响来源面板已做小范围 UI 修正
-
-## CP6 完成细节
-
-CP6 莲花街校区内容包与真实地图接入。
-
-内容包阶段：
-- `src/main/resources/data-content-pack-6.sql` — 5 个组织、8 个事件、6 条传闻、1 个副本（5 阶段）。
-- `src/test/java/cn/haut/survivor/service/ContentPack6Tests.java` — 4 个 seed 验证测试。
-- `application.yml` 已加载 CP6 seed 文件。
-- 修复 `ContentPack1Tests` 组织计数断言（3 → ≥3）。
-
-真实地图接入阶段：
-- 从 `docs/补充信息.docx` 提取地图图片至 `src/main/resources/static/images/lianhuajie-campus-map.jpeg`（1267×679，174KB）。
-- `MapController` 新增 `CampusMapHotspot` record 和 `buildCampusMapHotspots()` 方法，提供 8 个热点坐标。
-- `/map` 页面顶部新增真实地图展示层，热点点击复用 `/map/location/{id}/event` 流程。
-- 原地点卡片未删除，仍作为主要稳定入口。
-- 新增 `MapControllerTests#mapPageProvidesRealCampusMapHotspots` 和 `MapTemplateResourceTests`。
-- 新增桌面端和移动端 CSS（`.campus-map-photo`、`.campus-map-hotspot`）。
-
-最近一次全量验证：
-```text
-.\mvnw.cmd clean test
-Tests run: 313, Failures: 0, Errors: 0, Skipped: 0
-BUILD SUCCESS
+```powershell
+.\mvnw.cmd spring-boot:run
 ```
 
-HTTP 冒烟：`/dashboard`、`/map`、`/map/location/2/event`、`/exploration`、`/exploration/4` POST、`/week/summary`、`/organizations`、`/organizations/1`、`/organizations/6001`、`/dungeons`、`/dungeons/1`、`/dungeons/6001`、`/dungeons/1/start`、`/dungeons/6001/start`、`/dungeons/1/play`、`/dungeons/6001/play` 均为 200，无 Whitelabel。地图图片 `/images/lianhuajie-campus-map.jpeg` 返回 200（174826 bytes）。
+### Docker
 
-CP6 收尾补修：缺少角色档案时，`/organizations/{id}`、组织操作 POST、`/dungeons/{id}`、`/dungeons/{id}/start`、`/dungeons/{id}/play`、副本阶段提交 POST 均会重定向到 `/player/create`，不再打出 500。
+```powershell
+docker compose up --build
+```
 
-CP6.1 NPC 原型接入：
-- 新增 NPC：富少（6101）、小鱼（6102）、柳如烟（6103）。
-- 复用已有 NPC 室友阿杰（1），追加 2 条莲花街普通互动，未新增重复阿杰。
-- 新增普通 NPC 互动 610001-610011（共 11 条），ID 在 610xxx 段，未碰 900xxx 虚拟分支保留段。
-- 新增 `ContentPack6NpcTests`（4 个测试）和 `NpcControllerTests` CP6.1 烟雾测试。
-- 最近全量测试为 313 个测试全绿。
+访问 http://localhost:8080，默认账号 `admin / admin123`、`student / student123`。
 
-CP6.2 莲花街校区地点细分：
-- 事件 10 条（6201-6210），覆盖图书馆、惟学楼、博闻楼营业厅、韶华楼、知味/知雅餐厅。
-- 事件选项 30 条（620101-621003）。
-- 传闻 6 条（6201-6206），使用现有 effect_type。
-- 探索奇遇链 4 条链 12 阶段（6201-6212）：library_floor_trace、weixue_lab_route、bowen_service_window、canteen_peak_shift。
-- 周目标 2 个（6201-6202）、成就 2 个（6201-6202）。
-- 新增 `ContentPack6LocationDetailTests`（4 个测试）。
-- 未修改 UI 文件，未执行浏览器视觉检查。
-- 最近全量测试为 317 个测试全绿。
+## 历史完成记录
 
-CP6.3 开学迎新周机制化：
-- 周主题 hook 仍集中在 `WeeklyThemeService`。
-- 第 1 周事件偏向「生活」；第 2/3/4 周仍保持社交/学习/健康。
-- 组织加入门槛：第 1 周社交要求 40 → 35。
-- NPC 主动互动：第 1 周非搭子互动熟悉度额外 +1，并在结果文案中显示开学适应周反馈。
-- `event_hint` 新增 `life → 生活` 映射。
-- CP6.3 seed 使用 6300 段 ID：事件 6 条、选项 18 条、传闻 4 条、周目标 2 个、成就 2 个。
-- 新增 `ContentPack6OpeningWeekTests`（3 个测试），修改 `WeeklyThemeServiceTests`、`EventServiceTests`、`RumorEffectServiceTests`、`OrganizationServiceTests`、`NpcServiceTests`。
-- 最近全量测试为 324 个测试全绿。
+以下为各阶段完成记录，仅作追溯，不需要重复实现。
 
-## CP6.4 期末与体测周机制化
+### Full Game V1 Route Ending Integration
 
-- 第 4 周核心地点是图书馆（2）和操场（5）。注意：生活服务点/博闻楼营业厅是 8，不是操场。
-- `WeeklyThemeService` 集中提供第 4 周探索属性收益、physical 副本压力缓冲和结果文案后缀。
-- `WeeklyModifierService` 注入 `WeeklyThemeService`，第 4 周关键地点修正为图书馆（2）和操场（5）。
-- `DungeonServiceImpl` 对 `physical` 类型副本在第 4 周提供压力 -1 缓冲，结果文案显示"期末与体测周"后缀。第 3 周 DDL 压力 +1 不受影响。
-- `data-content-pack-6.sql` 追加 6400 段 seed：
-  - 事件 6401-6406，选项 640101-640603。
-  - 传闻 6401-6404。
-  - 探索奇遇链 6401-6406（final_library_review、physical_test_route）。
-  - 副本 6401，阶段 640101-640103，选项 64010101-64010303。
-  - 周目标 6401-6402，成就 6401-6402。
-- 新增 `ContentPack6FinalWeekTests`（5 个测试），扩展 `WeeklyThemeServiceTests`、`WeeklyModifierServiceTests`、`DungeonServiceTests`。
-- 最近全量测试为 333 个测试全绿。
+`SemesterEndingServiceImpl` 注入 `EndingScoreService`，路线结局匹配升级为"过程条件 OR 评分门槛"双通道。新增 6 个测试，408 个测试全绿。
 
-## 当前建议下一步
+### Full Game V1 Phase 5
 
-CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
+新增 `data-v1-stage-fill.sql`，ID 段 7001+，覆盖 midterm、route、project、final 四个薄弱阶段。18 条事件、54 条选项、16 条传闻、3 条奇遇链（9 步）、6 个周目标、6 个成就。
 
-当前优先级：
-1. V1 内容深化（可选）：继续补充各阶段事件密度、路线专属事件、多学期兼容。
-2. 结局评分与路线评分已完成深度结合。
+### Full Game V1 Phase 1-4
 
-注意：Phase 5 已完成 16 周阶段内容补齐，四个薄弱阶段（midterm/route/project/final）各有 6 条专属事件、4 条传闻、1 条奇遇链。
+Phase 1：16 周学期骨架。Phase 2：周主题升级与阶段反馈深化。Phase 3：路线倾向与阶段目标。Phase 4：结局评分升级。
 
-## CP6 交接备注
+### CP4-CP6
 
-设计边界：
-- CP6 第一批只做 seed-heavy 内容包 + 地图图片接入。
-- CP6.1 新增 NPC 原型（富少、小鱼、柳如烟）和莲花街互动。
-- CP6.2 做地点细分事件/传闻/奇遇链。
-- CP6.3 做开学迎新周机制化（事件偏向、组织门槛、NPC 互动）。
-- CP6.4 做期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本种子）。
-- 未扩展地点表结构，未新增数据库表。
-- CP6 第一批未新增 NPC 原型；CP6.1 已新增富少、小鱼、柳如烟，并复用现有 NPC 关系/故事线系统。
-- 信息学院学生会描述已做中性化处理，未直接使用原始负面表述。
+CP4：传闻/周主题/探索奇遇机制化及 CP4.1-CP4.9 小步补强。
+CP5：NPC 关系成长、专属分支互动、学期档案、UI 收尾。
+CP6：莲花街校区内容包、真实地图、NPC 原型、地点细分、开学迎新周、期末体测周。
 
-剩余风险：
-- 热点坐标是按当前图片人工估算的，后续如果替换更高清地图，需要重新微调。
-- 移动端热点标签空间有限，目前以短标签为主。
-- 这不是完整地图系统，没有缩放、拖拽或楼层切换。
-
-CP6 相关剩余项已降级为后续 V1 阶段内的素材或回归检查，不再作为主线下一步。
+详细完成记录见 `docs/PROJECT_COMPLETION_STATUS.md`。
 
 ## 重要约束
 
 - 不要重写整个系统。
-- 继续小步迭代：设计文档 -> 实施计划 -> 测试驱动实现。
-- 前端继续复用 `game-shell`、`game-hud`、`game-dock`、`vn-result`、`sticky-note__btn` 等现有 UI 组件。
-- 数据库变更保持轻量；优先复用已有 `rumor`、`weekly_goal`、`campus_location`、`event`、`user_location_exploration`、`user_npc_relation`、`user_npc_story_progress`、`user_influence_log`、`exploration_story_chain`、`exploration_story_progress`。
-- 每次实现后必须运行 `.\mvnw.cmd clean test`，并做至少 dashboard/map/exploration/week summary 的 HTTP 冒烟。
-
-## 已知风险
-
-- `explore_bonus`、`attr_bonus`、`safe_zone`、`npc_boost`、`event_hint` 均已能影响探索反馈；其中 `event_hint` 已映射 academic/social/skill/health/money/pressure，并会和周主题事件偏向组合，但仍依赖具体地点是否有对应事件类型。
-- 周主题目前影响探索结果、地图事件概率、第 2 周组织活动收益和第 3 周副本压力，相关钩子已集中到 `WeeklyThemeService`；第 1 周已影响事件/组织/NPC，第 4 周已影响图书馆/操场探索收益和 physical 副本压力缓冲。
-- 搭子救场已进入 `user_influence_log`，会在当前周总结和 `/week/history` 历史周报中展示；历史页暂不提供筛选或统计。
-- 学期档案是 Java 层聚合，不是 SQL 报表；如果后续数据量扩大，需要再评估分页或聚合性能。
-- 结局成长画像只展示总结，不修改 `SemesterEndingService` 的结局匹配规则。
-- 随机 NPC 遇见仍只显示倾向提示；主动 NPC 互动已经真实修改属性。
-- CP5 UI 收尾后，移动端 Dock 仍依赖底部 padding 与 `env(safe-area-inset-bottom)` 双保险；极端超长内容或非典型 Android WebView 仍建议实机复核。
-- 若后续继续改页面，仍需做 HTTP 冒烟；有浏览器能力时继续检查 1366x768 与 375x812。
+- 不要把玩家端 UI 改回后台管理风格。
+- 前端继续复用 `game-shell`、`game-hud`、`game-dock`、`vn-result`、`sticky-note__btn` 等现有组件。
+- 数据库变更保持轻量，优先复用已有表。
+- 每次修改后必须运行 `.\mvnw.cmd clean test`。
+- 如果做页面修改，必须做 HTTP 冒烟。
+- 不要删除已有功能、seed 数据或测试，除非能明确证明已废弃。
