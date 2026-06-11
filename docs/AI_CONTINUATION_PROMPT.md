@@ -25,13 +25,10 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 333, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
-  /dashboard、/map、/map/location/2/event、/map/location/5/event、/exploration、/exploration/5 POST、/week/summary、
-  /dungeons、/dungeons/1、/dungeons/6001、/dungeons/6401、
-  /dungeons/1/start、/dungeons/6001/start、/dungeons/6401/start、
-  /dungeons/1/play、/dungeons/6001/play、/dungeons/6401/play。
+  /dashboard（含"第 1 周"、"共 16 周"）、/map、/exploration、/week/summary、/ending、/dungeons、/organizations。
 - CP4.1-CP4.9 已完成：传闻/周主题机制化、探索奇遇链、搭子救场、影响历史日志和历史周报。
 - CP5 A/B 均衡已完成：NPC 关系成长、NPC 剧情进度、NPC 专属分支互动、学期档案和结局成长画像。
 - CP5 UI 收尾已完成：移动端 Dock 遮挡复核和小范围 CSS 修复。
@@ -39,7 +36,8 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - CP6.3 已完成：开学迎新周机制化（事件偏向、组织门槛、NPC 互动）。
 - CP6.4 已完成：期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容）。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1，不再继续以 CP6.x 方式补零散内容。
-- Full Game V1 设计稿和 Phase 1 实施计划已写好；Phase 1 目标是把 4 周 Demo 骨架升级为 16 周单学期 V1 骨架。
+- Full Game V1 Phase 1 已完成：16 周单学期骨架改造，SemesterCalendarService 已上线，所有服务已消费阶段映射。
+- Full Game V1 设计稿和 Phase 2-4 待执行；下一步按 Phase 2 继续推进。
 
 重要约束：
 - 不要重写整个系统。
@@ -52,13 +50,14 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-执行 Full Game V1 Phase 1：16 周单学期骨架。
+执行 Full Game V1 Phase 2：周主题升级与阶段反馈深化。
 
 要求：
 - 不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3 或 CP6.4。
+- 不要重复实现 Full Game V1 Phase 1。
 - 不要继续按 CP6.x 命名新增零散内容包。
-- 按 `docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md` 执行，先统一学期日历，再改 PlayerService/WeeklyThemeService/周总结/页面文案/测试。
-- Phase 1 不新增数据库表，不新增 seed，不做路线评分、结局评分升级或 UI 大改。
+- Phase 2 目标：把 CP6 机制纳入 16 周阶段节奏，深化周主题阶段反馈。
+- Phase 2 不新增数据库表，不新增 seed，不做路线评分或结局评分升级。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。

@@ -10,15 +10,19 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。下一步不再继续做 CP6.x 式零散扩展，而是先执行 16 周单学期骨架改造，为后续完整游戏阶段、路线目标和结局评分打基础。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成：16 周单学期骨架改造。下一步按 Phase 2-4 继续推进。
 
 最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 333, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Phase 1 已完成
+
+新增 `SemesterCalendarService`，统一管理 16 周学期日历、6 阶段映射、阶段文案、事件偏向和核心地点。`PlayerServiceImpl` 不再持有硬编码 4 周，`WeeklyThemeService` 和 `WeeklyModifierService` 均消费 `SemesterCalendarService` 的阶段映射。旧 CP6.3/CP6.4 机制语义已迁移到 16 周阶段：开学适应（1-2）、节奏建立（3-5）、期中波动（6-8）、路线分化（9-11）、项目与 DDL（12-14）、期末与体测（15-16）。Dashboard 和 Ending 页面文案已更新为"这一学期"。HTTP 冒烟通过。
 
 CP5 A/B 第二批补充：已基于 `user_npc_story_progress` 解锁 5 个 NPC 的轻量专属分支互动。分支互动复用现有 `/npcs/{npcId}/interactions/{interactionId}` 结算流程，使用 Java 层虚拟互动定义和 900xxx ID，不新增表；互动仍消耗 AP、受每周同 NPC 一次限制约束，并写入 `user_influence_log` 的 `npc_branch` 来源。
 
@@ -201,12 +205,11 @@ CP6.3 开学迎新周机制化：
 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
 
 当前优先级：
-1. Full Game V1 Phase 1：执行 `docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md`，把 4 周 Demo 骨架升级为 16 周单学期骨架。
-2. Full Game V1 Phase 2：周主题升级与阶段反馈深化。
-3. Full Game V1 Phase 3：路线目标与阶段目标。
-4. Full Game V1 Phase 4：结局评分升级。
+1. Full Game V1 Phase 2：周主题升级与阶段反馈深化。
+2. Full Game V1 Phase 3：路线目标与阶段目标。
+3. Full Game V1 Phase 4：结局评分升级。
 
-注意：不要把 Phase 1-4 一次性混做。Phase 1 只做学期日历、周数结束判定、阶段主题映射、必要页面文案和测试，不新增数据库表，不新增 seed，不做路线评分。
+注意：不要把 Phase 2/3/4 一次性混做。Phase 1 只做学期日历、周数结束判定、阶段主题映射、必要页面文案和测试，不新增数据库表，不新增 seed，不做路线评分。
 
 ## CP6 交接备注
 

@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-333 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从”基础周回合模拟器”推进到”有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
+333 个测试全绿 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从”基础周回合模拟器”推进到”有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
 ## 已完成功能
 
@@ -213,7 +213,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 333, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -430,6 +430,21 @@ BUILD SUCCESS
 - `.\mvnw.cmd clean test`：Tests run: 333, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`、`/map`、`/map/location/2/event`、`/map/location/5/event`、`/exploration`、`POST /exploration/5`、`/week/summary`、`/dungeons`、`/dungeons/6401`、`/dungeons/6401/start`、`/dungeons/6401/play`、`/npcs/6101`、`/organizations`，均为 200，无 Whitelabel。
 - 未修改模板/CSS，未执行浏览器视觉检查。
+
+## Full Game V1 Phase 1：16 周学期骨架
+
+- 项目方向从 CP6.x 小内容包转为 Full Game V1。
+- 学期长度由 4 周 Demo 升级为 16 周单学期。
+- 新增 `SemesterCalendarService`，统一管理学期总周数、阶段映射、阶段文案、事件偏向和核心地点。
+- `PlayerServiceImpl` 不再持有 `MAX_SEMESTER_WEEKS = 4`，学期结束判断改为第 17 周开始。
+- `WeeklyThemeService` 改为消费 16 周阶段：开学适应、节奏建立、期中波动、路线分化、项目与 DDL、期末与体测。
+- 第 1-2 周保留开学适应加成；第 3-5 周保留节奏建立组织加成；第 12-14 周保留 DDL 副本压力；第 15-16 周保留期末/体测探索与 physical 副本压力缓冲。
+- `WeeklyModifierService` 改为消费 `SemesterCalendarService` 阶段映射。
+- Dashboard 和 Ending 不再显示 "4 周大学生活"。
+- `WeekSummaryServiceImpl` 使用阶段 key 代替硬编码周次。
+- `OrganizationServiceImpl` 招新文案从"社团招新周"改为"节奏建立阶段"。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 335, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`（含"第 1 周"、"共 16 周"）、`/map`、`/exploration`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`，均为 200，无 Whitelabel，玩家页包含 `game-dock`。
 
 ## 当前文档状态
 
