@@ -91,6 +91,40 @@
             </div>
         </div>
 
+        <!-- 路线评分卡片 -->
+        <div class="route-score-card" th:if="${endingScoreReport != null}">
+            <div class="route-score-card__header">
+                <span class="route-score-card__icon">🧭</span>
+                <span class="route-score-card__route" th:text="${endingScoreReport.routeTendencyName}">学业路线</span>
+                <span class="route-score-card__desc" th:text="${endingScoreReport.routeTendencyDesc}">你的学业正在稳步推进</span>
+            </div>
+
+            <div class="route-score-card__scores">
+                <div class="route-score-card__bar" th:each="dim : ${endingScoreReport.scores}">
+                    <span class="route-score-card__bar-label" th:text="${dim.dimensionName}">学业表现</span>
+                    <div class="route-score-card__bar-track">
+                        <div class="route-score-card__bar-fill"
+                             th:style="'width:' + ${dim.score} + '%'"
+                             th:classappend="${dim.score >= 80 ? 'excellent' : (dim.score >= 60 ? 'good' : (dim.score >= 40 ? 'fair' : 'weak'))}">
+                        </div>
+                    </div>
+                    <span class="route-score-card__bar-value" th:text="${dim.label}">良好</span>
+                </div>
+            </div>
+
+            <div class="route-score-card__evidence" th:if="${endingScoreReport.evidence != null and !endingScoreReport.evidence.isEmpty()}">
+                <p class="route-score-card__evidence-title">📋 关键证据</p>
+                <ul class="route-score-card__evidence-list">
+                    <li th:each="item : ${endingScoreReport.evidence}" th:text="${item}">证据文案</li>
+                </ul>
+            </div>
+
+            <p class="route-score-card__summary" th:if="${endingScoreReport.semesterSummaryText != null}"
+               th:text="${endingScoreReport.semesterSummaryText}">
+                这一学期的总结文案。
+            </p>
+        </div>
+
         <div class="semester-report__actions">
             <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
             <form method="post" action="/ending/restart" style="display:inline">

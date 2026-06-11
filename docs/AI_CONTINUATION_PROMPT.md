@@ -39,7 +39,8 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - CP6.4 已完成：期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容）。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1，不再继续以 CP6.x 方式补零散内容。
 - Full Game V1 Phase 3 已完成：路线倾向推导（RouteTendencyService）、阶段加权周目标选择、Dashboard/周总结路线反馈。
-- Full Game V1 设计稿和 Phase 4 待执行；下一步按 Phase 4 继续推进。
+- Full Game V1 Phase 4 已完成：结局评分升级（EndingScoreService）、5 维评分 read model、路线画像和关键证据展示。
+- Full Game V1 设计稿和 Phase 5 待执行；下一步按 Phase 5 继续推进。
 
 重要约束：
 - 不要重写整个系统。
@@ -52,13 +53,13 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-执行 Full Game V1 Phase 4：结局评分升级。
+执行 Full Game V1 Phase 5：内容补齐。
 
 要求：
 - 不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3 或 CP6.4。
-- 不要重复实现 Full Game V1 Phase 1、Phase 2 或 Phase 3。
+- 不要重复实现 Full Game V1 Phase 1、Phase 2、Phase 3 或 Phase 4。
 - 不要继续按 CP6.x 命名新增零散内容包。
-- Phase 4 目标：扩展 SettlementContext，增加路线评分 read model，结局页展示路线画像。
+- Phase 5 目标：按 16 周阶段补充中期事件、路线分化事件、项目/DDL 事件、期末/体测事件。
 - Phase 4 不新增数据库表，不新增 seed。
 
 执行要求：

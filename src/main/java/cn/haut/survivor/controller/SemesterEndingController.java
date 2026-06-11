@@ -8,6 +8,7 @@ import cn.haut.survivor.domain.entity.UserSemesterEnding;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.SemesterArchiveService;
 import cn.haut.survivor.service.SemesterEndingService;
+import cn.haut.survivor.service.EndingScoreService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,13 +23,16 @@ public class SemesterEndingController {
     private final SemesterEndingService semesterEndingService;
     private final PlayerService playerService;
     private final SemesterArchiveService semesterArchiveService;
+    private final EndingScoreService endingScoreService;
 
     public SemesterEndingController(SemesterEndingService semesterEndingService,
                                     PlayerService playerService,
-                                    SemesterArchiveService semesterArchiveService) {
+                                    SemesterArchiveService semesterArchiveService,
+                                    EndingScoreService endingScoreService) {
         this.semesterEndingService = semesterEndingService;
         this.playerService = playerService;
         this.semesterArchiveService = semesterArchiveService;
+        this.endingScoreService = endingScoreService;
     }
 
     @GetMapping("/ending")
@@ -50,6 +54,7 @@ public class SemesterEndingController {
         model.addAttribute("userEnding", userEnding);
         model.addAttribute("history", history);
         model.addAttribute("growthPortrait", semesterArchiveService.buildSummary(userId));
+        model.addAttribute("endingScoreReport", endingScoreService.buildScoreReport(userId));
 
         if (userEnding != null) {
             SemesterEnding ending = semesterEndingService.listAllEndings().stream()

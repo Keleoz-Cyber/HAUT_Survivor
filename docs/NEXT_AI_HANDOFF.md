@@ -10,15 +10,19 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标。下一步按 Phase 4 继续推进。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级。下一步按 Phase 5 继续推进。
 
 最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 383, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Phase 4 已完成
+
+新增 `EndingScoreService`，基于 16 周学期经历计算 5 维评分 read model（学业表现/技能成长/社交影响/生存能力/均衡发展）和关键证据。复用 RouteTendencyService 推导路线倾向，收集探索度、组织贡献、NPC 关系数、副本完成数和周目标完成数。评分结果和游戏结算风格证据文案、学期总结通过 `endingScoreReport` model 属性传递给结局页。结局页新增路线评分卡片（route-score-card），展示路线画像、5 维评分条、关键证据和学期总结。未新增表，未新增 seed，未修改结局匹配规则。HTTP 冒烟通过。
 
 ## Full Game V1 Phase 3 已完成
 
@@ -213,10 +217,10 @@ CP6.3 开学迎新周机制化：
 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
 
 当前优先级：
-1. Full Game V1 Phase 4：结局评分升级。
-2. Full Game V1 Phase 5：内容补齐。
+1. Full Game V1 Phase 5：内容补齐。
+2. 结局评分与路线评分的更深度结合（可选）。
 
-注意：不要把 Phase 3/4 一次性混做。Phase 3 已完成路线倾向推导和阶段加权周目标选择，不新增数据库表，不新增 seed。
+注意：Phase 4 已完成结局评分升级，不新增数据库表，不新增 seed，未修改结局匹配规则。
 
 ## CP6 交接备注
 

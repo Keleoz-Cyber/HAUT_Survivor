@@ -213,7 +213,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 383, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -470,12 +470,25 @@ BUILD SUCCESS
 - 最近验证：`.\mvnw.cmd clean test`，Tests run: 370, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`（含 route-tendency 区域）、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
+## Full Game V1 Phase 4：结局评分升级
+
+- 新增 `EndingScoreService`：基于 16 周学期经历计算 5 维评分（学业表现/技能成长/社交影响/生存能力/均衡发展）和关键证据，复用 RouteTendencyService 推导路线倾向。
+- 评分规则：academic（academic*0.5 + discipline*0.3 + 图书馆探索*0.2）、skill（skill*0.5 + 实验室探索*0.2 + 副本完成数*15）、social（social*0.4 + 组织贡献*5 + NPC关系数*5）、survival（health*0.5 + (100-pressure)*0.5）、balanced（100-(max-min)*2 + 目标完成数*3）。
+- 评级标签：80+ 优秀、60-79 良好、40-59 一般、0-39 不足。
+- 证据生成：从分数最高的 2-4 个维度生成游戏结算风格文案。
+- 学期总结文案：基于最强/最弱维度和路线倾向，生成个性化学期总结。
+- `SemesterEndingController` 新增 `endingScoreService.buildScoreReport(userId)` model 属性 `endingScoreReport`。
+- 结局页新增路线评分卡片（route-score-card）：展示路线画像名称、5 维评分条（带颜色等级）、关键证据列表、学期总结文案。保持现有 game-shell/game-dock 风格，移动端自适应。
+- 未新增表，未新增 seed，未修改结局匹配规则。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 383, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
+
 ## 当前文档状态
 
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 3 已完成；当前主线下一步是 Full Game V1 Phase 4：结局评分升级。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 Phase 4 已完成；当前主线下一步是 Full Game V1 Phase 5：内容补齐。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 
@@ -486,7 +499,8 @@ BUILD SUCCESS
 | Full Game V1 Phase 1 | 已完成：16 周单学期骨架、统一学期日历、阶段主题映射、必要页面文案和测试 |
 | Full Game V1 Phase 2 | 已完成：周主题升级与阶段反馈深化，把 CP6 机制纳入 16 周阶段节奏 |
 | Full Game V1 Phase 3 | 已完成：路线倾向推导、阶段加权周目标选择、Dashboard/周总结路线反馈 |
-| Full Game V1 Phase 4 | 当前主线下一步：结局评分升级，让完整学期经历影响结局判断 |
+| Full Game V1 Phase 4 | 已完成：结局评分升级，5 维评分 read model、路线画像和关键证据 |
+| Full Game V1 Phase 5 | 当前主线下一步：内容补齐，按 16 周阶段补充中期/路线/项目/期末事件 |
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
 | 深化周主题影响 | 第 1 周影响事件、组织和 NPC；第 2 周影响组织活动收益；第 3 周影响副本压力；第 4 周影响图书馆/操场探索和体测副本压力。四个周主题均有明确玩法影响 |
 | CP6.4 期末与体测周 | 已完成：图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容 |

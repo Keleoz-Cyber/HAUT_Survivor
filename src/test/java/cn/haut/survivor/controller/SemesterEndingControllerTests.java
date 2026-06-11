@@ -51,7 +51,8 @@ class SemesterEndingControllerTests {
                         "userEnding",
                         "history",
                         "ending",
-                        "growthPortrait"));
+                        "growthPortrait",
+                        "endingScoreReport"));
     }
 
     private void advanceToSemesterEnd() {
