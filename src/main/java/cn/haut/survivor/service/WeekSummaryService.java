@@ -41,6 +41,11 @@ public interface WeekSummaryService {
             int discipline,
             String summaryText,
             String ratingLabel,
-            List<InfluenceLogService.InfluenceLogEntry> impactRecaps
+            List<InfluenceLogService.InfluenceLogEntry> impactRecaps,
+            // Phase 2 new fields
+            String stageKey,
+            String stageSummaryHint,
+            int weeksLeftInStage,
+            int semesterWeeks
     ) {}
 }

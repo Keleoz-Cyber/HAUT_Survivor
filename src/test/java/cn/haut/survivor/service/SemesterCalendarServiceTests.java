@@ -75,4 +75,74 @@ class SemesterCalendarServiceTests {
         assertThat(service.stageForWeek(6).primaryLocationIds()).containsExactly(1L, 2L, 6L);
         assertThat(service.stageForWeek(15).primaryLocationIds()).containsExactly(2L, 5L);
     }
+
+    @Test
+    void stageGameplayHooksAreCentralized() {
+        // opening: NPC familiarity bonus, org join social reduction
+        var opening = service.stageForWeek(1);
+        assertThat(opening.npcFamiliarityBonus()).isEqualTo(1);
+        assertThat(opening.organizationJoinSocialReduction()).isEqualTo(5);
+        assertThat(opening.organizationActivityBonus()).isZero();
+        assertThat(opening.dungeonPressureBonus()).isZero();
+        assertThat(opening.dungeonPressureRelief()).isZero();
+
+        // rhythm: org activity bonus
+        var rhythm = service.stageForWeek(3);
+        assertThat(rhythm.organizationActivityBonus()).isEqualTo(1);
+        assertThat(rhythm.npcFamiliarityBonus()).isZero();
+        assertThat(rhythm.dungeonPressureBonus()).isZero();
+
+        // midterm: no special hooks (only event bias)
+        var midterm = service.stageForWeek(6);
+        assertThat(midterm.organizationActivityBonus()).isZero();
+        assertThat(midterm.dungeonPressureBonus()).isZero();
+        assertThat(midterm.npcFamiliarityBonus()).isZero();
+
+        // route: no special hooks
+        var route = service.stageForWeek(9);
+        assertThat(route.organizationActivityBonus()).isZero();
+        assertThat(route.dungeonPressureBonus()).isZero();
+
+        // project: dungeon pressure bonus
+        var project = service.stageForWeek(12);
+        assertThat(project.dungeonPressureBonus()).isEqualTo(1);
+        assertThat(project.organizationActivityBonus()).isZero();
+
+        // final: dungeon pressure relief (physical)
+        var finalStage = service.stageForWeek(15);
+        assertThat(finalStage.dungeonPressureRelief()).isEqualTo(-1);
+        assertThat(finalStage.dungeonPressureBonus()).isZero();
+    }
+
+    @Test
+    void weeksLeftInStageCalculatesCorrectly() {
+        assertThat(service.weeksLeftInStage(1)).isEqualTo(2);  // opening: 1-2
+        assertThat(service.weeksLeftInStage(2)).isEqualTo(1);
+        assertThat(service.weeksLeftInStage(3)).isEqualTo(3);  // rhythm: 3-5
+        assertThat(service.weeksLeftInStage(5)).isEqualTo(1);
+        assertThat(service.weeksLeftInStage(6)).isEqualTo(3);  // midterm: 6-8
+        assertThat(service.weeksLeftInStage(15)).isEqualTo(2); // final: 15-16
+        assertThat(service.weeksLeftInStage(16)).isEqualTo(1);
+        assertThat(service.weeksLeftInStage(null)).isEqualTo(2);
+    }
+
+    @Test
+    void nextStageReturnsFollowingStageOrNull() {
+        assertThat(service.nextStage(1).stageKey()).isEqualTo("rhythm");
+        assertThat(service.nextStage(2).stageKey()).isEqualTo("rhythm");
+        assertThat(service.nextStage(5).stageKey()).isEqualTo("midterm");
+        assertThat(service.nextStage(11).stageKey()).isEqualTo("project");
+        assertThat(service.nextStage(14).stageKey()).isEqualTo("final");
+        assertThat(service.nextStage(15)).isNull();
+        assertThat(service.nextStage(16)).isNull();
+    }
+
+    @Test
+    void stageSummaryHintIsNotBlankForAllStages() {
+        for (var stage : service.allStages()) {
+            assertThat(stage.stageSummaryHint())
+                    .as("Stage %s should have a non-blank summary hint", stage.stageKey())
+                    .isNotBlank();
+        }
+    }
 }

@@ -81,4 +81,31 @@ class WeeklyThemeServiceTests {
         assertThat(service.finalWeekDungeonResultSuffix(15, "physical")).contains("期末与体测");
         assertThat(service.finalWeekDungeonResultSuffix(14, "physical")).isBlank();
     }
+
+    @Test
+    void hooksConsumeStageDataInsteadOfHardcodedComparisons() {
+        // midterm (6-8) and route (9-11) have zero bonuses — they exist but produce no effect
+        assertThat(service.organizationActivityBonus(6)).isZero();
+        assertThat(service.organizationActivityBonus(9)).isZero();
+        assertThat(service.dungeonPressureBonus(6)).isZero();
+        assertThat(service.dungeonPressureBonus(9)).isZero();
+        assertThat(service.npcOpeningWeekFamiliarityBonus(6, false)).isZero();
+        assertThat(service.npcOpeningWeekFamiliarityBonus(9, false)).isZero();
+        assertThat(service.organizationJoinSocialRequirementReduction(6)).isZero();
+        assertThat(service.organizationJoinSocialRequirementReduction(9)).isZero();
+    }
+
+    @Test
+    void stageSummaryHintIsNotBlankForAllWeeks() {
+        for (int w = 1; w <= 16; w++) {
+            assertThat(service.stageSummaryHint(w))
+                    .as("Week %d should have a non-blank stage summary hint", w)
+                    .isNotBlank();
+        }
+    }
+
+    @Test
+    void midtermAndRouteHaveDistinctHints() {
+        assertThat(service.stageSummaryHint(6)).isNotEqualTo(service.stageSummaryHint(9));
+    }
 }

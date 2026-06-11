@@ -74,7 +74,9 @@ class DashboardControllerTests {
                 .andExpect(model().attributeExists("user", "profile", "attribute", "warnings",
                         "weekTheme", "rumors", "knownNpcs",
                         "goalCandidates",
-                        "unlockedAchievements", "recentAchievements"))
+                        "unlockedAchievements", "recentAchievements",
+                        "stageKey", "stageName", "stageIcon",
+                        "weeksLeftInStage", "semesterWeeks", "allStages", "nextStageName"))
                 .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("第 1 周")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("共 16 周")));

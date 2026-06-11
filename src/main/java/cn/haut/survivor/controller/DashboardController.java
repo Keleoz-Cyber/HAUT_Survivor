@@ -10,6 +10,7 @@ import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorService;
+import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.UserService;
 import cn.haut.survivor.service.WeeklyGoalService;
 import cn.haut.survivor.service.WeeklyThemeService;
@@ -31,18 +32,22 @@ public class DashboardController {
     private final PlayerService playerService;
     private final UserService userService;
     private final WeeklyThemeService weeklyThemeService;
+    private final SemesterCalendarService semesterCalendarService;
     private final RumorService rumorService;
     private final NpcService npcService;
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
 
     public DashboardController(PlayerService playerService, UserService userService,
-                               WeeklyThemeService weeklyThemeService, RumorService rumorService,
+                               WeeklyThemeService weeklyThemeService,
+                               SemesterCalendarService semesterCalendarService,
+                               RumorService rumorService,
                                NpcService npcService, WeeklyGoalService weeklyGoalService,
                                AchievementService achievementService) {
         this.playerService = playerService;
         this.userService = userService;
         this.weeklyThemeService = weeklyThemeService;
+        this.semesterCalendarService = semesterCalendarService;
         this.rumorService = rumorService;
         this.npcService = npcService;
         this.weeklyGoalService = weeklyGoalService;
@@ -72,6 +77,17 @@ public class DashboardController {
         model.addAttribute("weekPhaseLabel", playerService.getWeekPhaseLabel(profile));
         model.addAttribute("semesterOver", playerService.isSemesterOver(userId));
         model.addAttribute("weekTheme", weeklyThemeService.getTheme(profile.getCurrentWeek()));
+
+        // 阶段进度信息
+        var currentStage = semesterCalendarService.stageForWeek(profile.getCurrentWeek());
+        var nextStage = semesterCalendarService.nextStage(profile.getCurrentWeek());
+        model.addAttribute("stageKey", currentStage.stageKey());
+        model.addAttribute("stageName", currentStage.name());
+        model.addAttribute("stageIcon", currentStage.icon());
+        model.addAttribute("weeksLeftInStage", semesterCalendarService.weeksLeftInStage(profile.getCurrentWeek()));
+        model.addAttribute("semesterWeeks", semesterCalendarService.semesterWeeks());
+        model.addAttribute("allStages", semesterCalendarService.allStages());
+        model.addAttribute("nextStageName", nextStage != null ? nextStage.name() : null);
         model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         model.addAttribute("knownNpcs", npcService.listKnownNpcs(userId));
         model.addAttribute("currentBuddy", npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).orElse(null));

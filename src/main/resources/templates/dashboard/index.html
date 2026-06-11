@@ -40,6 +40,25 @@
         </div>
     </section>
 
+    <!-- ========== 学期阶段进度 ========== -->
+    <section th:if="${!semesterOver}" class="stage-progress">
+        <p class="stage-progress__label">
+            📅 学期第 <span th:text="${profile.currentWeek}">1</span>/<span th:text="${semesterWeeks}">16</span> 周
+        </p>
+        <div class="stage-progress__bar">
+            <div class="stage-progress__stage"
+                 th:each="stage : ${allStages}"
+                 th:classappend="${stage.stageKey == stageKey ? 'stage-progress__stage--active' : ''}">
+                <span class="stage-progress__stage-icon" th:text="${stage.icon}">🎒</span>
+                <span class="stage-progress__stage-name" th:text="${stage.name}">开学适应</span>
+            </div>
+        </div>
+        <p class="stage-progress__hint" th:if="${weeksLeftInStage > 0}">
+            当前阶段：<strong th:text="${stageName}">开学适应</strong> · 剩余 <span th:text="${weeksLeftInStage}">2</span> 周
+            <span th:if="${nextStageName != null}" th:text="'，下一阶段：' + ${nextStageName}"></span>
+        </p>
+    </section>
+
     <!-- ========== 压力预警 ========== -->
     <div th:if="${attribute.pressure >= 60}" class="pressure-alert"
          th:classappend="${attribute.pressure >= 75} ? 'pressure-alert--danger'">

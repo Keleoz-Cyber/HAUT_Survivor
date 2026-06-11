@@ -1239,6 +1239,72 @@ body {
     min-width: 2.2em;
 }
 
+/* 学期阶段进度 */
+.stage-progress {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+.stage-progress__label {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    margin: 0 0 10px;
+}
+
+.stage-progress__bar {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 8px;
+}
+
+.stage-progress__stage {
+    flex: 1;
+    text-align: center;
+    padding: 6px 2px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    opacity: 0.5;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.stage-progress__stage--active {
+    opacity: 1;
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.3);
+}
+
+.stage-progress__stage-icon {
+    display: block;
+    font-size: 0.85rem;
+}
+
+.stage-progress__stage-name {
+    display: block;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+.stage-progress__stage--active .stage-progress__stage-name {
+    color: #fbbf24;
+    font-weight: 700;
+}
+
+.stage-progress__hint {
+    color: #64748b;
+    font-size: 0.78rem;
+    margin: 0;
+}
+
+.stage-progress__hint strong {
+    color: #94a3b8;
+}
+
 /* 压力预警 */
 .pressure-alert {
     background: rgba(239, 68, 68, 0.1);
@@ -4236,6 +4302,19 @@ body.bg-light .game-hud {
     margin-bottom: 10px;
 }
 
+.week-summary-hero__stage-hint {
+    color: #94a3b8;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin: 6px 0 2px;
+}
+
+.week-summary-hero__stage-progress {
+    color: #64748b;
+    font-size: 0.78rem;
+    margin: 2px 0 8px;
+}
+
 .week-summary-hero__text {
     color: #cbd5e1;
     font-size: 0.85rem;
@@ -5089,5 +5168,17 @@ body.bg-light .game-hud {
     .campus-node__badge--rumor {
         margin-left: 0;
         margin-top: 6px;
+    }
+
+    .stage-progress__stage-name {
+        font-size: 0.55rem;
+    }
+
+    .stage-progress__stage-icon {
+        font-size: 0.75rem;
+    }
+
+    .stage-progress {
+        padding: 10px 12px;
     }
 }

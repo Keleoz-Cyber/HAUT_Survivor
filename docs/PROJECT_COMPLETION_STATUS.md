@@ -213,7 +213,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -443,15 +443,29 @@ BUILD SUCCESS
 - Dashboard 和 Ending 不再显示 "4 周大学生活"。
 - `WeekSummaryServiceImpl` 使用阶段 key 代替硬编码周次。
 - `OrganizationServiceImpl` 招新文案从"社团招新周"改为"节奏建立阶段"。
-- 最近验证：`.\mvnw.cmd clean test`，Tests run: 335, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 352, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`（含"第 1 周"、"共 16 周"）、`/map`、`/exploration`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`，均为 200，无 Whitelabel，玩家页包含 `game-dock`。
+
+## Full Game V1 Phase 2：周主题升级与阶段反馈深化
+
+- `SemesterStage` record 扩展 7 个玩法字段：organizationActivityBonus、organizationJoinSocialReduction、dungeonPressureBonus、dungeonPressureRelief、npcFamiliarityBonus、stageSummaryHint。所有阶段数值集中定义。
+- `WeeklyThemeService` 改为消费 `stage.getXxx()` 读取数值，不再各自硬编码 stageKey 字符串比较。
+- `WeeklyModifierService` 改为消费 `stage.primaryLocationIds().contains(locationId)`，不再硬编码地点 ID。
+- 新增 midterm 和 route 阶段探索影响：midterm 在教学楼/图书馆/实验室提供学业 +1、压力 +1；route 在图书馆/实验室/惟学楼提供技能 +1。
+- `WeekSummaryServiceImpl` 为 6 个阶段各写专属叙事文案（像游戏内总结，不是系统日志）。
+- `WeekSummaryView` 新增 stageKey、stageSummaryHint、weeksLeftInStage、semesterWeeks 字段。
+- 周总结页展示当前阶段提示和阶段剩余周数。
+- `DashboardController` 新增阶段进度 model 属性，dashboard 模板新增学期阶段进度条（6 阶段高亮当前阶段）和阶段剩余周数提示。
+- 未新增表，未新增 seed，未重写 UI 体系。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 352, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`（含 stage-progress 区域）、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`（含阶段提示）、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
 ## 当前文档状态
 
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 1 已完成；当前主线下一步是 Full Game V1 Phase 2：周主题升级与阶段反馈深化。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 Phase 2 已完成；当前主线下一步是 Full Game V1 Phase 3：路线目标与阶段目标。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 

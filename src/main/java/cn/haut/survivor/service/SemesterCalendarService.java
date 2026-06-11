@@ -24,7 +24,13 @@ public class SemesterCalendarService {
             String hint,
             String icon,
             String preferredEventType,
-            List<Long> primaryLocationIds
+            List<Long> primaryLocationIds,
+            int organizationActivityBonus,
+            int organizationJoinSocialReduction,
+            int dungeonPressureBonus,
+            int dungeonPressureRelief,
+            int npcFamiliarityBonus,
+            String stageSummaryHint
     ) {}
 
     private final int semesterWeeks;
@@ -33,22 +39,34 @@ public class SemesterCalendarService {
     private static final List<SemesterStage> STAGES = List.of(
             new SemesterStage("opening", 1, 2, "开学适应",
                     "刚开学，一切还没失控。", "趁节奏慢，多探索校园、了解组织。", "🎒", "生活",
-                    List.of(3L, 4L, 7L)),
+                    List.of(3L, 4L, 7L),
+                    0, 5, 0, 0, 1,
+                    "趁节奏慢，多探索校园、了解组织和认识新朋友。"),
             new SemesterStage("rhythm", 3, 5, "节奏建立",
                     "课程和社团开始进入稳定节奏。", "适合建立周目标、认识组织和推进校园奇遇。", "🎉", "社交",
-                    List.of(4L, 7L, 8L)),
+                    List.of(4L, 7L, 8L),
+                    1, 0, 0, 0, 0,
+                    "社团活跃期，参加组织活动能获得额外收益。"),
             new SemesterStage("midterm", 6, 8, "期中波动",
                     "复习、实验和阶段作业开始制造压力。", "学业和技能事件更重要，注意别让压力失控。", "📚", "学习",
-                    List.of(1L, 2L, 6L)),
+                    List.of(1L, 2L, 6L),
+                    0, 0, 0, 0, 0,
+                    "期中考试逼近，学业和技能事件更重要。"),
             new SemesterStage("route", 9, 11, "路线分化",
                     "你的成长路线开始拉开差异。", "围绕成长路线选择行动，关系和组织会影响后续走向。", "🧭", "技能",
-                    List.of(2L, 6L, 7L)),
+                    List.of(2L, 6L, 7L),
+                    0, 0, 0, 0, 0,
+                    "成长路线开始拉开差异，围绕路线选择行动。"),
             new SemesterStage("project", 12, 14, "项目与 DDL",
                     "课设、小组作业和副本挑战集中出现。", "副本和技能判定更关键，别忘了压力管理。", "⏰", "学习",
-                    List.of(1L, 2L, 6L)),
+                    List.of(1L, 2L, 6L),
+                    0, 0, 1, 0, 0,
+                    "课设和小组作业集中期，副本和技能判定更关键。"),
             new SemesterStage("final", 15, 16, "期末与体测",
                     "复习、体测、结算都来了。", "图书馆和操场是关键，坚持就是胜利。", "🏁", "健康",
-                    List.of(2L, 5L))
+                    List.of(2L, 5L),
+                    0, 0, 0, -1, 0,
+                    "期末冲刺，图书馆和操场是关键地点。")
     );
 
     public SemesterCalendarService(
@@ -111,5 +129,19 @@ public class SemesterCalendarService {
 
     public List<SemesterStage> allStages() {
         return STAGES;
+    }
+
+    /** Returns the number of weeks remaining in the current stage (inclusive of current week). */
+    public int weeksLeftInStage(Integer currentWeek) {
+        SemesterStage stage = stageForWeek(currentWeek);
+        int week = currentWeek == null ? 1 : currentWeek;
+        return Math.max(0, stage.weekEnd() - week + 1);
+    }
+
+    /** Returns the next stage, or null if already in the final stage. */
+    public SemesterStage nextStage(Integer currentWeek) {
+        SemesterStage current = stageForWeek(currentWeek);
+        int index = STAGES.indexOf(current);
+        return (index >= 0 && index < STAGES.size() - 1) ? STAGES.get(index + 1) : null;
     }
 }

@@ -20,6 +20,15 @@
         </h1>
         <p class="week-summary-hero__theme" th:text="${summary.themeName}">开学适应周</p>
         <p class="week-summary-hero__desc" th:text="${summary.themeDescription}">描述</p>
+        <p class="week-summary-hero__stage-hint"
+           th:if="${summary.stageSummaryHint != null and !summary.stageSummaryHint.isBlank()}"
+           th:text="'💡 ' + ${summary.stageSummaryHint}">
+            💡 趁节奏慢，多探索校园。
+        </p>
+        <p class="week-summary-hero__stage-progress"
+           th:if="${summary.weeksLeftInStage > 0}">
+            📅 本阶段剩余 <span th:text="${summary.weeksLeftInStage}">2</span> 周 · 学期第 <span th:text="${summary.weekNumber}">1</span>/<span th:text="${summary.semesterWeeks}">16</span> 周
+        </p>
         <p class="week-summary-hero__rating" th:text="${summary.ratingLabel}">👍 不错的一周</p>
         <p class="week-summary-hero__text" th:text="${summary.summaryText}">评价文案</p>
     </section>

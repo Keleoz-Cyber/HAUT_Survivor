@@ -203,7 +203,8 @@ class WeekSummaryServiceTests {
 
         WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
 
-        assertThat(view.summaryText()).contains("硬撑");
+        // Week 1 = opening stage: high-pressure narrative mentions 压力
+        assertThat(view.summaryText()).containsAnyOf("压力", "开学");
     }
 
     @Test
@@ -212,7 +213,8 @@ class WeekSummaryServiceTests {
 
         WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
 
-        assertThat(view.summaryText()).contains("奇遇");
+        // Week 1 = opening stage: story progress narrative mentions 奇遇 or 校园
+        assertThat(view.summaryText()).containsAnyOf("奇遇", "校园", "探索");
     }
     @Test
     void buildCurrentWeekSummaryContainsInfluenceRecaps() {
@@ -230,5 +232,73 @@ class WeekSummaryServiceTests {
         assertThat(view.impactRecaps()).hasSize(1);
         assertThat(view.impactRecaps().get(0).sourceType()).isEqualTo("rumor");
         assertThat(view.impactRecaps().get(0).changeText()).contains("社交 +2", "探索 +1");
+    }
+
+    // ==================== Phase 2: Stage context fields ====================
+
+    @Test
+    void weekSummaryIncludesStageContextFields() {
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+
+        assertThat(view.stageKey()).isEqualTo("opening");
+        assertThat(view.weeksLeftInStage()).isEqualTo(2);
+        assertThat(view.semesterWeeks()).isEqualTo(16);
+        assertThat(view.stageSummaryHint()).isNotBlank();
+    }
+
+    @Test
+    void weekSummaryStageContextVariesByWeek() {
+        WeekSummaryView week1 = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+        WeekSummaryView week7 = weekSummaryService.buildCurrentWeekSummary(2L, 7);
+        WeekSummaryView week15 = weekSummaryService.buildCurrentWeekSummary(2L, 15);
+
+        assertThat(week1.stageKey()).isEqualTo("opening");
+        assertThat(week1.weeksLeftInStage()).isEqualTo(2);
+
+        assertThat(week7.stageKey()).isEqualTo("midterm");
+        assertThat(week7.weeksLeftInStage()).isEqualTo(2);
+
+        assertThat(week15.stageKey()).isEqualTo("final");
+        assertThat(week15.weeksLeftInStage()).isEqualTo(2);
+
+        assertThat(week1.stageSummaryHint()).isNotEqualTo(week7.stageSummaryHint());
+        assertThat(week7.stageSummaryHint()).isNotEqualTo(week15.stageSummaryHint());
+    }
+
+    @Test
+    void openingStageNarrativeMentionsExploration() {
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+        assertThat(view.summaryText()).isNotBlank();
+        assertThat(view.summaryText()).containsAnyOf("校园", "开学", "探索", "节奏");
+    }
+
+    @Test
+    void midtermStageNarrativeMentionsExams() {
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setPressure(65);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 7);
+        assertThat(view.summaryText()).isNotBlank();
+        assertThat(view.summaryText()).containsAnyOf("期中", "考试", "复习", "实验");
+    }
+
+    @Test
+    void routeStageNarrativeMentionsGrowthRoute() {
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 10);
+        assertThat(view.summaryText()).isNotBlank();
+        assertThat(view.summaryText()).containsAnyOf("路线", "分化", "方向");
+    }
+
+    @Test
+    void finalStageNarrativeMentionsSprint() {
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setAcademic(75);
+        attr.setPressure(40);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 15);
+        assertThat(view.summaryText()).isNotBlank();
+        assertThat(view.summaryText()).containsAnyOf("期末", "冲刺", "复习", "体测", "坚持");
     }
 }

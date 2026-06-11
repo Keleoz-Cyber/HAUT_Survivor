@@ -16,9 +16,13 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Phase 2 已完成
+
+`SemesterStage` record 扩展 7 个玩法字段，所有阶段数值集中定义。`WeeklyThemeService` 改为消费 `stage.getXxx()` 读取数值，不再各自硬编码 stageKey 字符串比较。`WeeklyModifierService` 改为消费 `stage.primaryLocationIds().contains(locationId)`，不再硬编码地点 ID。新增 midterm 和 route 阶段探索影响。`WeekSummaryServiceImpl` 为 6 个阶段各写专属叙事文案，`WeekSummaryView` 新增 stageKey、stageSummaryHint、weeksLeftInStage、semesterWeeks 字段。Dashboard 新增学期阶段进度条和阶段剩余周数提示。未新增表，未新增 seed。HTTP 冒烟通过。
 
 ## Full Game V1 Phase 1 已完成
 
@@ -205,11 +209,10 @@ CP6.3 开学迎新周机制化：
 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
 
 当前优先级：
-1. Full Game V1 Phase 2：周主题升级与阶段反馈深化。
-2. Full Game V1 Phase 3：路线目标与阶段目标。
-3. Full Game V1 Phase 4：结局评分升级。
+1. Full Game V1 Phase 3：路线目标与阶段目标。
+2. Full Game V1 Phase 4：结局评分升级。
 
-注意：不要把 Phase 2/3/4 一次性混做。Phase 1 只做学期日历、周数结束判定、阶段主题映射、必要页面文案和测试，不新增数据库表，不新增 seed，不做路线评分。
+注意：不要把 Phase 3/4 一次性混做。Phase 2 已完成周主题升级和阶段反馈深化，不新增数据库表，不新增 seed，不做路线评分。
 
 ## CP6 交接备注
 

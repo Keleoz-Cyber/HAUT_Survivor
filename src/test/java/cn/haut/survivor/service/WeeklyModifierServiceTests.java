@@ -28,8 +28,8 @@ class WeeklyModifierServiceTests {
     }
 
     @Test
-    void weekThreeLabAddsSkillAndPressure() {
-        // week 1-2 = opening, week 3-5 = rhythm, week 6-8 = midterm, week 9-11 = route, week 12-14 = project
+    void weekTwelveLabAddsSkillAndPressure() {
+        // week 12-14 = project stage, primary locations: 1(教学楼), 2(图书馆), 6(实验室)
         ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(12, 6L);
 
         assertThat(influence.attributeChange().skillChange()).isEqualTo(1);
@@ -38,12 +38,44 @@ class WeeklyModifierServiceTests {
     }
 
     @Test
-    void unknownWeekReturnsEmptyInfluence() {
-        // Week 9 is "route" stage — no special exploration influence
-        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(9, 2L);
+    void midtermStageProvidesAcademicAndPressureAtPrimaryLocations() {
+        // week 6-8 = midterm, primary locations: 1(教学楼), 2(图书馆), 6(实验室)
+        ExplorationInfluence library = weeklyModifierService.getExplorationInfluence(7, 2L);
+        assertThat(library.hasEffect()).isTrue();
+        assertThat(library.sourceName()).isEqualTo("期中波动");
+        assertThat(library.attributeChange().academicChange()).isEqualTo(1);
+        assertThat(library.attributeChange().pressureChange()).isEqualTo(1);
 
+        ExplorationInfluence classroom = weeklyModifierService.getExplorationInfluence(6, 1L);
+        assertThat(classroom.hasEffect()).isTrue();
+        assertThat(classroom.attributeChange().academicChange()).isEqualTo(1);
+    }
+
+    @Test
+    void midtermStageNoEffectAtNonPrimaryLocation() {
+        // 操场(5) is not a midterm primary location
+        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(7, 5L);
         assertThat(influence.hasEffect()).isFalse();
-        assertThat(influence.description()).isBlank();
+    }
+
+    @Test
+    void routeStageProvidesSkillBonusAtPrimaryLocations() {
+        // week 9-11 = route, primary locations: 2(图书馆), 6(实验室), 7(惟学楼)
+        ExplorationInfluence lab = weeklyModifierService.getExplorationInfluence(10, 6L);
+        assertThat(lab.hasEffect()).isTrue();
+        assertThat(lab.sourceName()).isEqualTo("路线分化");
+        assertThat(lab.attributeChange().skillChange()).isEqualTo(1);
+
+        ExplorationInfluence library = weeklyModifierService.getExplorationInfluence(9, 2L);
+        assertThat(library.hasEffect()).isTrue();
+        assertThat(library.attributeChange().skillChange()).isEqualTo(1);
+    }
+
+    @Test
+    void routeStageNoEffectAtNonPrimaryLocation() {
+        // 教学楼(1) is not a route primary location
+        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(9, 1L);
+        assertThat(influence.hasEffect()).isFalse();
     }
 
     @Test
@@ -69,5 +101,12 @@ class WeeklyModifierServiceTests {
         assertThat(playground.attributeChange().pressureChange()).isEqualTo(-1);
 
         assertThat(serviceWindow.hasEffect()).isFalse();
+    }
+
+    @Test
+    void nonPrimaryLocationInActiveStageReturnsEmpty() {
+        // week 3 = rhythm stage, but 教学楼(1) is not a rhythm primary location
+        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(3, 1L);
+        assertThat(influence.hasEffect()).isFalse();
     }
 }
