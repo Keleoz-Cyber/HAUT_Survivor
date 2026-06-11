@@ -12,11 +12,11 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 333 个测试全绿 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从”基础周回合模拟器”推进到”有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
-最近一次全量验证（Phase 5 + Stabilization 后）：
+最近一次全量验证（Route Ending Integration 后）：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -513,10 +513,27 @@ BUILD SUCCESS
 ## Full Game V1 Stabilization：收尾验证
 
 - 已复核 Phase 5 后基础页面和关键流程：`/login`、`/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/organizations`、`/npcs/6101`、`/dungeons`、`/ending` 均为 200，无 Whitelabel。
-- `/dashboard` 包含 stage-progress、route-tendency、game-dock 和“共 16 周”；`/map` 包含 campus-map；未结算时 `/ending` 显示“学期尚未结束”，结算后 route-score-card 由现有测试覆盖。
+- `/dashboard` 包含 stage-progress、route-tendency、game-dock 和”共 16 周”；`/map` 包含 campus-map；未结算时 `/ending` 显示”学期尚未结束”，结算后 route-score-card 由现有测试覆盖。
 - 修正 `data-v1-stage-fill.sql` 头部注释，明确 final 阶段事件由 CP6.4 迁移内容提供；本轮无代码、schema、模板、CSS 或 seed 语义变更。
 - 最近验证：`.\mvnw.cmd clean test`，Tests run: 402, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - 剩余风险：未做 headless/实机浏览器截图，移动端结论来自 CSS 审查和 HTML 结构检查。
+
+## Full Game V1 Route Ending Integration：评分接入结局匹配
+
+- `SemesterEndingServiceImpl` 注入 `EndingScoreService`，在 `settleSemester(...)` 中构建 `EndingScoreReport` 并传入 `matchRouteEnding(...)`。
+- 路线结局匹配升级为”过程条件 OR 评分门槛”双通道：
+  - 课设战神：仍仅由 `dungeon1Evaluation == “课设战神”` 触发（稀缺条件不变）。
+  - 实验室编外研究员：`labExplore >= 40 && skill >= 55` 或 `skill dimension >= 70`。
+  - 社团风云人物：`orgContribution >= 6 && social >= 65` 或 `social dimension >= 70`。
+  - 图书馆常驻民：`libraryExplore >= 40 && academic >= 65` 或 `academic dimension >= 70`。
+  - 体测幸存者：`dungeon2Completed` 或 `survival dimension >= 85 && health >= 80`（双条件避免被自然减压稀释）。
+- 新增 `getDimensionScore(report, key)` 私有辅助方法。
+- 保留现有稀缺硬条件优先级：课设战神 > 实验室编外研究员 > 社团风云人物 > 图书馆常驻民 > 体测幸存者。
+- 无路线结局命中时继续 fallback 到 `evaluateCondition(...)` 属性匹配。
+- 未新增表，未改 schema，未改 ending/index.html，未改 seed，未新增复杂策略类。
+- 新增 6 个测试：`highAcademicScoreCanMatchLibraryResidentEnding`、`highSkillScoreCanMatchLabResearcherEnding`、`highSocialScoreCanMatchClubInfluencerEnding`、`highSurvivalScoreCanMatchPhysicalSurvivorEnding`、`courseDesignWarriorStillHasTopPriority`、`noScoreRouteMatchFallsBackToAttributeEnding`。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 408, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`、`/ending`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
 ### Phase 5 后 16 周各阶段内容覆盖
 
@@ -533,7 +550,7 @@ BUILD SUCCESS
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 1-5 和 Phase 5 后 Stabilization 已完成；V1 内容补齐告一段落，后续可继续深化具体阶段内容或推进多学期。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 Phase 1-5 和 Phase 5 后 Stabilization 已完成；Route Ending Integration 已完成（评分接入结局匹配）；V1 内容补齐告一段落，后续可继续深化具体阶段内容或推进多学期。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 

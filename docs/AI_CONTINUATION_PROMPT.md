@@ -28,7 +28,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
   /login、/dashboard（含 stage-progress、route-tendency、game-dock、"共 16 周"）、/map（含 campus-map）、/exploration、POST /exploration/4、/week/summary、/organizations、/npcs/6101、/dungeons、/ending，均为 200，无 Whitelabel。
@@ -47,6 +47,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   - Phase 5：16 周阶段内容补齐、midterm/route/project/final 四阶段事件/传闻/奇遇链/周目标/成就
 - V1 五个阶段全部完成，后续可深化内容或推进多学期。
 - Full Game V1 Stabilization 已完成：Phase 5 后基础页面和关键流程已复核，`data-v1-stage-fill.sql` 头部注释已澄清 final 阶段覆盖来源；本轮无 Java、模板、CSS、schema 或 seed 语义变更。未执行 headless/实机浏览器截图。
+- Full Game V1 Route Ending Integration 已完成：`SemesterEndingServiceImpl` 注入 `EndingScoreService`，路线结局匹配升级为"过程条件 OR 评分门槛"双通道；未新增表、未改 schema、未改页面、未改 seed。
 
 重要约束：
 - 不要重写整个系统。

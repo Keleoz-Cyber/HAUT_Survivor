@@ -9,6 +9,7 @@ import cn.haut.survivor.mapper.SemesterEndingMapper;
 import cn.haut.survivor.mapper.UserDungeonRecordMapper;
 import cn.haut.survivor.mapper.UserSemesterEndingMapper;
 import cn.haut.survivor.service.DungeonService;
+import cn.haut.survivor.service.EndingScoreService;
 import cn.haut.survivor.service.ExplorationService;
 import cn.haut.survivor.service.OrganizationService;
 import cn.haut.survivor.service.PlayerService;
@@ -32,6 +33,7 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
     private final OrganizationService organizationService;
     private final DungeonService dungeonService;
     private final UserDungeonRecordMapper userDungeonRecordMapper;
+    private final EndingScoreService endingScoreService;
 
     public SemesterEndingServiceImpl(
             SemesterEndingMapper semesterEndingMapper,
@@ -40,7 +42,8 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
             ExplorationService explorationService,
             OrganizationService organizationService,
             DungeonService dungeonService,
-            UserDungeonRecordMapper userDungeonRecordMapper) {
+            UserDungeonRecordMapper userDungeonRecordMapper,
+            EndingScoreService endingScoreService) {
         this.semesterEndingMapper = semesterEndingMapper;
         this.userSemesterEndingMapper = userSemesterEndingMapper;
         this.playerService = playerService;
@@ -48,6 +51,7 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
         this.organizationService = organizationService;
         this.dungeonService = dungeonService;
         this.userDungeonRecordMapper = userDungeonRecordMapper;
+        this.endingScoreService = endingScoreService;
     }
 
     @Override
@@ -85,7 +89,8 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
 
         // 按优先级从高到低匹配结局（先尝试路线结局）
         SettlementContext ctx = buildSettlementContext(userId);
-        String routeEndingName = matchRouteEnding(ctx, vars);
+        EndingScoreService.EndingScoreReport scoreReport = endingScoreService.buildScoreReport(userId);
+        String routeEndingName = matchRouteEnding(ctx, vars, scoreReport);
 
         List<SemesterEnding> allEndings = listAllEndings();
         SemesterEnding matched;
@@ -274,31 +279,51 @@ public class SemesterEndingServiceImpl implements SemesterEndingService {
     }
 
     /**
-     * 基于探索/组织/副本上下文的路线结局判断。
+     * 基于探索/组织/副本上下文和评分报告的路线结局判断。
      * 使用固定优先级列表，优先匹配更稀缺/更具体的条件。
+     * 评分门槛作为平行证据：当原过程条件不满足但评分达标时，仍可命中。
      * 返回匹配的结局名称，无匹配返回 null。
      */
-    private String matchRouteEnding(SettlementContext ctx, Map<String, Integer> vars) {
+    private String matchRouteEnding(SettlementContext ctx, Map<String, Integer> vars,
+                                    EndingScoreService.EndingScoreReport report) {
+        int academicScore = getDimensionScore(report, "academic");
+        int skillScore = getDimensionScore(report, "skill");
+        int socialScore = getDimensionScore(report, "social");
+        int survivalScore = getDimensionScore(report, "survival");
+
         // 优先级 1：课设战神 — 需要副本完成+高评价（最稀缺条件）
         if ("课设战神".equals(ctx.dungeon1Evaluation())) {
             return "课设战神";
         }
-        // 优先级 2：实验室编外研究员 — 需要实验室探索高+技能高
-        if (ctx.labExploreLevel() >= 40 && vars.getOrDefault("skill", 0) >= 55) {
+        // 优先级 2：实验室编外研究员 — 过程条件或评分门槛
+        if ((ctx.labExploreLevel() >= 40 && vars.getOrDefault("skill", 0) >= 55)
+                || skillScore >= 70) {
             return "实验室编外研究员";
         }
-        // 优先级 3：社团风云人物 — 需要组织贡献高+社交高
-        if (ctx.orgContribution() >= 6 && vars.getOrDefault("social", 0) >= 65) {
+        // 优先级 3：社团风云人物 — 过程条件或评分门槛
+        if ((ctx.orgContribution() >= 6 && vars.getOrDefault("social", 0) >= 65)
+                || socialScore >= 70) {
             return "社团风云人物";
         }
-        // 优先级 4：图书馆常驻民 — 需要图书馆探索高+学业高
-        if (ctx.libraryExploreLevel() >= 40 && vars.getOrDefault("academic", 0) >= 65) {
+        // 优先级 4：图书馆常驻民 — 过程条件或评分门槛
+        if ((ctx.libraryExploreLevel() >= 40 && vars.getOrDefault("academic", 0) >= 65)
+                || academicScore >= 70) {
             return "图书馆常驻民";
         }
-        // 优先级 5：体测幸存者 — 体测副本完成或健康极高
-        if (ctx.dungeon2Completed()) {
+        // 优先级 5：体测幸存者 — 副本完成或评分门槛（需健康也高，避免被自然减压稀释）
+        if (ctx.dungeon2Completed() || (survivalScore >= 85 && vars.getOrDefault("health", 0) >= 80)) {
             return "体测幸存者";
         }
         return null;
+    }
+
+    /** 从 EndingScoreReport 中提取指定维度的分数，找不到返回 0 */
+    private int getDimensionScore(EndingScoreService.EndingScoreReport report, String dimensionKey) {
+        if (report == null || report.scores() == null) return 0;
+        return report.scores().stream()
+                .filter(s -> dimensionKey.equals(s.dimensionKey()))
+                .mapToInt(EndingScoreService.RouteDimensionScore::score)
+                .findFirst()
+                .orElse(0);
     }
 }

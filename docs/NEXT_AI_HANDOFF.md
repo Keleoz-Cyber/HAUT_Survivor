@@ -10,13 +10,13 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成，Phase 5 后稳定化复核已完成。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成，Phase 5 后稳定化复核已完成，Route Ending Integration（评分接入结局匹配）已完成。
 
 最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 408, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -31,6 +31,22 @@ Phase 5 后已做一轮收尾复核：`/login`、`/dashboard`、`/map`、`/explo
 - `data-v1-stage-fill.sql` 头部注释已澄清 final 阶段覆盖来源，明确 final 事件由 CP6.4 迁移内容提供。
 
 本轮无 Java、模板、CSS、schema 或 seed 语义变更。最近一次全量测试仍为 402 个测试全绿。剩余风险：未执行 headless/实机浏览器截图，移动端结论来自 CSS 审查和 HTML 结构检查。
+
+## Full Game V1 Route Ending Integration 已完成
+
+`SemesterEndingServiceImpl` 注入 `EndingScoreService`，在 `settleSemester(...)` 中构建 `EndingScoreReport` 并传入 `matchRouteEnding(...)`。路线结局匹配从纯过程条件升级为"过程条件 OR 评分门槛"双通道：
+
+- 课设战神：仍仅由 `dungeon1Evaluation == "课设战神"` 触发（稀缺条件不变）。
+- 实验室编外研究员：`labExplore >= 40 && skill >= 55` 或 `skill dimension >= 70`。
+- 社团风云人物：`orgContribution >= 6 && social >= 65` 或 `social dimension >= 70`。
+- 图书馆常驻民：`libraryExplore >= 40 && academic >= 65` 或 `academic dimension >= 70`。
+- 体测幸存者：`dungeon2Completed` 或 `survival dimension >= 85 && health >= 80`（双条件避免被每周自然减压稀释）。
+
+未新增表，未改 schema，未改 ending/index.html，未改 seed，未新增复杂策略类。新增 `getDimensionScore(report, key)` 私有辅助方法。保留现有稀缺硬条件优先级和 fallback 到 `evaluateCondition(...)` 属性匹配。
+
+新增 6 个测试：`highAcademicScoreCanMatchLibraryResidentEnding`、`highSkillScoreCanMatchLabResearcherEnding`、`highSocialScoreCanMatchClubInfluencerEnding`、`highSurvivalScoreCanMatchPhysicalSurvivorEnding`、`courseDesignWarriorStillHasTopPriority`、`noScoreRouteMatchFallsBackToAttributeEnding`。
+
+最近验证：408 个测试全绿。HTTP 冒烟覆盖 `/dashboard`、`/ending`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
 ## Full Game V1 Phase 5 已完成
 
@@ -90,11 +106,21 @@ CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复
 - CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
 - CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
 - CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
-- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成；Phase 5 后 Stabilization 已完成
+- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成；Phase 5 后 Stabilization 已完成；Route Ending Integration 已完成
 
 ## 最近完成
 
-Full Game V1 Phase 5：16 周阶段内容补齐。
+Full Game V1 Route Ending Integration：评分接入结局匹配。
+
+已完成：
+
+- `SemesterEndingServiceImpl` 注入 `EndingScoreService`，路线结局匹配升级为"过程条件 OR 评分门槛"双通道。
+- 5 个路线结局各有过程条件和评分门槛两个匹配路径，保留稀缺条件优先级。
+- 体测幸存者评分门槛使用 `survival >= 85 && health >= 80` 双条件，避免被每周自然减压稀释。
+- 新增 6 个测试覆盖评分触发、优先级保持和 fallback 行为。
+- 最近全量测试为 408 个测试全绿。
+
+前置 Full Game V1 Phase 5：16 周阶段内容补齐。
 
 已完成：
 
@@ -243,7 +269,7 @@ CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划�
 
 当前优先级：
 1. V1 内容深化（可选）：继续补充各阶段事件密度、路线专属事件、多学期兼容。
-2. 结局评分与路线评分的更深度结合（可选）。
+2. 结局评分与路线评分已完成深度结合。
 
 注意：Phase 5 已完成 16 周阶段内容补齐，四个薄弱阶段（midterm/route/project/final）各有 6 条专属事件、4 条传闻、1 条奇遇链。
 
