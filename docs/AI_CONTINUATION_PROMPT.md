@@ -31,7 +31,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
-  /dashboard（含"第 1 周"、"共 16 周"）、/map、/exploration、/week/summary、/ending、/dungeons、/organizations。
+  /login、/dashboard（含 stage-progress、route-tendency、game-dock、"共 16 周"）、/map（含 campus-map）、/exploration、POST /exploration/4、/week/summary、/organizations、/npcs/6101、/dungeons、/ending，均为 200，无 Whitelabel。
 - CP4.1-CP4.9 已完成：传闻/周主题机制化、探索奇遇链、搭子救场、影响历史日志和历史周报。
 - CP5 A/B 均衡已完成：NPC 关系成长、NPC 剧情进度、NPC 专属分支互动、学期档案和结局成长画像。
 - CP5 UI 收尾已完成：移动端 Dock 遮挡复核和小范围 CSS 修复。
@@ -46,6 +46,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   - Phase 4：结局评分升级（EndingScoreService）、5 维评分 read model、路线画像
   - Phase 5：16 周阶段内容补齐、midterm/route/project/final 四阶段事件/传闻/奇遇链/周目标/成就
 - V1 五个阶段全部完成，后续可深化内容或推进多学期。
+- Full Game V1 Stabilization 已完成：Phase 5 后基础页面和关键流程已复核，`data-v1-stage-fill.sql` 头部注释已澄清 final 阶段覆盖来源；本轮无 Java、模板、CSS、schema 或 seed 语义变更。未执行 headless/实机浏览器截图。
 
 重要约束：
 - 不要重写整个系统。

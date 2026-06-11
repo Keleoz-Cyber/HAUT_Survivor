@@ -10,7 +10,7 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成，Phase 5 后稳定化复核已完成。
 
 最近一次全量验证：
 
@@ -19,6 +19,18 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Stabilization 已完成
+
+Phase 5 后已做一轮收尾复核：`/login`、`/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/organizations`、`/npcs/6101`、`/dungeons`、`/ending` 均为 200，无 Whitelabel。
+
+复核信号：
+- `/dashboard` 包含 stage-progress、route-tendency、game-dock 和“共 16 周”。
+- `/map` 包含 campus-map。
+- `/ending` 未结算状态显示“学期尚未结束”；结算后的 route-score-card 已由 `SemesterEndingControllerTests` 覆盖。
+- `data-v1-stage-fill.sql` 头部注释已澄清 final 阶段覆盖来源，明确 final 事件由 CP6.4 迁移内容提供。
+
+本轮无 Java、模板、CSS、schema 或 seed 语义变更。最近一次全量测试仍为 402 个测试全绿。剩余风险：未执行 headless/实机浏览器截图，移动端结论来自 CSS 审查和 HTML 结构检查。
 
 ## Full Game V1 Phase 5 已完成
 
@@ -78,7 +90,7 @@ CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复
 - CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
 - CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
 - CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
-- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成
+- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成；Phase 5 后 Stabilization 已完成
 
 ## 最近完成
 
