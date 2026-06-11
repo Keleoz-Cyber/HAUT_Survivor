@@ -301,4 +301,37 @@ class WeekSummaryServiceTests {
         assertThat(view.summaryText()).isNotBlank();
         assertThat(view.summaryText()).containsAnyOf("期末", "冲刺", "复习", "体测", "坚持");
     }
+
+    // ==================== Phase 3: Route tendency fields ====================
+
+    @Test
+    void weekSummaryIncludesRouteTendencyFields() {
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+        assertThat(view.routeTendencyName()).isNotBlank();
+        assertThat(view.routeTendencyDesc()).isNotBlank();
+    }
+
+    @Test
+    void weekSummaryRouteTendencyVariesByAttributes() {
+        // Change to high academic
+        var attr = playerService.findAttributeByUserId(2L);
+        attr.setAcademic(90);
+        attr.setDiscipline(80);
+        attr.setSkill(30);
+        attr.setSocial(30);
+        playerAttributeMapper.updateById(attr);
+
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 1);
+        assertThat(view.routeTendencyName()).isNotBlank();
+        // With very high academic, should lean academic
+        assertThat(view.routeTendencyName()).isEqualTo("学业路线");
+    }
+
+    @Test
+    void routeStageSummaryShowsRouteTendency() {
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 10);
+        assertThat(view.stageKey()).isEqualTo("route");
+        assertThat(view.routeTendencyName()).isNotBlank();
+        assertThat(view.routeTendencyDesc()).isNotBlank();
+    }
 }

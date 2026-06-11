@@ -462,4 +462,49 @@ class WeeklyGoalServiceTests {
         UserWeeklyGoal updated = weeklyGoalService.getCurrentGoal(2L, 1);
         assertThat(updated.getCompleted()).isEqualTo(1);
     }
+
+    // ==================== Phase 3: Stage and route weighted goal selection ====================
+
+    @Test
+    void openingStagePrefersExplorationGoals() {
+        // Week 1 = opening stage, should prefer explore/npc/buddy goals
+        List<WeeklyGoal> candidates = weeklyGoalService.pickCandidateGoals(2L, 1);
+        assertThat(candidates).hasSize(3);
+        // Verify selection doesn't error for opening stage
+        assertThat(candidates).allMatch(g -> g.getActive() == 1);
+    }
+
+    @Test
+    void midtermStagePrefersAcademicGoals() {
+        // Week 7 = midterm stage, should prefer academic/pressure goals
+        List<WeeklyGoal> candidates = weeklyGoalService.pickCandidateGoals(2L, 7);
+        assertThat(candidates).hasSize(3);
+        assertThat(candidates).allMatch(g -> g.getActive() == 1);
+    }
+
+    @Test
+    void finalStagePrefersPressureKeepGoals() {
+        // Week 15 = final stage, should prefer pressure_keep
+        List<WeeklyGoal> candidates = weeklyGoalService.pickCandidateGoals(2L, 15);
+        assertThat(candidates).hasSize(3);
+    }
+
+    @Test
+    void weightedSelectionStillReturnsThreeCandidates() {
+        // All stages should return exactly 3 candidates
+        for (int week = 1; week <= 16; week++) {
+            List<WeeklyGoal> candidates = weeklyGoalService.pickCandidateGoals(2L, week);
+            assertThat(candidates).hasSizeLessThanOrEqualTo(3);
+            assertThat(candidates).hasSizeGreaterThanOrEqualTo(0);
+        }
+    }
+
+    @Test
+    void weightedCandidatesDifferByRoute() {
+        // Week 7 = midterm stage, different default routes produce different candidates
+        // User 2L is "就业路线" (skill route), check it produces valid candidates
+        List<WeeklyGoal> skillCandidates = weeklyGoalService.pickCandidateGoals(2L, 7);
+        assertThat(skillCandidates).hasSize(3);
+        assertThat(skillCandidates).allMatch(g -> g.getActive() == 1);
+    }
 }

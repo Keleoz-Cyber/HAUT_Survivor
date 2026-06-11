@@ -9,15 +9,18 @@ import cn.haut.survivor.mapper.PlayerProfileMapper;
 import cn.haut.survivor.mapper.UserWeeklyGoalMapper;
 import cn.haut.survivor.mapper.WeeklyGoalMapper;
 import cn.haut.survivor.service.AchievementService;
+import cn.haut.survivor.service.RouteTendencyService;
+import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.WeeklyGoalService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class WeeklyGoalServiceImpl implements WeeklyGoalService {
@@ -27,18 +30,24 @@ public class WeeklyGoalServiceImpl implements WeeklyGoalService {
     private final PlayerProfileMapper playerProfileMapper;
     private final PlayerAttributeMapper playerAttributeMapper;
     private final AchievementService achievementService;
+    private final SemesterCalendarService semesterCalendarService;
+    private final RouteTendencyService routeTendencyService;
 
     public WeeklyGoalServiceImpl(
             WeeklyGoalMapper weeklyGoalMapper,
             UserWeeklyGoalMapper userWeeklyGoalMapper,
             PlayerProfileMapper playerProfileMapper,
             PlayerAttributeMapper playerAttributeMapper,
-            AchievementService achievementService) {
+            AchievementService achievementService,
+            SemesterCalendarService semesterCalendarService,
+            RouteTendencyService routeTendencyService) {
         this.weeklyGoalMapper = weeklyGoalMapper;
         this.userWeeklyGoalMapper = userWeeklyGoalMapper;
         this.playerProfileMapper = playerProfileMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.achievementService = achievementService;
+        this.semesterCalendarService = semesterCalendarService;
+        this.routeTendencyService = routeTendencyService;
     }
 
     @Override
@@ -57,13 +66,86 @@ public class WeeklyGoalServiceImpl implements WeeklyGoalService {
             return activeGoals;
         }
 
-        // 基于 userId + week 哈希确定性抽取 3 个
-        long seed = userId * 31L + currentWeek;
-        List<WeeklyGoal> shuffled = new ArrayList<>(activeGoals);
-        Collections.shuffle(shuffled, new java.util.Random(seed));
+        // 阶段和路线加权选择
+        String stageKey = semesterCalendarService.stageForWeek(currentWeek).stageKey();
+        String routeKey = deriveRouteKey(userId);
 
-        return shuffled.subList(0, 3);
+        // 为每个目标计算权重
+        long seed = userId * 31L + currentWeek;
+        java.util.Random rng = new java.util.Random(seed);
+
+        List<WeightedGoal> weighted = activeGoals.stream()
+                .map(goal -> new WeightedGoal(goal, goalWeight(goal, stageKey, routeKey, rng)))
+                .sorted(Comparator.comparingInt(WeightedGoal::weight).reversed())
+                .toList();
+
+        // 取权重最高的 3 个
+        return weighted.subList(0, Math.min(3, weighted.size())).stream()
+                .map(WeightedGoal::goal)
+                .toList();
     }
+
+    /** 从玩家属性和选择的路线推导路线 key */
+    private String deriveRouteKey(Long userId) {
+        PlayerProfile profile = playerProfileMapper.selectOne(new LambdaQueryWrapper<PlayerProfile>()
+                .eq(PlayerProfile::getUserId, userId)
+                .last("LIMIT 1"));
+        String chosenRoute = profile != null ? profile.getGrowthRoute() : null;
+
+        PlayerAttribute attr = playerAttributeMapper.selectOne(new LambdaQueryWrapper<PlayerAttribute>()
+                .eq(PlayerAttribute::getUserId, userId)
+                .last("LIMIT 1"));
+
+        return routeTendencyService.deriveTendency(attr, chosenRoute).routeKey();
+    }
+
+    /** 计算目标在当前阶段和路线下的权重 */
+    private int goalWeight(WeeklyGoal goal, String stageKey, String routeKey, java.util.Random rng) {
+        int weight = 1; // 基础权重，保证所有目标都可能被选中
+        String goalType = goal.getGoalType();
+
+        // 阶段加权：按阶段偏好给目标类型加分
+        weight += stageWeight(goalType, stageKey);
+
+        // 路线加权：按路线倾向给目标类型加分
+        weight += routeWeight(goalType, routeKey);
+
+        // 随机扰动（±1），避免完全确定性导致每周候选固定
+        weight += rng.nextInt(3) - 1;
+
+        return Math.max(1, weight);
+    }
+
+    /** 阶段权重：按当前阶段给匹配的目标类型加分 */
+    private int stageWeight(String goalType, String stageKey) {
+        return switch (stageKey) {
+            case "opening" -> matchAny(goalType, Set.of("explore_count", "npc_meet", "buddy_selected", "exploration")) ? 3 : 0;
+            case "rhythm" -> matchAny(goalType, Set.of("org_activity", "npc_interaction", "familiarity_gain")) ? 3 : 0;
+            case "midterm" -> matchAny(goalType, Set.of("academic_event", "pressure_keep", "exploration_story_step")) ? 3 : 0;
+            case "route" -> matchAny(goalType, Set.of("org_activity", "npc_interaction", "dungeon_stage")) ? 3 : 0;
+            case "project" -> matchAny(goalType, Set.of("dungeon_stage", "buddy_assist", "weekly_modifier_used")) ? 3 : 0;
+            case "final" -> matchAny(goalType, Set.of("pressure_keep", "exploration")) ? 3 : 0;
+            default -> 0;
+        };
+    }
+
+    /** 路线权重：按当前路线倾向给匹配的目标类型加分 */
+    private int routeWeight(String goalType, String routeKey) {
+        return switch (routeKey) {
+            case "academic" -> matchAny(goalType, Set.of("academic_event", "exploration_story_step")) ? 2 : 0;
+            case "social" -> matchAny(goalType, Set.of("npc_meet", "npc_interaction", "buddy_selected", "familiarity_gain")) ? 2 : 0;
+            case "skill" -> matchAny(goalType, Set.of("dungeon_stage", "org_activity")) ? 2 : 0;
+            case "survival" -> matchAny(goalType, Set.of("pressure_keep", "health")) ? 2 : 0;
+            case "balanced" -> 1; // 均衡路线所有目标 +1
+            default -> 0;
+        };
+    }
+
+    private boolean matchAny(String value, Set<String> candidates) {
+        return candidates.contains(value);
+    }
+
+    private record WeightedGoal(WeeklyGoal goal, int weight) {}
 
     @Override
     @Transactional

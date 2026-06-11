@@ -19,6 +19,7 @@ import cn.haut.survivor.mapper.WeeklyGoalMapper;
 import cn.haut.survivor.mapper.UserWeekSummaryMapper;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.InfluenceLogService;
+import cn.haut.survivor.service.RouteTendencyService;
 import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.WeekSummaryService;
 import cn.haut.survivor.service.WeeklyThemeService;
@@ -44,6 +45,8 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
     private final AchievementService achievementService;
     private final ExplorationStoryProgressMapper explorationStoryProgressMapper;
     private final InfluenceLogService influenceLogService;
+    private final RouteTendencyService routeTendencyService;
+    private final cn.haut.survivor.mapper.PlayerProfileMapper playerProfileMapper;
 
     public WeekSummaryServiceImpl(
             UserWeekSummaryMapper userWeekSummaryMapper,
@@ -57,7 +60,9 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
             SemesterCalendarService semesterCalendarService,
             AchievementService achievementService,
             ExplorationStoryProgressMapper explorationStoryProgressMapper,
-            InfluenceLogService influenceLogService) {
+            InfluenceLogService influenceLogService,
+            RouteTendencyService routeTendencyService,
+            cn.haut.survivor.mapper.PlayerProfileMapper playerProfileMapper) {
         this.userWeekSummaryMapper = userWeekSummaryMapper;
         this.playerAttributeMapper = playerAttributeMapper;
         this.userWeeklyGoalMapper = userWeeklyGoalMapper;
@@ -70,6 +75,8 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         this.achievementService = achievementService;
         this.explorationStoryProgressMapper = explorationStoryProgressMapper;
         this.influenceLogService = influenceLogService;
+        this.routeTendencyService = routeTendencyService;
+        this.playerProfileMapper = playerProfileMapper;
     }
 
     @Override
@@ -183,6 +190,16 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
                 currentBuddy != null, hasNpcInteractionThisWeek, hasStoryProgressThisWeek);
         String ratingLabel = generateRatingLabel(attribute, goalCompleted, knownNpcCount);
 
+        // 路线倾向
+        String chosenRoute = null;
+        var profile = playerProfileMapper.selectOne(new LambdaQueryWrapper<cn.haut.survivor.domain.entity.PlayerProfile>()
+                .eq(cn.haut.survivor.domain.entity.PlayerProfile::getUserId, userId)
+                .last("LIMIT 1"));
+        if (profile != null) {
+            chosenRoute = profile.getGrowthRoute();
+        }
+        var routeTendency = routeTendencyService.deriveTendency(attribute, chosenRoute);
+
         return new WeekSummaryView(
                 weekNumber,
                 theme.name(),
@@ -209,7 +226,10 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
                 semesterCalendarService.stageForWeek(weekNumber).stageKey(),
                 weeklyThemeService.stageSummaryHint(weekNumber),
                 semesterCalendarService.weeksLeftInStage(weekNumber),
-                semesterCalendarService.semesterWeeks()
+                semesterCalendarService.semesterWeeks(),
+                // Phase 3 route tendency
+                routeTendency.routeName(),
+                routeTendency.description()
         );
     }
 

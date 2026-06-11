@@ -10,15 +10,19 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化。下一步按 Phase 3-4 继续推进。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标。下一步按 Phase 4 继续推进。
 
 最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Phase 3 已完成
+
+新增 `RouteTendencyService`，基于玩家当前属性推导成长路线倾向（academic/social/skill/survival/balanced），chosenRoute 一致性 +10 bonus。`WeeklyGoalServiceImpl.pickCandidateGoals` 改为阶段加权 + 路线加权选择，不再从全量目标池等权哈希抽取。Dashboard 新增路线倾向提示区域。`WeekSummaryView` 新增 routeTendencyName、routeTendencyDesc 字段，周总结页在 route/project/final 阶段显示路线倾向反馈。未新增表，未新增 seed。HTTP 冒烟通过。
 
 ## Full Game V1 Phase 2 已完成
 
@@ -209,10 +213,10 @@ CP6.3 开学迎新周机制化：
 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
 
 当前优先级：
-1. Full Game V1 Phase 3：路线目标与阶段目标。
-2. Full Game V1 Phase 4：结局评分升级。
+1. Full Game V1 Phase 4：结局评分升级。
+2. Full Game V1 Phase 5：内容补齐。
 
-注意：不要把 Phase 3/4 一次性混做。Phase 2 已完成周主题升级和阶段反馈深化，不新增数据库表，不新增 seed，不做路线评分。
+注意：不要把 Phase 3/4 一次性混做。Phase 3 已完成路线倾向推导和阶段加权周目标选择，不新增数据库表，不新增 seed。
 
 ## CP6 交接备注
 

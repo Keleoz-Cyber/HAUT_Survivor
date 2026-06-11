@@ -19,6 +19,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 8. docs/superpowers/specs/2026-06-11-full-game-v1-design.md
 9. docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md
 10. docs/superpowers/plans/2026-06-11-full-game-v1-phase-2-week-theme-feedback.md
+11. docs/superpowers/plans/2026-06-11-full-game-v1-phase-3-route-goals.md
 
 当前状态：
 - 这是一个 Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL + Thymeleaf 项目。
@@ -37,8 +38,8 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - CP6.3 已完成：开学迎新周机制化（事件偏向、组织门槛、NPC 互动）。
 - CP6.4 已完成：期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容）。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1，不再继续以 CP6.x 方式补零散内容。
-- Full Game V1 Phase 2 已完成：周主题升级与阶段反馈深化，SemesterStage 扩展玩法字段，6 阶段均有专属叙事和探索影响，Dashboard 学期阶段进度条上线。
-- Full Game V1 设计稿和 Phase 3-4 待执行；下一步按 Phase 3 继续推进。
+- Full Game V1 Phase 3 已完成：路线倾向推导（RouteTendencyService）、阶段加权周目标选择、Dashboard/周总结路线反馈。
+- Full Game V1 设计稿和 Phase 4 待执行；下一步按 Phase 4 继续推进。
 
 重要约束：
 - 不要重写整个系统。
@@ -51,14 +52,14 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-执行 Full Game V1 Phase 3：路线目标与阶段目标。
+执行 Full Game V1 Phase 4：结局评分升级。
 
 要求：
 - 不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3 或 CP6.4。
-- 不要重复实现 Full Game V1 Phase 1 或 Phase 2。
+- 不要重复实现 Full Game V1 Phase 1、Phase 2 或 Phase 3。
 - 不要继续按 CP6.x 命名新增零散内容包。
-- Phase 3 目标：按成长路线和阶段过滤周目标，让路线成为贯穿一学期的方向。
-- Phase 3 不新增数据库表，不新增 seed，不做结局评分升级。
+- Phase 4 目标：扩展 SettlementContext，增加路线评分 read model，结局页展示路线画像。
+- Phase 4 不新增数据库表，不新增 seed。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。

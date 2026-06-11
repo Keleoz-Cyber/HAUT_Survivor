@@ -76,7 +76,8 @@ class DashboardControllerTests {
                         "goalCandidates",
                         "unlockedAchievements", "recentAchievements",
                         "stageKey", "stageName", "stageIcon",
-                        "weeksLeftInStage", "semesterWeeks", "allStages", "nextStageName"))
+                        "weeksLeftInStage", "semesterWeeks", "allStages", "nextStageName",
+                        "routeTendencyName", "routeTendencyDesc"))
                 .andExpect(model().attribute("currentBuddy", org.hamcrest.Matchers.nullValue()))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("第 1 周")))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("共 16 周")));

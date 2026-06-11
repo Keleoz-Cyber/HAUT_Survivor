@@ -1305,6 +1305,49 @@ body {
     color: #94a3b8;
 }
 
+/* ===== 成长倾向 ===== */
+.route-tendency {
+    background: rgba(59, 130, 246, 0.06);
+    border: 1px solid rgba(59, 130, 246, 0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+}
+
+.route-tendency__label {
+    font-size: 0.88rem;
+    margin: 0 0 4px 0;
+    color: #1e293b;
+}
+
+.route-tendency__label strong {
+    color: #2563eb;
+}
+
+.route-tendency__desc {
+    font-size: 0.78rem;
+    margin: 0;
+    color: #64748b;
+}
+
+@media (max-width: 576px) {
+    .route-tendency {
+        padding: 8px 10px;
+        margin-bottom: 12px;
+    }
+}
+
+/* ===== 周总结路线倾向 ===== */
+.week-summary-hero__route-tendency {
+    font-size: 0.82rem;
+    color: #2563eb;
+    margin: 6px 0;
+}
+
+.week-summary-hero__route-tendency strong {
+    color: #1e40af;
+}
+
 /* 压力预警 */
 .pressure-alert {
     background: rgba(239, 68, 68, 0.1);

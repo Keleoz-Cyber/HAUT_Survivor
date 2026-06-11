@@ -213,7 +213,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -460,12 +460,22 @@ BUILD SUCCESS
 - 最近验证：`.\mvnw.cmd clean test`，Tests run: 352, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`（含 stage-progress 区域）、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`（含阶段提示）、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
+## Full Game V1 Phase 3：路线目标与阶段目标
+
+- 新增 `RouteTendencyService`：基于玩家当前属性推导成长路线倾向（academic/social/skill/survival/balanced），chosenRoute 一致性 +10 bonus。
+- `WeeklyGoalServiceImpl.pickCandidateGoals` 改为阶段加权 + 路线加权选择：opening 偏探索/NPC、rhythm 偏组织、midterm 偏学业/压力、route 偏组织/NPC/副本、project 偏副本、final 偏压力/健康。不排除任何目标，只调整权重。
+- Dashboard 新增路线倾向提示区域（route-tendency section），显示推导的路线名称和描述。
+- `WeekSummaryView` 新增 routeTendencyName、routeTendencyDesc 字段。周总结页在 route/project/final 阶段显示路线倾向反馈。
+- 未新增表，未新增 seed，未重写 UI 体系。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 370, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`（含 route-tendency 区域）、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
+
 ## 当前文档状态
 
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 2 已完成；当前主线下一步是 Full Game V1 Phase 3：路线目标与阶段目标。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 Phase 3 已完成；当前主线下一步是 Full Game V1 Phase 4：结局评分升级。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 
@@ -475,8 +485,8 @@ BUILD SUCCESS
 |---|---|
 | Full Game V1 Phase 1 | 已完成：16 周单学期骨架、统一学期日历、阶段主题映射、必要页面文案和测试 |
 | Full Game V1 Phase 2 | 已完成：周主题升级与阶段反馈深化，把 CP6 机制纳入 16 周阶段节奏 |
-| Full Game V1 Phase 3 | 当前主线下一步：路线目标与阶段目标，避免 16 周目标池阶段错位 |
-| Full Game V1 Phase 4 | 结局评分升级，让完整学期经历影响结局判断 |
+| Full Game V1 Phase 3 | 已完成：路线倾向推导、阶段加权周目标选择、Dashboard/周总结路线反馈 |
+| Full Game V1 Phase 4 | 当前主线下一步：结局评分升级，让完整学期经历影响结局判断 |
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
 | 深化周主题影响 | 第 1 周影响事件、组织和 NPC；第 2 周影响组织活动收益；第 3 周影响副本压力；第 4 周影响图书馆/操场探索和体测副本压力。四个周主题均有明确玩法影响 |
 | CP6.4 期末与体测周 | 已完成：图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容 |

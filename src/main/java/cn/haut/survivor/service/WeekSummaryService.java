@@ -46,6 +46,9 @@ public interface WeekSummaryService {
             String stageKey,
             String stageSummaryHint,
             int weeksLeftInStage,
-            int semesterWeeks
+            int semesterWeeks,
+            // Phase 3 new fields
+            String routeTendencyName,
+            String routeTendencyDesc
     ) {}
 }

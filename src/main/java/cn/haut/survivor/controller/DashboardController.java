@@ -9,6 +9,7 @@ import cn.haut.survivor.domain.entity.WeeklyGoal;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.NpcService;
 import cn.haut.survivor.service.PlayerService;
+import cn.haut.survivor.service.RouteTendencyService;
 import cn.haut.survivor.service.RumorService;
 import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.UserService;
@@ -37,13 +38,15 @@ public class DashboardController {
     private final NpcService npcService;
     private final WeeklyGoalService weeklyGoalService;
     private final AchievementService achievementService;
+    private final RouteTendencyService routeTendencyService;
 
     public DashboardController(PlayerService playerService, UserService userService,
                                WeeklyThemeService weeklyThemeService,
                                SemesterCalendarService semesterCalendarService,
                                RumorService rumorService,
                                NpcService npcService, WeeklyGoalService weeklyGoalService,
-                               AchievementService achievementService) {
+                               AchievementService achievementService,
+                               RouteTendencyService routeTendencyService) {
         this.playerService = playerService;
         this.userService = userService;
         this.weeklyThemeService = weeklyThemeService;
@@ -52,6 +55,7 @@ public class DashboardController {
         this.npcService = npcService;
         this.weeklyGoalService = weeklyGoalService;
         this.achievementService = achievementService;
+        this.routeTendencyService = routeTendencyService;
     }
 
     @GetMapping("/")
@@ -88,6 +92,12 @@ public class DashboardController {
         model.addAttribute("semesterWeeks", semesterCalendarService.semesterWeeks());
         model.addAttribute("allStages", semesterCalendarService.allStages());
         model.addAttribute("nextStageName", nextStage != null ? nextStage.name() : null);
+
+        // 路线倾向
+        var routeTendency = routeTendencyService.deriveTendency(attribute, profile.getGrowthRoute());
+        model.addAttribute("routeTendencyName", routeTendency.routeName());
+        model.addAttribute("routeTendencyDesc", routeTendency.description());
+
         model.addAttribute("rumors", rumorService.pickRumorsForUser(userId, profile.getCurrentWeek(), 3));
         model.addAttribute("knownNpcs", npcService.listKnownNpcs(userId));
         model.addAttribute("currentBuddy", npcService.getCurrentBuddy(userId, profile.getCurrentWeek()).orElse(null));
