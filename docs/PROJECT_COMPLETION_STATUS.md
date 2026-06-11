@@ -450,8 +450,8 @@ BUILD SUCCESS
 
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
-- 项目方向已从 CP6.x 小内容包转向 Full Game V1；下一步以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 和 `docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md` 为准。
-- 当前主线下一步是 Full Game V1 Phase 1：16 周单学期骨架。不要继续按 CP6.x 命名新增零散内容包。
+- 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
+- Full Game V1 Phase 1 已完成；当前主线下一步是 Full Game V1 Phase 2：周主题升级与阶段反馈深化。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 
@@ -459,8 +459,8 @@ BUILD SUCCESS
 
 | 方向 | 说明 |
 |---|---|
-| Full Game V1 Phase 1 | 当前主线下一步：16 周单学期骨架、统一学期日历、阶段主题映射、必要页面文案和测试 |
-| Full Game V1 Phase 2 | 周主题升级与阶段反馈深化，把 CP6 机制纳入 16 周阶段节奏 |
+| Full Game V1 Phase 1 | 已完成：16 周单学期骨架、统一学期日历、阶段主题映射、必要页面文案和测试 |
+| Full Game V1 Phase 2 | 当前主线下一步：周主题升级与阶段反馈深化，把 CP6 机制纳入 16 周阶段节奏 |
 | Full Game V1 Phase 3 | 路线目标与阶段目标，避免 16 周目标池阶段错位 |
 | Full Game V1 Phase 4 | 结局评分升级，让完整学期经历影响结局判断 |
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
