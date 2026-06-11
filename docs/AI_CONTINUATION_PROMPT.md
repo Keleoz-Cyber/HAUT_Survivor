@@ -23,7 +23,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 307, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 324, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
   /dashboard、/map、/map/location/2/event、/exploration、/exploration/4 POST、/week/summary、
@@ -45,10 +45,11 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-不要重复实现 CP6 第一批、CP6.1 或 CP6.2。优先从以下方向继续：
+不要重复实现 CP6 第一批、CP6.1、CP6.2 或 CP6.3。优先从以下方向继续：
 
 可选方向：
-1. CP6.3 周主题「开学迎新周」机制化，影响组织、事件或 NPC 行为。
+1. CP6.4 期末与体测周机制化：让第 4 周主题进一步影响健康事件、操场/图书馆路线、体测压力和复习收益。
+2. 或先做 CP6 浏览器视觉复核：地图热点、开学周新增事件页、NPC 详情页移动端检查。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。

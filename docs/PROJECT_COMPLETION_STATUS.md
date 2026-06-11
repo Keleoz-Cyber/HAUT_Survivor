@@ -10,7 +10,7 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 创建角色 → 探索/行动/组织 → 推周 → 结局结算 → 重开新学期
 ```
 
-317 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
+324 个测试全绿，UI 2.0 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从“基础周回合模拟器”推进到“有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
 ## 已完成功能
 
@@ -379,6 +379,30 @@ BUILD SUCCESS
 - `.\mvnw.cmd clean test`：Tests run: 317, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`、`/map`、`/map/location/2/event`、`/map/location/4/event`、`/map/location/6/event`、`/map/location/8/event`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/npcs/6101`、`/dungeons`、`/organizations`，均为 200，无 Whitelabel。
 - 未修改 UI 文件，未执行浏览器视觉检查。
+
+## CP6.3 开学迎新周机制化
+
+状态：已完成
+
+本批次为机制 + seed 扩展，不新增数据库表。所有周主题钩子集中在 `WeeklyThemeService`。
+
+机制变更：
+- 第 1 周周主题事件偏向改为「生活」，用于承载迎新、校园卡、网络、宿舍适应等开学事务。
+- 第 1 周加入组织时社交门槛降低 5 点（40 → 35），体现迎新期更容易建立连接。
+- 第 1 周主动 NPC 互动在没有本周搭子加成时熟悉度额外 +1，并在互动结果中显示开学适应周反馈文案。
+- `event_hint` 新增 `life → 生活` 映射。
+
+新增 seed：
+- 事件：6 条，ID 6301-6306，覆盖迎新导览、选课、宿舍网络、校园卡、社团预热、食堂错峰。
+- 事件选项：18 条，ID 630101-630603，每个事件 3 个选项。
+- 传闻：4 条，ID 6301-6304，包含 `life` 目标的 event_hint。
+- 周目标：2 个，ID 6301-6302。
+- 成就：2 个，ID 6301-6302。
+
+验证：
+- `.\mvnw.cmd clean test`：Tests run: 324, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/map/location/7/event`、`/map/location/8/event`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/organizations`、`/npcs/6101`、`/dungeons`，均为 200，无 Whitelabel。
+- 未修改模板/CSS，未执行浏览器视觉检查。
 
 ## 当前文档状态
 
