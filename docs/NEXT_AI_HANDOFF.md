@@ -65,11 +65,11 @@ CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复
 - CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
 - CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
 - CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
-- Full Game V1：Phase 1、Phase 2、Phase 3 已完成，下一步执行 Phase 4 结局评分升级
+- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4 已完成，下一步执行 Phase 5 内容补齐
 
 ## 最近完成
 
-Full Game V1 Phase 3：路线目标与阶段目标。
+Full Game V1 Phase 4：结局评分升级。
 
 已完成：
 

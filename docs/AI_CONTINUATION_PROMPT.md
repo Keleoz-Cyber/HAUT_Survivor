@@ -20,6 +20,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 9. docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md
 10. docs/superpowers/plans/2026-06-11-full-game-v1-phase-2-week-theme-feedback.md
 11. docs/superpowers/plans/2026-06-11-full-game-v1-phase-3-route-goals.md
+12. docs/superpowers/plans/2026-06-11-full-game-v1-phase-4-ending-score.md
 
 当前状态：
 - 这是一个 Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL + Thymeleaf 项目。
@@ -27,7 +28,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 383, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
   /dashboard（含"第 1 周"、"共 16 周"）、/map、/exploration、/week/summary、/ending、/dungeons、/organizations。
@@ -60,7 +61,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 不要重复实现 Full Game V1 Phase 1、Phase 2、Phase 3 或 Phase 4。
 - 不要继续按 CP6.x 命名新增零散内容包。
 - Phase 5 目标：按 16 周阶段补充中期事件、路线分化事件、项目/DDL 事件、期末/体测事件。
-- Phase 4 不新增数据库表，不新增 seed。
+- Phase 5 不新增数据库表；如必须新增 seed，只补 16 周阶段内容，不要恢复 CP6.x 命名。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。
