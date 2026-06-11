@@ -1,0 +1,8 @@
+# Docker profile — overrides datasource only.
+# All other config (sql.init.data-locations, thymeleaf, mybatis-plus, server.port, gameplay)
+# is inherited from application.yml. SPRING_PROFILES_ACTIVE=docker is set in the Dockerfile.
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/haut_survivor?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false}
+    username: ${SPRING_DATASOURCE_USERNAME:haut}
+    password: ${SPRING_DATASOURCE_PASSWORD:haut123456}
