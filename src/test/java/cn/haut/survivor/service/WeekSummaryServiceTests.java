@@ -167,7 +167,7 @@ class WeekSummaryServiceTests {
         attr.setPressure(78);
         playerAttributeMapper.updateById(attr);
 
-        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 3);
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 12); // project stage
 
         assertThat(view.summaryText()).contains("DDL");
     }
@@ -180,7 +180,7 @@ class WeekSummaryServiceTests {
         attr.setPressure(45);
         playerAttributeMapper.updateById(attr);
 
-        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 4);
+        WeekSummaryView view = weekSummaryService.buildCurrentWeekSummary(2L, 15); // final stage
 
         assertThat(view.summaryText()).contains("复习");
     }

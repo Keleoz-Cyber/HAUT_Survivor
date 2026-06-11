@@ -89,10 +89,12 @@ class EventServiceTests {
 
     @Test
     void weeklyThemeMapsToPreferredEventType() {
+        // opening (1-2) → 生活, rhythm (3-5) → 社交, midterm (6-8) → 学习, route (9-11) → 技能, project (12-14) → 学习, final (15-16) → 健康
         assertThat(eventService.getWeeklyThemePreferredEventType(1)).isEqualTo("生活");
-        assertThat(eventService.getWeeklyThemePreferredEventType(2)).isEqualTo("社交");
-        assertThat(eventService.getWeeklyThemePreferredEventType(3)).isEqualTo("学习");
-        assertThat(eventService.getWeeklyThemePreferredEventType(4)).isEqualTo("健康");
+        assertThat(eventService.getWeeklyThemePreferredEventType(3)).isEqualTo("社交");
+        assertThat(eventService.getWeeklyThemePreferredEventType(6)).isEqualTo("学习");
+        assertThat(eventService.getWeeklyThemePreferredEventType(12)).isEqualTo("学习");
+        assertThat(eventService.getWeeklyThemePreferredEventType(15)).isEqualTo("健康");
         assertThat(eventService.getWeeklyThemePreferredEventType(99)).isEqualTo("健康");
     }
 
@@ -176,7 +178,7 @@ class EventServiceTests {
         insertWeightedEvent("传闻技能事件", "技能", location.getId());
 
         PlayerProfile profile = playerService.findProfileByUserId(2L);
-        profile.setCurrentWeek(2);
+        profile.setCurrentWeek(3); // rhythm stage → 社交
         playerProfileMapper.updateById(profile);
 
         int weeklyThemeHits = 0;
@@ -189,7 +191,7 @@ class EventServiceTests {
         }
 
         assertThat(weeklyThemeHits)
-                .as("传闻偏向存在时，第 2 周社交主题仍应提供明显的次级事件偏向")
+                .as("传闻偏向存在时，第 3 周社交主题仍应提供明显的次级事件偏向")
                 .isGreaterThan(160);
     }
 
