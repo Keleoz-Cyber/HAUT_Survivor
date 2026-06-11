@@ -301,3 +301,85 @@ INSERT INTO achievement
 (id, achievement_key, achievement_name, description, icon, condition_type, condition_value, reward_title, active) VALUES
 (6301, 'cp63_opening_week_survivor', '开学路线不迷路', '累计探索 3 次开学周相关地点，开始掌握莲花街校区的基本节奏。', '🧭', 'exploration', 3, '开学路线员', 1),
 (6302, 'cp63_campus_affairs_stable', '事务窗口不慌了', '累计使用 2 次传闻效果，把校园卡、网络和导览消息转成实际优势。', '🪪', 'rumor_effect_used', 2, '事务稳定器', 1);
+
+-- =====================================================
+-- CP6.4: 期末与体测周机制化
+-- =====================================================
+
+INSERT INTO `event`
+(id, event_name, event_type, location_id, description, scene_image, mood_tag, probability, min_week, max_week, min_explore_level, status) VALUES
+(6401, '图书馆闭馆前冲刺', '学习', 2, '闭馆音乐快要响起，图书馆里还有几排人没有动。你面前摊着两门课的复习资料，最难的是决定先救哪一门。', 'scene-library', '期末', 70, 4, 4, 0, 1),
+(6402, '考前重点互认', '学习', 2, '复习区里有人小声对答案，你听到几个熟悉又陌生的知识点。也许这是查漏补缺的机会，也可能只是新的焦虑来源。', 'scene-library', '复盘', 60, 4, 4, 10, 1),
+(6403, '体测前热身队列', '健康', 5, '操场边排着等测试的人，有人原地高抬腿，有人盯着成绩表沉默。轮到你之前，还能做最后一点准备。', 'scene-track', '体测', 75, 4, 4, 0, 1),
+(6404, '1000 米配速选择', '健康', 5, '跑道上风不大，但每个人都知道最后一圈会变长。你需要决定是稳住节奏，还是一开始就跟住前排。', 'scene-track', '耐力', 65, 4, 4, 15, 1),
+(6405, '清淡补给窗口', '生活', 4, '知雅餐厅的清淡窗口排队不长，旁边却飘来炸物香味。期末周的身体管理，往往从一顿饭开始。', 'scene-canteen', '补给', 55, 4, 4, 0, 1),
+(6406, '宿舍早睡协议', '健康', 3, '宿舍里有人还在刷题，有人已经关灯戴眼罩。你们临时约定今晚别互相拖后腿，至少让明天的大脑能启动。', 'scene-dorm', '休息', 55, 4, 4, 0, 1);
+
+INSERT INTO event_option
+(id, event_id, option_text, preview_text, risk_level, result_text, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change) VALUES
+(640101, 6401, '先救最容易提分的一门', '学业和自律提升，压力略降', 'low', '你把复习范围缩到最可能拿分的章节，进度条终于开始移动。', 3, 0, 0, 0, 1, -1, 2, 26),
+(640102, 6401, '把两门都粗略扫一遍', '覆盖面更广，但压力仍在', 'medium', '你没有押宝，但每个知识点都只碰到表面。至少考场上不会完全陌生。', 2, 0, 0, 0, 1, 1, 1, 20),
+(640103, 6401, '继续翻聊天记录找重点', '可能有用，但节奏变散', 'high', '群消息越翻越多，你找到几个重点，也顺手吸收了不少焦虑。', 1, -1, 0, 1, 0, 3, -1, 12),
+(640201, 6402, '把听到的重点回到教材里核对', '复盘扎实，技能提升', 'low', '你没有直接照抄答案，而是回到教材确认来源。知识点终于落到纸面上。', 2, 0, 0, 0, 2, -1, 2, 24),
+(640202, 6402, '加入讨论，交换复习盲区', '社交和学业小升', 'medium', '你们互相提醒了几个容易漏掉的点，焦虑被拆成了清单。', 2, 0, 0, 2, 0, 0, 1, 22),
+(640203, 6402, '听完就走，避免继续焦虑', '压力下降，收益较轻', 'low', '你记下两个关键词后离开讨论区，保住了自己的复习节奏。', 1, 0, 0, 0, 0, -2, 1, 16),
+(640301, 6403, '跟着队伍完整热身', '健康提升，压力下降', 'low', '你活动开了肩和腿，轮到自己时没有那么僵。', 0, 3, 0, 1, 0, -2, 1, 24),
+(640302, 6403, '只做关键拉伸，保留体力', '稳妥但收益较轻', 'low', '你没有把体力花在等待区，至少上场时状态还算平稳。', 0, 2, 0, 0, 0, -1, 1, 18),
+(640303, 6403, '临时刷手机转移注意', '压力短降，自律下降', 'medium', '短视频确实让你忘了一会儿排队，但回过神时心跳更快了。', 0, 0, 0, 0, 0, -1, -2, 10),
+(640401, 6404, '前两圈压住速度，最后冲刺', '健康和自律提升', 'low', '你没有被前排带乱节奏，最后一圈还能提速。成绩不夸张，但很稳。', 0, 4, 0, 0, 0, -1, 2, 28),
+(640402, 6404, '跟住最快的人', '高风险高压力', 'high', '前半程很有气势，后半程肺开始抗议。你撑完了，但压力也跟着上来。', 0, 2, 0, 1, 0, 3, 0, 18),
+(640403, 6404, '找熟人互相报圈速', '社交辅助，节奏稳定', 'medium', '有人提醒你别乱冲，你也帮对方稳住了最后一圈。', 0, 3, 0, 2, 0, -1, 1, 24),
+(640501, 6405, '选择清淡套餐和热汤', '健康恢复，压力下降', 'low', '身体没有立刻变强，但胃至少没有继续加班。下午复习也轻了一点。', 0, 2, -2, 0, 0, -1, 1, 18),
+(640502, 6405, '和同学拼桌交换考试安排', '生活信息更清楚', 'low', '你们把考试时间和体测安排对了一遍，少了一个记错时间的风险。', 1, 1, 0, 2, 0, -1, 1, 20),
+(640503, 6405, '奖励自己一顿重口味', '短期快乐，健康下降', 'medium', '快乐是真的，饭后困意也是真的。你决定晚上至少走一圈。', 0, -1, -3, 0, 0, -1, -1, 12),
+(640601, 6406, '约定固定熄灯时间', '健康和自律提升', 'low', '你们把闹钟统一提前，宿舍难得形成了同一条作息战线。', 0, 3, 0, 1, 0, -2, 2, 24),
+(640602, 6406, '戴耳塞继续复习一小时', '学业提升但恢复一般', 'medium', '你没有被宿舍动静带乱，但大脑已经明显变慢。', 2, 0, 0, 0, 1, 1, 0, 18),
+(640603, 6406, '躺下继续刷重点截图', '看似复习，实则拖延', 'high', '屏幕越刷越亮，重点越看越碎。第二天醒来时，你只记得自己很晚才睡。', 0, -2, 0, 0, 0, 3, -2, 8);
+
+INSERT INTO rumor
+(id, week_number, location_id, rumor_title, rumor_text, effect_hint, effect_type, effect_value, effect_target, rarity, active) VALUES
+(6401, 4, 5, '体测队伍下午会分流', '有人说下午操场队伍会短一点，但热身时间也更难把握。', '操场事件更偏向健康', 'event_hint', 1, 'health', 'common', 1),
+(6402, 4, 2, '图书馆闭馆前半小时空位会松动', '有人离开得早，适合补最后一段复习。', '图书馆探索收益提高', 'explore_bonus', 2, 'explore', 'common', 1),
+(6403, 4, 3, '宿舍今晚有人约定早睡', '如果能跟上节奏，明天压力会轻一点。', '宿舍压力下降', 'safe_zone', 2, 'pressure', 'rare', 1),
+(6404, 4, 2, '林然整理了最后错题清单', '据说图书馆附近能听到几个最后重点。', '图书馆学业收益提高', 'attr_bonus', 2, 'academic', 'rare', 1);
+
+INSERT INTO exploration_story_chain
+(id, chain_key, chain_name, location_id, week_number, required_explore_level, step_number, scenario_text, result_text, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change, next_step_number, active) VALUES
+(6401, 'final_library_review', '最后复习路线', 2, 4, 0, 1, '你发现图书馆不同楼层的复习氛围差别很大，有人背书，有人刷题，也有人只是盯着屏幕发呆。', '你选了一个适合整理错题的位置，复习开始有了入口。', 2, 0, 0, 0, 1, -1, 1, 18, 2, 1),
+(6402, 'final_library_review', '最后复习路线', 2, 4, 15, 2, '你把错题、课件和群里重点重新对齐，发现有些焦虑其实来自没有排序。', '你列出了最后一天的复习顺序，压力下降了一点。', 3, 0, 0, 0, 1, -2, 2, 24, 3, 1),
+(6403, 'final_library_review', '最后复习路线', 2, 4, 30, 3, '闭馆前，你把最容易忘的知识点写成一页纸。它不保证满分，但能让你明天不慌。', '你完成了一份能带进考前十分钟的复习索引。', 4, 0, 0, 1, 2, -2, 3, 34, NULL, 1),
+(6404, 'physical_test_route', '体测缓冲路线', 5, 4, 0, 1, '操场上每个人都像在和自己的身体谈判。你先绕场走了一圈，确认测试点和排队位置。', '路线清楚以后，体测不再像突然袭击。', 0, 2, 0, 0, 0, -1, 1, 18, 2, 1),
+(6405, 'physical_test_route', '体测缓冲路线', 5, 4, 15, 2, '你跟着前面同学做了几组热身，顺便记住老师喊号的节奏。', '等待时间没有白耗，身体逐渐进入状态。', 0, 3, 0, 1, 0, -2, 1, 24, 3, 1),
+(6406, 'physical_test_route', '体测缓冲路线', 5, 4, 30, 3, '测试结束后，你没有立刻瘫坐，而是慢走到跑道边把呼吸缓下来。', '这次体测没有变成灾难，甚至让你觉得身体还能救。', 0, 5, 0, 1, 0, -3, 2, 34, NULL, 1);
+
+INSERT INTO dungeon
+(id, dungeon_name, dungeon_type, description, cover_image, theme_style, estimated_minutes, difficulty_label, reward_exp, reward_title, status) VALUES
+(6401, '体测生存挑战', 'physical', '1000 米、引体向上和坐位体前屈排成一条线。你不需要成为运动达人，只需要把节奏稳住，活着走出操场。', 'scene-track', 'HEALTH', 8, '中等', 80, '体测通关者', 1);
+
+INSERT INTO dungeon_task
+(id, dungeon_id, task_name, task_type, task_order, scene_text, target_text, background_image, minigame_type, minigame_config, timer_seconds, settlement_rule, random_enabled, attribute_check_rule, pass_condition, required, status) VALUES
+(640101, 6401, '1000 米配速', 'choice', 1, '第一项是 1000 米。起跑线前大家都很安静，只有秒表和呼吸声越来越明显。', '选择你的配速策略。', 'scene-track', 'none', NULL, NULL, '配速越稳定，后续压力越低。', 0, 'health>=35', 'score >= 40', 1, 1),
+(640102, 6401, '引体向上排队', 'choice', 2, '引体向上区域排队很长，前面有人一次过，也有人挂在杠上开始怀疑人生。', '在等待和上场之间稳住状态。', 'scene-track', 'none', NULL, NULL, '准备方式影响健康和压力。', 0, NULL, 'score >= 40', 1, 1),
+(640103, 6401, '坐位体前屈补救', 'choice', 3, '最后一项看起来最安静，但大家的表情说明它并不简单。你还有一点时间活动腿后侧。', '完成最后一项，不让体测周翻车。', 'scene-track', 'none', NULL, NULL, '最后选择决定评价标签。', 0, NULL, 'score >= 50', 1, 1);
+
+INSERT INTO dungeon_task_option
+(id, dungeon_task_id, option_type, option_text, is_correct, trigger_probability, result_text, evaluation, score, academic_change, health_change, money_change, social_change, skill_change, pressure_change, discipline_change, exp_change, next_task_id, status) VALUES
+(64010101, 640101, 'strategy', '前两圈压速，最后一圈再提', 1, 100, '你没有被起跑气氛带走，最后一圈还能听见自己的呼吸。', '配速稳定', 80, 0, 4, 0, 0, 0, 2, 2, 18, 640102, 1),
+(64010102, 640101, 'strategy', '跟住前排，先冲出去', 0, 100, '前半程很有存在感，后半程每一步都像在还债。', '开局过猛', 55, 0, 2, 0, 1, 0, 5, 0, 12, 640102, 1),
+(64010103, 640101, 'strategy', '全程保守慢跑', 0, 100, '你顺利跑完，但成绩边缘，后面还得补一点表现。', '勉强完成', 45, 0, 1, 0, 0, 0, 1, 0, 10, 640102, 1),
+(64010201, 640102, 'strategy', '排队时做肩背热身', 1, 100, '肩背活动开之后，上杠时没有那么僵。', '准备充分', 75, 0, 3, 0, 0, 0, 1, 2, 16, 640103, 1),
+(64010202, 640102, 'strategy', '请同学帮忙看动作节奏', 1, 100, '同学提醒你别乱摆，动作虽然不华丽，但有效。', '有人提醒', 70, 0, 2, 0, 2, 0, 1, 1, 15, 640103, 1),
+(64010203, 640102, 'strategy', '一直盯着别人次数焦虑', 0, 100, '你看了太多高手，轮到自己时手心全是汗。', '心态飘了', 40, 0, 0, 0, 0, 0, 4, -1, 8, 640103, 1),
+(64010301, 640103, 'strategy', '先拉伸再测，动作慢一点', 1, 100, '你没有急着硬压，最后成绩比预想好一点。', '稳住收尾', 80, 0, 3, 0, 0, 0, -1, 2, 18, NULL, 1),
+(64010302, 640103, 'strategy', '找老师确认动作标准', 1, 100, '老师提醒你脚尖和膝盖位置，少走了一次弯路。', '标准清楚', 70, 0, 2, 0, 1, 0, 0, 1, 15, NULL, 1),
+(64010303, 640103, 'strategy', '直接硬压一次看运气', 0, 100, '腿后侧当场发出抗议，成绩过了线，但人也安静了。', '侥幸过线', 45, 0, -1, 0, 0, 0, 2, -1, 8, NULL, 1);
+
+INSERT INTO weekly_goal
+(id, goal_key, goal_name, description, goal_type, target_value, reward_exp, reward_attribute, reward_amount, active) VALUES
+(6401, 'cp64_final_review_route', '最后路线稳住', '本周推进 2 次期末或体测相关探索奇遇，把复习和体测路线排清楚。', 'exploration_story_step', 2, 45, 'discipline', 2, 1),
+(6402, 'cp64_physical_test_push', '体测阶段推进', '本周完成 2 个体测生存挑战阶段，在压力里把身体状态稳住。', 'dungeon_stage', 2, 45, 'health', 2, 1);
+
+INSERT INTO achievement
+(id, achievement_key, achievement_name, description, icon, condition_type, condition_value, reward_title, active) VALUES
+(6401, 'cp64_final_week_stable', '最后一周没乱套', '累计推进 3 次期末与体测周奇遇，证明你能把最后一周拆成可执行路线。', '📚', 'exploration_story_step', 3, '期末稳住员', 1),
+(6402, 'cp64_physical_test_started', '体测不是玄学', '累计完成 3 个副本阶段，至少认真走完一次挑战流程。', '🏃', 'dungeon_stage', 3, '操场幸存者', 1);
