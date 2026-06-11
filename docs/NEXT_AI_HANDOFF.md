@@ -37,6 +37,7 @@ Full Game V1 Phase 1-5 全部完成，Phase 5 后 Stabilization 和 Route Ending
 | Phase 5 | 16 周阶段内容补齐、midterm/route/project/final 四阶段事件/传闻/奇遇链/周目标/成就 |
 | Route Ending Integration | 评分接入结局匹配，过程条件 OR 评分门槛双通道 |
 | Docker 封装 | Dockerfile + docker-compose.yml + application-docker.yml，一键运行 |
+| 文档整理 | 删除历史实施计划，保留最终设计、需求、完成状态和交接文档 |
 
 ## V1 结项后续迭代建议
 
@@ -67,7 +68,7 @@ docker compose up --build
 
 ## 历史完成记录
 
-以下为各阶段完成记录，仅作追溯，不需要重复实现。
+以下为各阶段完成记录，仅作追溯，不需要重复实现。历史实施计划文件已在结项整理中删除，后续以本文件、`PROJECT_COMPLETION_STATUS.md` 和 Full Game V1 设计文档为准。
 
 ### Full Game V1 Route Ending Integration
 

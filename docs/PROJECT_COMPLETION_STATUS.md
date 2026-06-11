@@ -37,6 +37,24 @@ V1 结项新增 Docker Compose 运行支持，不影响本地 Maven 开发：
 
 后台管理范围：仅基础事件管理 CRUD（`/admin/events`），不是完整运营后台。
 
+## 文档整理（已完成）
+
+V1 结项后保留最终交付与维护所需文档，删除历史实施计划，避免后续开发误以为还需要重复执行 Phase/CP 任务。
+
+保留文档：
+
+- `README.md`
+- `docs/PROJECT_COMPLETION_STATUS.md`
+- `docs/NEXT_AI_HANDOFF.md`
+- `docs/AI_CONTINUATION_PROMPT.md`
+- `docs/requirements/**`
+- `docs/superpowers/specs/2026-06-11-full-game-v1-design.md`
+- `docs/补充信息.docx`
+
+已清理：
+
+- `docs/superpowers/plans/` 下的 Full Game V1 阶段实施计划
+
 ## 剩余风险
 
 | 风险 | 说明 | 严重度 |

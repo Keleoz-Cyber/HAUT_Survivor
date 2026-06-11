@@ -55,7 +55,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4。
 - 不要重复实现 Full Game V1 Phase 1-5。
 - 不要继续按 CP6.x 命名新增零散内容包。
-- 不要删除历史计划文档（docs/superpowers/plans/），仅作为追溯参考。
+- 历史实施计划已清理；后续以 README、PROJECT_COMPLETION_STATUS、NEXT_AI_HANDOFF 和 Full Game V1 设计文档为准。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 了解项目全貌。
@@ -71,4 +71,4 @@ D:\study\code\java\classlearn\HAUT_Survivor
 3. `docs/NEXT_AI_HANDOFF.md`
 4. `docs/requirements/README.md`
 
-历史实施计划保留在 `docs/superpowers/plans/` 中，仅作追溯，不需要重复实现。
+历史实施计划已经在结项整理中删除，避免后续 AI 误以为还需要重复执行 Phase/CP 任务。
