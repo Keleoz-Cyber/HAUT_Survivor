@@ -1,5 +1,6 @@
 package cn.haut.survivor.service;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,6 +74,35 @@ public class WeeklyThemeService {
     /** Extra pressure applied to dungeon settlements during DDL week. */
     public int dungeonPressureBonus(Integer currentWeek) {
         return getTheme(currentWeek == null ? 1 : currentWeek).week() == 3 ? 1 : 0;
+    }
+
+    /** Final week makes library review and playground physical-test routes more productive. */
+    public AttributeChange finalWeekExplorationAttributeChange(Integer currentWeek, Long locationId) {
+        if (getTheme(currentWeek == null ? 1 : currentWeek).week() != 4 || locationId == null) {
+            return AttributeChange.EMPTY;
+        }
+        if (locationId == 2L) {
+            return new AttributeChange(1, 0, 0, 0, 1, -1, 1, 0);
+        }
+        if (locationId == 5L) {
+            return new AttributeChange(0, 2, 0, 0, 0, -1, 1, 0);
+        }
+        return AttributeChange.EMPTY;
+    }
+
+    /** Final week slightly buffers pressure in physical-test dungeons. */
+    public int finalWeekDungeonPressureRelief(Integer currentWeek, String dungeonType) {
+        if (getTheme(currentWeek == null ? 1 : currentWeek).week() != 4) {
+            return 0;
+        }
+        return "physical".equalsIgnoreCase(dungeonType) ? -1 : 0;
+    }
+
+    /** Short suffix shown on physical dungeon result text when final-week relief applies. */
+    public String finalWeekDungeonResultSuffix(Integer currentWeek, String dungeonType) {
+        return finalWeekDungeonPressureRelief(currentWeek, dungeonType) < 0
+                ? " 期末与体测周：你提前适应了节奏，本阶段压力额外 -1。"
+                : "";
     }
 
     /** 获取所有周主题 */

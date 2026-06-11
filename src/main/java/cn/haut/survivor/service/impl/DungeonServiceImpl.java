@@ -226,7 +226,7 @@ public class DungeonServiceImpl implements DungeonService {
         int oldSkill = beforeAttr.getSkill(), oldPressure = beforeAttr.getPressure();
         int oldDiscipline = beforeAttr.getDiscipline();
 
-        applyRewards(userId, option);
+        applyRewards(userId, task, option);
 
         PlayerAttribute afterAttr = playerService.findAttributeByUserId(userId);
 
@@ -237,7 +237,7 @@ public class DungeonServiceImpl implements DungeonService {
         taskRecord.setSelectedOptionId(option.getId());
         taskRecord.setMinigameResult(StringUtils.hasText(minigameResult) ? minigameResult.trim() : null);
         taskRecord.setAttributeCheckResult(option.getScore() >= 80 ? "excellent" : option.getScore() >= 50 ? "pass" : "fail");
-        taskRecord.setResultText(option.getResultText());
+        taskRecord.setResultText(option.getResultText() + dungeonThemeResultSuffix(userId, task));
         taskRecord.setEvaluation(option.getEvaluation());
         taskRecord.setScore(option.getScore());
         taskRecord.setExpChange(option.getExpChange());
@@ -281,13 +281,14 @@ public class DungeonServiceImpl implements DungeonService {
         int oldSkill = beforeAttr.getSkill(), oldPressure = beforeAttr.getPressure();
         int oldDiscipline = beforeAttr.getDiscipline();
 
-        applyDynamicRewards(userId, settlement);
+        applyDynamicRewards(userId, task, settlement);
 
         PlayerAttribute afterAttr = playerService.findAttributeByUserId(userId);
 
         UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
                 "relations=" + String.join("|", selectedRelations == null ? List.of() : selectedRelations)
                         + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
+        taskRecord.setResultText(taskRecord.getResultText() + dungeonThemeResultSuffix(userId, task));
         // 替换为实际变化值
         taskRecord.setAttributeChange(new AttributeChange(
                 afterAttr.getAcademic() - oldAcademic, afterAttr.getHealth() - oldHealth, 0,
@@ -334,12 +335,13 @@ public class DungeonServiceImpl implements DungeonService {
         int oldSkill2 = beforeAttr2.getSkill(), oldPressure2 = beforeAttr2.getPressure();
         int oldDiscipline2 = beforeAttr2.getDiscipline();
 
-        applyDynamicRewards(userId, settlement);
+        applyDynamicRewards(userId, task, settlement);
 
         PlayerAttribute afterAttr2 = playerService.findAttributeByUserId(userId);
 
         UserDungeonTaskRecord taskRecord = buildMinigameTaskRecord(record, task, settlement,
                 "correct=" + settlement.score + ";elapsed=" + (elapsedSeconds == null ? 0 : elapsedSeconds));
+        taskRecord.setResultText(taskRecord.getResultText() + dungeonThemeResultSuffix(userId, task));
         // 替换为实际变化值
         taskRecord.setAttributeChange(new AttributeChange(
                 afterAttr2.getAcademic() - oldAcademic2, afterAttr2.getHealth() - oldHealth2, 0,
@@ -545,7 +547,7 @@ public class DungeonServiceImpl implements DungeonService {
         return option;
     }
 
-    private void applyRewards(Long userId, DungeonTaskOption option) {
+    private void applyRewards(Long userId, DungeonTask task, DungeonTaskOption option) {
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         if (attribute == null || profile == null) {
@@ -558,7 +560,7 @@ public class DungeonServiceImpl implements DungeonService {
         attribute.setSocial(clamp(attribute.getSocial() + option.getSocialChange()));
         attribute.setSkill(clamp(attribute.getSkill() + option.getSkillChange()));
         attribute.setPressure(clamp(attribute.getPressure() + option.getPressureChange()
-                + dungeonThemePressureBonus(profile)));
+                + dungeonThemePressureDelta(profile, task)));
         attribute.setDiscipline(clamp(attribute.getDiscipline() + option.getDisciplineChange()));
         attribute.setUpdateTime(LocalDateTime.now());
         playerAttributeMapper.updateById(attribute);
@@ -567,7 +569,7 @@ public class DungeonServiceImpl implements DungeonService {
         playerProfileMapper.updateById(profile);
     }
 
-    private void applyDynamicRewards(Long userId, MinigameSettlement settlement) {
+    private void applyDynamicRewards(Long userId, DungeonTask task, MinigameSettlement settlement) {
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         if (attribute == null || profile == null) {
@@ -577,7 +579,7 @@ public class DungeonServiceImpl implements DungeonService {
         attribute.setHealth(clamp(attribute.getHealth() + settlement.healthChange));
         attribute.setSkill(clamp(attribute.getSkill() + settlement.skillChange));
         attribute.setPressure(clamp(attribute.getPressure() + settlement.pressureChange
-                + dungeonThemePressureBonus(profile)));
+                + dungeonThemePressureDelta(profile, task)));
         attribute.setDiscipline(clamp(attribute.getDiscipline() + settlement.disciplineChange));
         attribute.setUpdateTime(LocalDateTime.now());
         playerAttributeMapper.updateById(attribute);
@@ -590,11 +592,28 @@ public class DungeonServiceImpl implements DungeonService {
         return Math.max(0, Math.min(100, value));
     }
 
-    private int dungeonThemePressureBonus(PlayerProfile profile) {
+    private int dungeonThemePressureDelta(PlayerProfile profile, DungeonTask task) {
         if (profile == null || profile.getCurrentWeek() == null) {
             return 0;
         }
-        return weeklyThemeService.dungeonPressureBonus(profile.getCurrentWeek());
+        int delta = weeklyThemeService.dungeonPressureBonus(profile.getCurrentWeek());
+        Dungeon dungeon = task == null ? null : dungeonMapper.selectById(task.getDungeonId());
+        if (dungeon != null) {
+            delta += weeklyThemeService.finalWeekDungeonPressureRelief(profile.getCurrentWeek(), dungeon.getDungeonType());
+        }
+        return delta;
+    }
+
+    private String dungeonThemeResultSuffix(Long userId, DungeonTask task) {
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        if (profile == null || task == null) {
+            return "";
+        }
+        Dungeon dungeon = dungeonMapper.selectById(task.getDungeonId());
+        if (dungeon == null) {
+            return "";
+        }
+        return weeklyThemeService.finalWeekDungeonResultSuffix(profile.getCurrentWeek(), dungeon.getDungeonType());
     }
 
     private String buildFinalEvaluation(UserDungeonRecord record) {

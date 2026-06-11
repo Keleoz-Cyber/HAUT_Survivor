@@ -261,4 +261,36 @@ class DungeonServiceTests {
         assertThat(completedRecord.getRiskFlags()).contains("scope_sprawl", "schema_mist", "bug_avalanche");
         assertThat(completedRecord.getFinalEvaluation()).isEqualTo("答辩沉默现场");
     }
+
+    // ==================== CP6.4: Final week physical dungeon tests ====================
+
+    @Test
+    void finalWeekPhysicalDungeonReducesStagePressureAndShowsSuffix() {
+        setCurrentWeek(4);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 6401L);
+        DungeonTask task = dungeonService.findCurrentTask(record);
+        DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
+
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(
+                2L, record.getId(), task.getId(), option.getId(), null);
+
+        assertThat(taskRecord.getAttributeChange().pressureChange())
+                .isEqualTo(option.getPressureChange() - 1);
+        assertThat(taskRecord.getResultText()).contains("期末与体测周");
+    }
+
+    @Test
+    void finalWeekDoesNotReduceAcademicDungeonPressure() {
+        setCurrentWeek(4);
+        UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 6001L);
+        DungeonTask task = dungeonService.findCurrentTask(record);
+        DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
+
+        UserDungeonTaskRecord taskRecord = dungeonService.chooseOption(
+                2L, record.getId(), task.getId(), option.getId(), null);
+
+        assertThat(taskRecord.getAttributeChange().pressureChange())
+                .isEqualTo(option.getPressureChange());
+        assertThat(taskRecord.getResultText()).doesNotContain("期末与体测周");
+    }
 }

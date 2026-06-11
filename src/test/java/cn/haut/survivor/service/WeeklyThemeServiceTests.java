@@ -1,5 +1,6 @@
 package cn.haut.survivor.service;
 
+import cn.haut.survivor.domain.entity.AttributeChange;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,5 +77,21 @@ class WeeklyThemeServiceTests {
         assertThat(service.dungeonPressureBonus(2)).isZero();
         assertThat(service.dungeonPressureBonus(3)).isEqualTo(1);
         assertThat(service.dungeonPressureBonus(4)).isZero();
+
+        // CP6.4: final week exploration attribute hooks
+        assertThat(service.finalWeekExplorationAttributeChange(4, 2L).academicChange()).isEqualTo(1);
+        assertThat(service.finalWeekExplorationAttributeChange(4, 2L).skillChange()).isEqualTo(1);
+        assertThat(service.finalWeekExplorationAttributeChange(4, 2L).pressureChange()).isEqualTo(-1);
+        assertThat(service.finalWeekExplorationAttributeChange(4, 5L).healthChange()).isEqualTo(2);
+        assertThat(service.finalWeekExplorationAttributeChange(4, 5L).pressureChange()).isEqualTo(-1);
+        assertThat(service.finalWeekExplorationAttributeChange(4, 8L).hasAnyChange()).isFalse();
+        assertThat(service.finalWeekExplorationAttributeChange(3, 2L).hasAnyChange()).isFalse();
+
+        // CP6.4: final week physical dungeon pressure relief
+        assertThat(service.finalWeekDungeonPressureRelief(4, "physical")).isEqualTo(-1);
+        assertThat(service.finalWeekDungeonPressureRelief(4, "academic")).isZero();
+        assertThat(service.finalWeekDungeonPressureRelief(3, "physical")).isZero();
+        assertThat(service.finalWeekDungeonResultSuffix(4, "physical")).contains("期末与体测周");
+        assertThat(service.finalWeekDungeonResultSuffix(3, "physical")).isBlank();
     }
 }
