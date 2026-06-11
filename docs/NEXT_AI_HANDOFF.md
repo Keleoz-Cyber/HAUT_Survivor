@@ -14,7 +14,7 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 324, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 333, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
 
@@ -178,13 +178,29 @@ CP6.3 开学迎新周机制化：
 - 新增 `ContentPack6OpeningWeekTests`（3 个测试），修改 `WeeklyThemeServiceTests`、`EventServiceTests`、`RumorEffectServiceTests`、`OrganizationServiceTests`、`NpcServiceTests`。
 - 最近全量测试为 324 个测试全绿。
 
+## CP6.4 期末与体测周机制化
+
+- 第 4 周核心地点是图书馆（2）和操场（5）。注意：生活服务点/博闻楼营业厅是 8，不是操场。
+- `WeeklyThemeService` 集中提供第 4 周探索属性收益、physical 副本压力缓冲和结果文案后缀。
+- `WeeklyModifierService` 注入 `WeeklyThemeService`，第 4 周关键地点修正为图书馆（2）和操场（5）。
+- `DungeonServiceImpl` 对 `physical` 类型副本在第 4 周提供压力 -1 缓冲，结果文案显示"期末与体测周"后缀。第 3 周 DDL 压力 +1 不受影响。
+- `data-content-pack-6.sql` 追加 6400 段 seed：
+  - 事件 6401-6406，选项 640101-640603。
+  - 传闻 6401-6404。
+  - 探索奇遇链 6401-6406（final_library_review、physical_test_route）。
+  - 副本 6401，阶段 640101-640103，选项 64010101-64010303。
+  - 周目标 6401-6402，成就 6401-6402。
+- 新增 `ContentPack6FinalWeekTests`（5 个测试），扩展 `WeeklyThemeServiceTests`、`WeeklyModifierServiceTests`、`DungeonServiceTests`。
+- 最近全量测试为 333 个测试全绿。
+
 ## 当前建议下一步
 
 CP6 第一批已经完成，已删除对应的执行计划稿，避免后续 AI 重复实现同一批内容。
 
 建议下一步优先级：
-- CP6.4 期末与体测周机制化：让第 4 周主题进一步影响健康事件、操场/图书馆路线、体测压力和复习收益。
-- 或先做 CP6 浏览器视觉复核：地图热点、开学周新增事件页、NPC 详情页移动端检查。
+- CP6 浏览器视觉复核：重点看地图热点、体测副本详情页、移动端 Dock。
+- CP6.5 期末结局联动：让体测副本/期末奇遇影响 semester ending 评分。
+- CP6.6 NPC 与体测周联动：小马/柳如烟在第 4 周给更明确的辅助反馈。
 
 CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选、结局画像跳转或 NPC 分支扩展。
 
@@ -192,6 +208,10 @@ CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选�
 
 设计边界：
 - CP6 第一批只做 seed-heavy 内容包 + 地图图片接入。
+- CP6.1 新增 NPC 原型（富少、小鱼、柳如烟）和莲花街互动。
+- CP6.2 做地点细分事件/传闻/奇遇链。
+- CP6.3 做开学迎新周机制化（事件偏向、组织门槛、NPC 互动）。
+- CP6.4 做期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本种子）。
 - 未扩展地点表结构，未新增数据库表。
 - 未新增 NPC 原型，避免和当前 NPC 关系/故事线改动交叉。
 - 信息学院学生会描述已做中性化处理，未直接使用原始负面表述。
@@ -202,8 +222,9 @@ CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选�
 - 这不是完整地图系统，没有缩放、拖拽或楼层切换。
 
 建议下一步：
-- CP6.4 期末与体测周机制化：让第 4 周主题进一步影响健康事件、操场/图书馆路线、体测压力和复习收益。
-- 或先做 CP6 浏览器视觉复核：地图热点、开学周新增事件页、NPC 详情页移动端检查。
+- CP6 浏览器视觉复核：重点看地图热点、体测副本详情页、移动端 Dock。
+- CP6.5 期末结局联动：让体测副本/期末奇遇影响 semester ending 评分。
+- CP6.6 NPC 与体测周联动：小马/柳如烟在第 4 周给更明确的辅助反馈。
 
 ## 重要约束
 
@@ -216,7 +237,7 @@ CP5 后续深化可以暂缓，除非产品方向重新转回学期档案筛选�
 ## 已知风险
 
 - `explore_bonus`、`attr_bonus`、`safe_zone`、`npc_boost`、`event_hint` 均已能影响探索反馈；其中 `event_hint` 已映射 academic/social/skill/health/money/pressure，并会和周主题事件偏向组合，但仍依赖具体地点是否有对应事件类型。
-- 周主题目前影响探索结果、地图事件概率、第 2 周组织活动收益和第 3 周副本压力，相关钩子已集中到 `WeeklyThemeService`；第 1/4 周仍缺少更明确的玩法影响。
+- 周主题目前影响探索结果、地图事件概率、第 2 周组织活动收益和第 3 周副本压力，相关钩子已集中到 `WeeklyThemeService`；第 1 周已影响事件/组织/NPC，第 4 周已影响图书馆/操场探索收益和 physical 副本压力缓冲。
 - 搭子救场已进入 `user_influence_log`，会在当前周总结和 `/week/history` 历史周报中展示；历史页暂不提供筛选或统计。
 - 学期档案是 Java 层聚合，不是 SQL 报表；如果后续数据量扩大，需要再评估分页或聚合性能。
 - 结局成长画像只展示总结，不修改 `SemesterEndingService` 的结局匹配规则。
