@@ -16,6 +16,8 @@ D:\study\code\java\classlearn\HAUT_Survivor
 5. docs/requirements/02-core-gameplay.md
 6. docs/requirements/05-data-and-technical-design.md
 7. docs/requirements/10-ui-2-game-interface-redesign.md
+8. docs/superpowers/specs/2026-06-11-full-game-v1-design.md
+9. docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md
 
 当前状态：
 - 这是一个 Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL + Thymeleaf 项目。
@@ -36,6 +38,8 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - CP6 第一批已完成：莲花街校区内容包、真实校区地图图片层、地图热点、组织/副本深链缺档案保护。
 - CP6.3 已完成：开学迎新周机制化（事件偏向、组织门槛、NPC 互动）。
 - CP6.4 已完成：期末与体测周机制化（图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容）。
+- 项目方向已从 CP6.x 小内容包转向 Full Game V1，不再继续以 CP6.x 方式补零散内容。
+- Full Game V1 设计稿和 Phase 1 实施计划已写好；Phase 1 目标是把 4 周 Demo 骨架升级为 16 周单学期 V1 骨架。
 
 重要约束：
 - 不要重写整个系统。
@@ -48,12 +52,13 @@ D:\study\code\java\classlearn\HAUT_Survivor
 - 当前 worktree 可能已有未提交改动，先看 git status，不要回滚不属于你的改动。
 
 当前最建议做的任务：
-不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3 或 CP6.4。优先从以下方向继续：
+执行 Full Game V1 Phase 1：16 周单学期骨架。
 
-可选方向：
-1. CP6 浏览器视觉复核：重点看地图热点、体测副本详情页、移动端 Dock。
-2. CP6.5 期末结局联动：让体测副本/期末奇遇影响 semester ending 评分。
-3. CP6.6 NPC 与体测周联动：小马/柳如烟在第 4 周给更明确的辅助反馈。
+要求：
+- 不要重复实现 CP6 第一批、CP6.1、CP6.2、CP6.3 或 CP6.4。
+- 不要继续按 CP6.x 命名新增零散内容包。
+- 按 `docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md` 执行，先统一学期日历，再改 PlayerService/WeeklyThemeService/周总结/页面文案/测试。
+- Phase 1 不新增数据库表，不新增 seed，不做路线评分、结局评分升级或 UI 大改。
 
 执行要求：
 - 先基于 docs/PROJECT_COMPLETION_STATUS.md 和 docs/NEXT_AI_HANDOFF.md 写小范围计划，再实现。
@@ -70,3 +75,4 @@ D:\study\code\java\classlearn\HAUT_Survivor
 4. `docs/requirements/README.md`
 
 已完成的历史实施计划已经清理，避免下一个 AI 误以为 CP5 或 CP6 第一批仍待实现。
+旧 CP6.1-CP6.4 执行计划稿已清理；CP6 完成情况以 `docs/PROJECT_COMPLETION_STATUS.md` 和 `docs/NEXT_AI_HANDOFF.md` 为准。
