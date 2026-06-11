@@ -27,7 +27,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 370, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
   /dashboard（含"第 1 周"、"共 16 周"）、/map、/exploration、/week/summary、/ending、/dungeons、/organizations。
