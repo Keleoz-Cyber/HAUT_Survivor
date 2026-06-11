@@ -89,7 +89,7 @@ class EventServiceTests {
 
     @Test
     void weeklyThemeMapsToPreferredEventType() {
-        assertThat(eventService.getWeeklyThemePreferredEventType(1)).isNull();
+        assertThat(eventService.getWeeklyThemePreferredEventType(1)).isEqualTo("生活");
         assertThat(eventService.getWeeklyThemePreferredEventType(2)).isEqualTo("社交");
         assertThat(eventService.getWeeklyThemePreferredEventType(3)).isEqualTo("学习");
         assertThat(eventService.getWeeklyThemePreferredEventType(4)).isEqualTo("健康");

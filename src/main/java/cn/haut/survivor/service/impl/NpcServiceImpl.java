@@ -18,6 +18,7 @@ import cn.haut.survivor.service.NpcStoryService;
 import cn.haut.survivor.service.PlayerService;
 import cn.haut.survivor.service.RumorEffectService;
 import cn.haut.survivor.service.WeeklyGoalService;
+import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +45,7 @@ public class NpcServiceImpl implements NpcService {
     private final AchievementService achievementService;
     private final RumorEffectService rumorEffectService;
     private final NpcStoryService npcStoryService;
+    private final WeeklyThemeService weeklyThemeService;
 
     public NpcServiceImpl(
             NpcMapper npcMapper,
@@ -55,7 +57,8 @@ public class NpcServiceImpl implements NpcService {
             WeeklyGoalService weeklyGoalService,
             AchievementService achievementService,
             RumorEffectService rumorEffectService,
-            NpcStoryService npcStoryService) {
+            NpcStoryService npcStoryService,
+            WeeklyThemeService weeklyThemeService) {
         this.npcMapper = npcMapper;
         this.relationMapper = relationMapper;
         this.interactionMapper = interactionMapper;
@@ -66,6 +69,7 @@ public class NpcServiceImpl implements NpcService {
         this.achievementService = achievementService;
         this.rumorEffectService = rumorEffectService;
         this.npcStoryService = npcStoryService;
+        this.weeklyThemeService = weeklyThemeService;
     }
 
     @Override
@@ -241,7 +245,8 @@ public class NpcServiceImpl implements NpcService {
                 value(attribute.getDiscipline()) - beforeDiscipline,
                 value(interaction.getExpChange()));
 
-        int familiarityGain = value(interaction.getFamiliarityChange()) + (weeklyBuddy ? 1 : 0);
+        int openingWeekBonus = weeklyThemeService.npcOpeningWeekFamiliarityBonus(weekNumber, weeklyBuddy);
+        int familiarityGain = value(interaction.getFamiliarityChange()) + (weeklyBuddy ? 1 : 0) + openingWeekBonus;
         relation.setFamiliarity(clamp(value(relation.getFamiliarity()) + familiarityGain));
         relation.setMetCount(value(relation.getMetCount()) + 1);
         relation.setLastMetWeek(weekNumber);
@@ -265,7 +270,7 @@ public class NpcServiceImpl implements NpcService {
                 relation,
                 change,
                 familiarityGain,
-                interaction.getResultText(),
+                interaction.getResultText() + weeklyThemeService.openingWeekNpcInteractionSuffix(weekNumber, weeklyBuddy),
                 getRelationStage(relation.getFamiliarity()),
                 storyResult);
     }

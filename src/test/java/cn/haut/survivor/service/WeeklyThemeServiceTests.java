@@ -53,7 +53,7 @@ class WeeklyThemeServiceTests {
 
     @Test
     void weeklyGameplayHooksAreCentralizedByThemeWeek() {
-        assertThat(service.preferredEventType(1)).isNull();
+        assertThat(service.preferredEventType(1)).isEqualTo("生活");
         assertThat(service.preferredEventType(2)).isEqualTo("社交");
         assertThat(service.preferredEventType(3)).isEqualTo("学习");
         assertThat(service.preferredEventType(4)).isEqualTo("健康");
@@ -62,6 +62,16 @@ class WeeklyThemeServiceTests {
         assertThat(service.organizationActivityBonus(1)).isZero();
         assertThat(service.organizationActivityBonus(2)).isEqualTo(1);
         assertThat(service.organizationActivityBonus(3)).isZero();
+
+        assertThat(service.organizationJoinSocialRequirementReduction(1)).isEqualTo(5);
+        assertThat(service.organizationJoinSocialRequirementReduction(2)).isZero();
+        assertThat(service.organizationJoinSocialRequirementReduction(null)).isEqualTo(5);
+
+        assertThat(service.npcOpeningWeekFamiliarityBonus(1, false)).isEqualTo(1);
+        assertThat(service.npcOpeningWeekFamiliarityBonus(1, true)).isZero();
+        assertThat(service.npcOpeningWeekFamiliarityBonus(2, false)).isZero();
+        assertThat(service.openingWeekNpcInteractionSuffix(1, false)).contains("开学适应周");
+        assertThat(service.openingWeekNpcInteractionSuffix(1, true)).isBlank();
 
         assertThat(service.dungeonPressureBonus(2)).isZero();
         assertThat(service.dungeonPressureBonus(3)).isEqualTo(1);

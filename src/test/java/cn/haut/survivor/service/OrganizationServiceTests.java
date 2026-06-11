@@ -186,4 +186,32 @@ class OrganizationServiceTests {
 
         assertThat(relation).isNull();
     }
+
+    @Test
+    void openingWeekLowersOrganizationJoinSocialRequirement() {
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setSocial(36);
+        playerAttributeMapper.updateById(attr);
+
+        organizationService.discover(2L, 1L);
+        UserOrganization relation = organizationService.join(2L, 1L);
+
+        assertThat(relation.getMembershipStatus()).isEqualTo("member");
+        assertThat(relation.getJoinWeek()).isEqualTo(1);
+    }
+
+    @Test
+    void organizationJoinRequirementReturnsToNormalAfterOpeningWeek() {
+        playerService.advanceWeek(2L);
+        PlayerAttribute attr = playerService.findAttributeByUserId(2L);
+        attr.setSocial(36);
+        playerAttributeMapper.updateById(attr);
+
+        organizationService.discover(2L, 1L);
+
+        assertThatThrownBy(() -> organizationService.join(2L, 1L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("社交值不足")
+                .hasMessageContaining("40");
+    }
 }

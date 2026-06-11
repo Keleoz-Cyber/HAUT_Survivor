@@ -216,6 +216,18 @@ class NpcServiceTests {
 
         assertThat(result.attributeChange().academicChange()).isEqualTo(5);
         assertThat(result.familiarityGain()).isEqualTo(5);
+        assertThat(result.resultText()).doesNotContain("开学适应周");
+    }
+
+    @Test
+    void openingWeekAddsSmallNpcInteractionFamiliarityWhenNotWeeklyBuddy() {
+        playerService.createProfile(2L, "opening week npc test", "大二", "计算机类", "就业路线");
+        npcService.increaseFamiliarity(2L, 6101L, 25);
+
+        NpcInteractionResult result = npcService.interact(2L, 6101L, 610003L, 1);
+
+        assertThat(result.familiarityGain()).isEqualTo(5);
+        assertThat(result.resultText()).contains("开学适应周");
     }
 
     @Test

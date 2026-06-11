@@ -117,6 +117,7 @@ public class RumorEffectServiceImpl implements RumorEffectService {
             case "health" -> "健康";
             case "money" -> "金钱";
             case "pressure" -> "学习";
+            case "life" -> "生活";
             default -> null;
         };
     }

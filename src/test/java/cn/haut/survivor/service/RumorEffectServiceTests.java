@@ -146,6 +146,13 @@ class RumorEffectServiceTests {
     }
 
     @Test
+    void eventHintLifeTargetMapsToLifeEventType() {
+        insertEventHintRumor(100, 8L, "test life hint", "life");
+
+        assertThat(rumorEffectService.getEventHintPreferredEventType(1L, 100, 8L)).isEqualTo("生活");
+    }
+
+    @Test
     void getNpcBoostForLocationReturnsBoostValue() {
         // Week 1 has npc_boost rumor at canteen (location 4) with effect_value 10
         boolean found = false;

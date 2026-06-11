@@ -117,13 +117,18 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new IllegalArgumentException("你已经加入了" + org.getOrgName());
         }
 
-        // 面试判定：社交 >= 40 即可通过
+        // 面试判定：社交 >= 40 即可通过（开学适应周降低 5 点）
+        PlayerProfile profile = playerService.findProfileByUserId(userId);
+        int baseRequiredSocial = 40;
+        int requiredSocial = Math.max(0, baseRequiredSocial
+                - weeklyThemeService.organizationJoinSocialRequirementReduction(profile.getCurrentWeek()));
         PlayerAttribute attribute = playerService.findAttributeByUserId(userId);
-        if (attribute.getSocial() < 40) {
-            throw new IllegalArgumentException("社交值不足，" + org.getOrgName() + "面试未通过。当前社交：" + attribute.getSocial());
+        if (attribute.getSocial() < requiredSocial) {
+            throw new IllegalArgumentException("社交值不足，" + org.getOrgName()
+                    + "面试未通过。当前社交：" + attribute.getSocial()
+                    + "，需要：" + requiredSocial);
         }
 
-        PlayerProfile profile = playerService.findProfileByUserId(userId);
         relation.setMembershipStatus("member");
         relation.setPositionName("干事");
         relation.setJoinWeek(profile.getCurrentWeek());

@@ -37,6 +37,7 @@ public class WeeklyThemeService {
     public String preferredEventType(Integer currentWeek) {
         int week = getTheme(currentWeek == null ? 1 : currentWeek).week();
         return switch (week) {
+            case 1 -> "生活";
             case 2 -> "社交";
             case 3 -> "学习";
             case 4 -> "健康";
@@ -47,6 +48,26 @@ public class WeeklyThemeService {
     /** Small organization activity bonus for recruitment week. */
     public int organizationActivityBonus(Integer currentWeek) {
         return getTheme(currentWeek == null ? 1 : currentWeek).week() == 2 ? 1 : 0;
+    }
+
+    /** Opening week lowers the social threshold for joining organizations. */
+    public int organizationJoinSocialRequirementReduction(Integer currentWeek) {
+        return getTheme(currentWeek == null ? 1 : currentWeek).week() == 1 ? 5 : 0;
+    }
+
+    /** Opening week makes first contacts slightly easier, but does not stack with weekly buddy familiarity bonus. */
+    public int npcOpeningWeekFamiliarityBonus(Integer currentWeek, boolean weeklyBuddy) {
+        if (weeklyBuddy) {
+            return 0;
+        }
+        return getTheme(currentWeek == null ? 1 : currentWeek).week() == 1 ? 1 : 0;
+    }
+
+    /** Short suffix shown on NPC interaction result text when the opening week bonus applies. */
+    public String openingWeekNpcInteractionSuffix(Integer currentWeek, boolean weeklyBuddy) {
+        return npcOpeningWeekFamiliarityBonus(currentWeek, weeklyBuddy) > 0
+                ? " 开学适应周：新学期大家都在重新认识彼此，本次熟悉度额外 +1。"
+                : "";
     }
 
     /** Extra pressure applied to dungeon settlements during DDL week. */
