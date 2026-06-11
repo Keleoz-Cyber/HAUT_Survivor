@@ -227,7 +227,7 @@ class NpcServiceTests {
         NpcInteractionResult result = npcService.interact(2L, 6101L, 610003L, 1);
 
         assertThat(result.familiarityGain()).isEqualTo(5);
-        assertThat(result.resultText()).contains("开学适应周");
+        assertThat(result.resultText()).contains("开学适应");
     }
 
     @Test

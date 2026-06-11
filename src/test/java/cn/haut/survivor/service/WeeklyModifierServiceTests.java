@@ -24,12 +24,13 @@ class WeeklyModifierServiceTests {
 
         assertThat(influence.sourceType()).isEqualTo("weekly_theme");
         assertThat(influence.exploreBonus()).isEqualTo(1);
-        assertThat(influence.description()).contains("开学适应周");
+        assertThat(influence.description()).contains("开学适应");
     }
 
     @Test
     void weekThreeLabAddsSkillAndPressure() {
-        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(3, 6L);
+        // week 1-2 = opening, week 3-5 = rhythm, week 6-8 = midterm, week 9-11 = route, week 12-14 = project
+        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(12, 6L);
 
         assertThat(influence.attributeChange().skillChange()).isEqualTo(1);
         assertThat(influence.attributeChange().pressureChange()).isEqualTo(1);
@@ -38,6 +39,7 @@ class WeeklyModifierServiceTests {
 
     @Test
     void unknownWeekReturnsEmptyInfluence() {
+        // Week 9 is "route" stage — no special exploration influence
         ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(9, 2L);
 
         assertThat(influence.hasEffect()).isFalse();
@@ -45,11 +47,11 @@ class WeeklyModifierServiceTests {
     }
 
     @Test
-    void weekFourLibraryAddsReviewInfluence() {
-        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(4, 2L);
+    void weekFifteenLibraryAddsReviewInfluence() {
+        ExplorationInfluence influence = weeklyModifierService.getExplorationInfluence(15, 2L);
 
         assertThat(influence.sourceType()).isEqualTo("weekly_theme");
-        assertThat(influence.sourceName()).isEqualTo("期末与体测周");
+        assertThat(influence.sourceName()).isEqualTo("期末与体测");
         assertThat(influence.exploreBonus()).isEqualTo(1);
         assertThat(influence.attributeChange().academicChange()).isEqualTo(1);
         assertThat(influence.attributeChange().skillChange()).isEqualTo(1);
@@ -57,11 +59,11 @@ class WeeklyModifierServiceTests {
     }
 
     @Test
-    void weekFourPlaygroundAddsPhysicalTestInfluenceButServiceWindowDoesNot() {
-        ExplorationInfluence playground = weeklyModifierService.getExplorationInfluence(4, 5L);
-        ExplorationInfluence serviceWindow = weeklyModifierService.getExplorationInfluence(4, 8L);
+    void weekFifteenPlaygroundAddsPhysicalTestInfluenceButServiceWindowDoesNot() {
+        ExplorationInfluence playground = weeklyModifierService.getExplorationInfluence(15, 5L);
+        ExplorationInfluence serviceWindow = weeklyModifierService.getExplorationInfluence(15, 8L);
 
-        assertThat(playground.sourceName()).isEqualTo("期末与体测周");
+        assertThat(playground.sourceName()).isEqualTo("期末与体测");
         assertThat(playground.exploreBonus()).isEqualTo(1);
         assertThat(playground.attributeChange().healthChange()).isEqualTo(2);
         assertThat(playground.attributeChange().pressureChange()).isEqualTo(-1);

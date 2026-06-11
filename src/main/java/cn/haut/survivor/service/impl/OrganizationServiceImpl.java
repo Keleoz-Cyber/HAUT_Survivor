@@ -155,7 +155,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         int recruitmentBonus = organizationActivityBonus(profile);
 
-        // 增加贡献和声望。社团招新周让组织活动收益更高，但不额外改变属性。
+        // 增加贡献和声望。节奏建立阶段让组织活动收益更高，但不额外改变属性。
         relation.setContribution(relation.getContribution() + 3 + recruitmentBonus);
         relation.setReputation(relation.getReputation() + 2 + recruitmentBonus);
 
@@ -262,7 +262,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         String activityResultText = generateActivityResultText(org.getOrgType());
         PlayerProfile profile = playerService.findProfileByUserId(userId);
         if (isRecruitmentWeek(profile)) {
-            activityResultText += " 赶上社团招新周，摊位人气正旺，本次活动额外获得贡献 +1、声望 +1。";
+            activityResultText += " 赶上节奏建立阶段，社团活跃度正高，本次活动额外获得贡献 +1、声望 +1。";
         }
 
         return new OrganizationActivityResult(relation, change, activityResultText);

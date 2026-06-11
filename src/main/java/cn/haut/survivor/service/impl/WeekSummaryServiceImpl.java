@@ -19,6 +19,7 @@ import cn.haut.survivor.mapper.WeeklyGoalMapper;
 import cn.haut.survivor.mapper.UserWeekSummaryMapper;
 import cn.haut.survivor.service.AchievementService;
 import cn.haut.survivor.service.InfluenceLogService;
+import cn.haut.survivor.service.SemesterCalendarService;
 import cn.haut.survivor.service.WeekSummaryService;
 import cn.haut.survivor.service.WeeklyThemeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -39,6 +40,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
     private final UserNpcWeeklyActionMapper userNpcWeeklyActionMapper;
     private final NpcMapper npcMapper;
     private final WeeklyThemeService weeklyThemeService;
+    private final SemesterCalendarService semesterCalendarService;
     private final AchievementService achievementService;
     private final ExplorationStoryProgressMapper explorationStoryProgressMapper;
     private final InfluenceLogService influenceLogService;
@@ -52,6 +54,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
             UserNpcWeeklyActionMapper userNpcWeeklyActionMapper,
             NpcMapper npcMapper,
             WeeklyThemeService weeklyThemeService,
+            SemesterCalendarService semesterCalendarService,
             AchievementService achievementService,
             ExplorationStoryProgressMapper explorationStoryProgressMapper,
             InfluenceLogService influenceLogService) {
@@ -63,6 +66,7 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         this.userNpcWeeklyActionMapper = userNpcWeeklyActionMapper;
         this.npcMapper = npcMapper;
         this.weeklyThemeService = weeklyThemeService;
+        this.semesterCalendarService = semesterCalendarService;
         this.achievementService = achievementService;
         this.explorationStoryProgressMapper = explorationStoryProgressMapper;
         this.influenceLogService = influenceLogService;
@@ -275,19 +279,21 @@ public class WeekSummaryServiceImpl implements WeekSummaryService {
         boolean highAcademic = attr.getAcademic() >= 70;
         boolean highSkill = attr.getSkill() >= 70;
 
-        if (weekNumber == 3 && highPressure && (highAcademic || highSkill)) {
+        String stageKey = semesterCalendarService.stageForWeek(weekNumber).stageKey();
+
+        if ("project".equals(stageKey) && highPressure && (highAcademic || highSkill)) {
             return "你把 DDL 压成了可控范围，但精神状态已经像被控制台红字照了一晚上。";
         }
-        if (weekNumber == 3 && highPressure) {
+        if ("project".equals(stageKey) && highPressure) {
             return "这一周 DDL 明显压上来了。你还在推进，但下周最好别继续硬撑。";
         }
-        if (weekNumber == 3 && (highAcademic || highSkill)) {
+        if ("project".equals(stageKey) && (highAcademic || highSkill)) {
             return "你这周认真处理了课设和复习，DDL 没消失，但至少开始听你指挥。";
         }
-        if (weekNumber == 4 && (highAcademic || highSkill) && pressure < 60) {
+        if ("final".equals(stageKey) && (highAcademic || highSkill) && pressure < 60) {
             return "期末前你稳住了复习节奏，没有把最后一周过成灾难片。";
         }
-        if (weekNumber == 4 && pressure >= 70) {
+        if ("final".equals(stageKey) && pressure >= 70) {
             return "期末周把你推到了边缘，复习、体测和报告像同时响起的闹钟。";
         }
 

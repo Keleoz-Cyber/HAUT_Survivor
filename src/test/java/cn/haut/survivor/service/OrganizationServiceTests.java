@@ -118,14 +118,16 @@ class OrganizationServiceTests {
     void recruitmentWeekAddsSmallOrganizationActivityGain() {
         organizationService.discover(2L, 1L);
         organizationService.join(2L, 1L);
-        playerService.advanceWeek(2L); // week 2: 社团招新周
+        // Advance to week 3: rhythm stage (社团招新峰值)
+        playerService.advanceWeek(2L);
+        playerService.advanceWeek(2L);
 
         OrganizationService.OrganizationActivityResult result = organizationService.attendActivityWithChange(2L, 1L);
         UserOrganization relation = result.relation();
 
         assertThat(relation.getContribution()).isEqualTo(4);
         assertThat(relation.getReputation()).isEqualTo(3);
-        assertThat(result.activityResultText()).contains("社团招新周");
+        assertThat(result.activityResultText()).contains("节奏建立");
     }
 
     @Test
@@ -202,6 +204,8 @@ class OrganizationServiceTests {
 
     @Test
     void organizationJoinRequirementReturnsToNormalAfterOpeningWeek() {
+        // Advance to week 3: rhythm stage, opening bonus no longer applies
+        playerService.advanceWeek(2L);
         playerService.advanceWeek(2L);
         PlayerAttribute attr = playerService.findAttributeByUserId(2L);
         attr.setSocial(36);

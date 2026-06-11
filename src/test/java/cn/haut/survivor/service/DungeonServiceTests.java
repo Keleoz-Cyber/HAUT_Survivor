@@ -67,7 +67,7 @@ class DungeonServiceTests {
 
     @Test
     void ddlPressureWeekAddsSmallRiskToDungeonOptions() {
-        setCurrentWeek(3);
+        setCurrentWeek(12);
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         DungeonTask task = dungeonService.findCurrentTask(record);
         DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
@@ -81,7 +81,7 @@ class DungeonServiceTests {
 
     @Test
     void ddlPressureWeekAddsSmallRiskToDungeonMinigames() {
-        setCurrentWeek(3);
+        setCurrentWeek(12);
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 1L);
         dungeonService.chooseOption(2L, record.getId(), 1L, 1L, null);
         UserDungeonRecord minigameRecord = dungeonService.startOrResumeDungeon(2L, 1L);
@@ -266,7 +266,7 @@ class DungeonServiceTests {
 
     @Test
     void finalWeekPhysicalDungeonReducesStagePressureAndShowsSuffix() {
-        setCurrentWeek(4);
+        setCurrentWeek(15);
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 6401L);
         DungeonTask task = dungeonService.findCurrentTask(record);
         DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
@@ -276,12 +276,12 @@ class DungeonServiceTests {
 
         assertThat(taskRecord.getAttributeChange().pressureChange())
                 .isEqualTo(option.getPressureChange() - 1);
-        assertThat(taskRecord.getResultText()).contains("期末与体测周");
+        assertThat(taskRecord.getResultText()).contains("期末与体测");
     }
 
     @Test
     void finalWeekDoesNotReduceAcademicDungeonPressure() {
-        setCurrentWeek(4);
+        setCurrentWeek(15);
         UserDungeonRecord record = dungeonService.startOrResumeDungeon(2L, 6001L);
         DungeonTask task = dungeonService.findCurrentTask(record);
         DungeonTaskOption option = dungeonService.listOptions(task.getId()).get(0);
@@ -291,6 +291,6 @@ class DungeonServiceTests {
 
         assertThat(taskRecord.getAttributeChange().pressureChange())
                 .isEqualTo(option.getPressureChange());
-        assertThat(taskRecord.getResultText()).doesNotContain("期末与体测周");
+        assertThat(taskRecord.getResultText()).doesNotContain("期末与体测");
     }
 }
