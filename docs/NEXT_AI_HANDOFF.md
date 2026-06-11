@@ -86,11 +86,11 @@ Full Game V1 Phase 5：16 周阶段内容补齐。
 
 已完成：
 
-- `src/main/resources/data-content-pack-6.sql` 新增莲花街校区组织、事件、传闻和“小组作业”副本。
-- `/map` 顶部接入真实校区地图图片和 8 个热点，保留原地点卡片作为稳定入口。
-- 组织/副本深链在缺少角色档案时会重定向到 `/player/create`，不再出现 500。
-- HTTP 冒烟覆盖 CP6 组织、副本、地图、探索和周总结主链路。
-- 最近全量测试为 307 个测试全绿。
+- 新增 `src/main/resources/data-v1-stage-fill.sql`，ID 段 7001+，补齐 midterm、route、project、final 四个薄弱阶段内容。
+- 新增 18 条阶段专属事件、54 条事件选项、16 条传闻、3 条探索奇遇链（9 步）、6 个周目标和 6 个成就。
+- CP6.4 旧 final 内容从 week 4 迁移到 week 15-16，匹配 16 周学期中的期末与体测阶段。
+- `application.yml` 已加载 `data-v1-stage-fill.sql`，新增 `FullGameV1StageFillTests` 覆盖 seed 分布和合法性。
+- 最近全量测试为 402 个测试全绿。
 
 前置 CP5 A/B 均衡第一批：关系成长与学期档案。
 
