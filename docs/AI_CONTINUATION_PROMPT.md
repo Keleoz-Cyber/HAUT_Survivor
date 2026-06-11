@@ -18,6 +18,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
 7. docs/requirements/10-ui-2-game-interface-redesign.md
 8. docs/superpowers/specs/2026-06-11-full-game-v1-design.md
 9. docs/superpowers/plans/2026-06-11-full-game-v1-phase-1-semester-skeleton.md
+10. docs/superpowers/plans/2026-06-11-full-game-v1-phase-2-week-theme-feedback.md
 
 当前状态：
 - 这是一个 Spring Boot 3.3.5 + Java 17 + MyBatis-Plus + MySQL + Thymeleaf 项目。
@@ -25,7 +26,7 @@ D:\study\code\java\classlearn\HAUT_Survivor
   创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期。
 - 最近一次全量验证：
   .\mvnw.cmd clean test
-  Tests run: 335, Failures: 0, Errors: 0, Skipped: 0
+  Tests run: 352, Failures: 0, Errors: 0, Skipped: 0
   BUILD SUCCESS
 - 最近一次 HTTP 冒烟覆盖：
   /dashboard（含"第 1 周"、"共 16 周"）、/map、/exploration、/week/summary、/ending、/dungeons、/organizations。
