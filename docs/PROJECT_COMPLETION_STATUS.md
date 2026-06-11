@@ -12,6 +12,14 @@ HAUT Survivor 已完成一个功能完整的**周回合制大学生模拟器 Dem
 
 333 个测试全绿 三批重构完成，可玩性内容包 1-6 已上线，并完成 CP4.1/CP4.2/CP4.3/CP4.4/CP4.5/CP4.6/CP4.7 机制补强、CP4.8 影响历史日志、CP4.9 历史周报、CP5 A/B 均衡前两批、CP5 UI 收尾和 CP6 莲花街校区内容接入。当前 Demo 已从”基础周回合模拟器”推进到”有周目标、成就、周总结、学业危机内容、NPC 搭子互动、传闻/周主题机制化、探索奇遇链、搭子救场反馈、跨周影响复盘、NPC 关系成长、NPC 专属分支互动、学期档案、真实校园地图和移动端游戏化界面复核”的可玩版本。
 
+最近一次全量验证（Phase 5 后）：
+
+```text
+.\mvnw.cmd clean test
+Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
 ## 已完成功能
 
 ### 基础框架 ✅
@@ -483,12 +491,36 @@ BUILD SUCCESS
 - 最近验证：`.\mvnw.cmd clean test`，Tests run: 383, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
 - HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
 
+## Full Game V1 Phase 5：16 周阶段内容补齐
+
+- 新增 `data-v1-stage-fill.sql`，ID 段 7001+，覆盖 midterm（6-8）、route（9-11）、project（12-14）、final（15-16）四个薄弱阶段。
+- 旧 CP6.4 种子迁移：事件 6401-6406、传闻 6401-6404、奇遇链 6401-6406 从 week 4 迁移到 week 15-16（旧 4 周时代的产物，在 16 周中属于 final 阶段）。
+- 新增事件 18 条（每阶段 6 条）：期中考试/图书馆撞车/实验报告/高数突击/压力爆表/成绩焦虑、考研分享/实习招聘/竞赛组队/社团竞选/摆烂诱惑/导师开放日、课设需求变更/小组划水/服务器宕机/PPT 熬夜/论文选题/DDL 三连。每条 3 个选项。
+- 新增传闻 16 条（每阶段 4 条）：覆盖 week 6-16，使用现有 effect_type（explore_bonus/event_hint/safe_zone/attr_bonus/npc_boost）。
+- 新增探索奇遇链 3 条（9 步）：期中复习路线（图书馆 week 6）、路线分化招聘会（韶华楼 week 10）、DDL 生存路线（宿舍 week 13）。
+- 新增周目标 6 个：期中复习/期中抗压/路线探索/路线社交/项目副本/技能专注。
+- 新增成就 6 个：期中幸存者/备考达人/路线抉择者/技能达人/项目终结者/学期老手。
+- `application.yml` 已加载 `data-v1-stage-fill.sql`。
+- 未新增表，未改 schema，未重写 UI，未改 Phase 1-4 机制。
+- 最近验证：`.\mvnw.cmd clean test`，Tests run: 402, Failures: 0, Errors: 0, Skipped: 0，BUILD SUCCESS。
+- HTTP 冒烟覆盖 `/dashboard`、`/map`、`/exploration`、`POST /exploration/4`、`/week/summary`、`/ending`、`/dungeons`、`/organizations`、`/npcs/6101`，均为 200，无 Whitelabel。
+
+### Phase 5 后 16 周各阶段内容覆盖
+
+| 内容类型 | opening(1-2) | rhythm(3-5) | midterm(6-8) | route(9-11) | project(12-14) | final(15-16) |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|
+| 阶段专属事件 | 16 | 16 | **6** | **6** | **6** | **6+6** |
+| 传闻 | 39 | 39 | **4** | **4** | **4** | **4+4** |
+| 奇遇链 | 4+5 all | 2+5 all | **1+5 all** | **1+5 all** | **1+5 all** | **2+5 all** |
+| 周目标 | 22 all | 22 all | 22 all | 22 all | 22 all | 22 all |
+| 成就 | 30 all | 30 all | 30 all | 30 all | 30 all | 30 all |
+
 ## 当前文档状态
 
 - CP6 莲花街校区内容包与真实地图接入、CP6.1、CP6.2、CP6.3、CP6.4 已完成，对应执行计划稿已清理，避免后续 AI 重复实现。
 - 已完成的 CP5 历史设计稿和实施计划已清理；CP5 实际完成情况以本文档和 `docs/NEXT_AI_HANDOFF.md` 为准。
 - 项目方向已从 CP6.x 小内容包转向 Full Game V1；整体方向以 `docs/superpowers/specs/2026-06-11-full-game-v1-design.md` 为准。
-- Full Game V1 Phase 4 已完成；当前主线下一步是 Full Game V1 Phase 5：内容补齐。不要继续按 CP6.x 命名新增零散内容包。
+- Full Game V1 Phase 1-5 已完成；V1 内容补齐告一段落，后续可继续深化具体阶段内容或推进多学期。不要继续按 CP6.x 命名新增零散内容包。
 
 ## 可扩展方向
 
@@ -500,7 +532,7 @@ BUILD SUCCESS
 | Full Game V1 Phase 2 | 已完成：周主题升级与阶段反馈深化，把 CP6 机制纳入 16 周阶段节奏 |
 | Full Game V1 Phase 3 | 已完成：路线倾向推导、阶段加权周目标选择、Dashboard/周总结路线反馈 |
 | Full Game V1 Phase 4 | 已完成：结局评分升级，5 维评分 read model、路线画像和关键证据 |
-| Full Game V1 Phase 5 | 当前主线下一步：内容补齐，按 16 周阶段补充中期/路线/项目/期末事件 |
+| Full Game V1 Phase 5 | 已完成：16 周阶段内容补齐，midterm/route/project/final 四阶段事件、传闻、奇遇链、周目标、成就，CP6.4 旧种子迁移到 week 15-16 |
 | NPC 属性影响落地 | 遇见 NPC 实际修改属性，熟悉度高时加成更大 |
 | 深化周主题影响 | 第 1 周影响事件、组织和 NPC；第 2 周影响组织活动收益；第 3 周影响副本压力；第 4 周影响图书馆/操场探索和体测副本压力。四个周主题均有明确玩法影响 |
 | CP6.4 期末与体测周 | 已完成：图书馆/操场探索收益、physical 副本压力缓冲、体测副本和期末事件种子内容 |

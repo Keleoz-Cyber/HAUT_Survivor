@@ -106,7 +106,7 @@ class ContentPack6FinalWeekTests {
                 .containsExactly("event_hint", "explore_bonus", "safe_zone", "attr_bonus");
         assertThat(rumors).extracting(Rumor::getEffectTarget)
                 .containsExactly("health", "explore", "pressure", "academic");
-        assertThat(rumors).allMatch(rumor -> rumor.getWeekNumber() == 4);
+        assertThat(rumors).allMatch(rumor -> rumor.getWeekNumber() == 15);
     }
 
     @Test

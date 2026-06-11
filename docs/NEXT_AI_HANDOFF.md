@@ -10,15 +10,28 @@ HAUT Survivor 当前是一个可运行的周回合制大学生模拟器 Demo。�
 创建角色 -> 探索/事件/组织/副本/NPC -> 周总结 -> 推进周次 -> 学期结局 -> 重开新学期
 ```
 
-当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级。下一步按 Phase 5 继续推进。
+当前产品方向已经从 CP6.x 小内容包转向 **Full Game V1**。Phase 1 已完成 16 周单学期骨架改造，Phase 2 已完成周主题升级与阶段反馈深化，Phase 3 已完成路线目标与阶段目标，Phase 4 已完成结局评分升级，Phase 5 已完成 16 周阶段内容补齐。V1 五个阶段全部完成。
 
 最近一次全量验证：
 
 ```text
 .\mvnw.cmd clean test
-Tests run: 383, Failures: 0, Errors: 0, Skipped: 0
+Tests run: 402, Failures: 0, Errors: 0, Skipped: 0
 BUILD SUCCESS
 ```
+
+## Full Game V1 Phase 5 已完成
+
+新增 `data-v1-stage-fill.sql`，ID 段 7001+，覆盖 midterm（6-8）、route（9-11）、project（12-14）、final（15-16）四个薄弱阶段。旧 CP6.4 种子（事件/传闻/奇遇链）从 week 4 迁移到 week 15-16，匹配 16 周学期中的 final 阶段位置。
+
+新增内容：
+- 事件 18 条（每阶段 6 条，每条 3 选项）：期中考试/复习/实验报告、考研/就业/竞赛/社团/摆烂、课设/小组作业/DDL/论文、Git 合并/服务器宕机等。
+- 传闻 16 条（每阶段 4 条）：覆盖 week 6-16，使用现有 effect_type。
+- 探索奇遇链 3 条（9 步）：期中复习路线、路线分化招聘会、DDL 生存路线。
+- 周目标 6 个：期中复习/期中抗压/路线探索/路线社交/项目副本/技能专注。
+- 成就 6 个：期中幸存者/备考达人/路线抉择者/技能达人/项目终结者/学期老手。
+
+未新增表，未改 schema，未重写 UI，未改 Phase 1-4 机制。新增 `FullGameV1StageFillTests`（19 个测试），修改 `ContentPack6FinalWeekTests`（传闻 week 断言从 4 改为 15）。HTTP 冒烟通过。
 
 ## Full Game V1 Phase 4 已完成
 
@@ -65,11 +78,11 @@ CP5 UI 收尾：已完成移动端 Dock 遮挡复核和小范围 CSS-only 修复
 - CP5 A/B 均衡第二批：NPC 专属分支互动，复用现有 NPC 互动结算流程并写入影响日志
 - CP5 UI 收尾：移动端 Dock 遮挡复核和安全区留白修复
 - CP6：莲花街校区内容包、真实地图图片层和组织/副本深链缺档案保护
-- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4 已完成，下一步执行 Phase 5 内容补齐
+- Full Game V1：Phase 1、Phase 2、Phase 3、Phase 4、Phase 5 已完成，V1 五个阶段全部完成
 
 ## 最近完成
 
-Full Game V1 Phase 4：结局评分升级。
+Full Game V1 Phase 5：16 周阶段内容补齐。
 
 已完成：
 
@@ -217,10 +230,10 @@ CP6.3 开学迎新周机制化：
 CP6 第一批、CP6.1、CP6.2、CP6.3、CP6.4 都已完成；对应执行计划稿已清理，避免后续 AI 重复实现同一批内容。
 
 当前优先级：
-1. Full Game V1 Phase 5：内容补齐。
+1. V1 内容深化（可选）：继续补充各阶段事件密度、路线专属事件、多学期兼容。
 2. 结局评分与路线评分的更深度结合（可选）。
 
-注意：Phase 4 已完成结局评分升级，不新增数据库表，不新增 seed，未修改结局匹配规则。
+注意：Phase 5 已完成 16 周阶段内容补齐，四个薄弱阶段（midterm/route/project/final）各有 6 条专属事件、4 条传闻、1 条奇遇链。
 
 ## CP6 交接备注
 
