@@ -49,7 +49,7 @@ HAUT_Survivor/
 │   ├── requirements/                 # 需求规格说明书（10 篇）
 │   ├── superpowers/specs/           # Full Game V1 设计文档
 │   ├── DEVELOPMENT.md               # 本文件：开发文档
-│   ├── USER_GUIDE.md                # 使用说明文档
+│   ├── PROJECT_LEARNING_DOC.md      # 项目学习文档
 │   ├── PROJECT_COMPLETION_STATUS.md # 完成状态
 │   ├── NEXT_AI_HANDOFF.md           # 交接文档
 │   └── AI_CONTINUATION_PROMPT.md    # AI 交接提示词
