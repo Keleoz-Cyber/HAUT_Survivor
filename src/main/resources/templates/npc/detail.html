@@ -6,68 +6,79 @@
     <title>校园搭子 - HAUT Survivor</title>
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 <div th:replace="~{fragments/layout :: game-hud}"></div>
 
-<main class="npc-page">
-    <section class="npc-profile-card">
-        <div class="npc-profile-card__avatar" th:text="${npc.avatarIcon}">👤</div>
-        <div>
-            <p class="npc-profile-card__type" th:text="${npc.npcType}">校园人物</p>
-            <h1 class="npc-profile-card__name" th:text="${npc.npcName}">NPC</h1>
-            <p class="npc-profile-card__desc" th:text="${npc.description}">描述</p>
-            <div class="npc-profile-card__meta">
-                <span th:text="'关系：' + ${relationSummary.label}">关系：点头之交</span>
-                <span th:text="'熟悉度 ' + ${relation != null ? relation.familiarity : 0}">熟悉度 0</span>
-                <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}">本周搭子</span>
+<main class="explore-page">
+
+    <!-- ========== NPC 名片 ========== -->
+    <section class="paper-card tilt-left">
+        <div class="encounter-card__header">
+            <span class="paper-avatar" style="width:72px;height:72px;font-size:2.4rem;" th:text="${npc.avatarIcon}">👤</span>
+            <div>
+                <span class="paper-chip paper-chip--blue" th:text="${npc.npcType}">校园人物</span>
+                <h1 class="handwrite" th:text="${npc.npcName}">NPC</h1>
+                <p class="explore-card__desc" th:text="${npc.description}">描述</p>
             </div>
-            <div class="npc-relation-note" th:if="${relationSummary != null}">
-                <div class="npc-relation-note__bar" aria-hidden="true">
-                    <span th:style="'width:' + ${relationSummary.progressPercent} + '%'"></span>
+        </div>
+        <div class="sticky-note__actions">
+            <span class="paper-chip paper-chip--purple" th:text="'关系：' + ${relationSummary.label}">关系：点头之交</span>
+            <span class="paper-chip paper-chip--yellow" th:text="'熟悉度 ' + ${relation != null ? relation.familiarity : 0}">熟悉度 0</span>
+            <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}" class="paper-chip paper-chip--green">本周搭子</span>
+        </div>
+        <div th:if="${relationSummary != null}">
+            <div class="explore-card__progress">
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--social" th:style="'width:' + ${relationSummary.progressPercent} + '%'"></div>
                 </div>
-                <p class="npc-relation-note__desc" th:text="${relationSummary.description}">你们刚开始认识。</p>
-                <p class="npc-relation-note__hint" th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
+                <span class="explore-card__progress-label" th:text="${relationSummary.progressPercent} + '%'">0%</span>
             </div>
+            <p th:text="${relationSummary.description}">你们刚开始认识。</p>
+            <p class="explore-card__desc" th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
         </div>
     </section>
 
-    <section class="npc-actions-panel">
-        <div class="npc-actions-panel__header">
+    <!-- ========== 互动操作头 ========== -->
+    <section class="paper-card tilt-right">
+        <div class="goal-progress__header">
             <div>
-                <p class="npc-actions-panel__eyebrow">校园关系</p>
-                <h2>这周要和 TA 做点什么？</h2>
+                <p class="explore-card__unlock">校园关系</p>
+                <h2 class="handwrite">这周要和 TA 做点什么？</h2>
             </div>
             <form th:if="${currentBuddy == null and relation != null and relation.familiarity >= 50}"
                   th:action="@{/npcs/{id}/buddy(id=${npc.id})}" method="post">
-                <button type="submit" class="sticky-note__btn sticky-note__btn--primary">设为本周搭子</button>
+                <button type="submit" class="paper-btn paper-btn--primary">设为本周搭子</button>
             </form>
-            <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}" class="npc-actions-panel__buddy">已结成搭子</span>
+            <span th:if="${currentBuddy != null and currentBuddy.npcId == npc.id}" class="paper-chip paper-chip--green">已结成搭子</span>
         </div>
 
-        <p class="npc-actions-panel__hint" th:if="${relation == null or relation.familiarity < 50}">
+        <p class="explore-card__desc" th:if="${relation == null or relation.familiarity < 50}">
             熟悉度达到 50 后，可以选择 TA 作为本周搭子，互动时会有额外加成。
         </p>
+    </section>
 
-        <div class="npc-interaction-list">
-            <article class="npc-interaction-card" th:each="interaction : ${interactions}">
-                <div>
-                    <h3 th:text="${interaction.interactionName}">互动名称</h3>
-                    <p th:text="${interaction.description}">互动描述</p>
-                    <small th:text="'需要熟悉度 ' + ${interaction.requiredFamiliarity}">需要熟悉度 0</small>
-                </div>
-                <form th:action="@{/npcs/{npcId}/interactions/{interactionId}(npcId=${npc.id},interactionId=${interaction.id})}"
-                      method="post">
-                    <button type="submit" class="sticky-note__btn sticky-note__btn--primary"
-                            th:disabled="${semesterOver or profile.actionPoints <= 0}">互动</button>
-                </form>
-            </article>
-        </div>
-
-        <div class="vn-result__actions">
-            <a href="/dashboard" class="sticky-note__btn">回寝室</a>
-            <a href="/exploration" class="sticky-note__btn">继续踩点</a>
+    <!-- ========== 互动选项 ========== -->
+    <section class="paper-card tilt-left" th:each="interaction : ${interactions}">
+        <div class="goal-progress__header">
+            <div class="goal-progress__body">
+                <h3 class="handwrite" th:text="${interaction.interactionName}">互动名称</h3>
+                <p class="explore-card__desc" th:text="${interaction.description}">互动描述</p>
+                <span class="paper-chip paper-chip--orange" th:text="'需要熟悉度 ' + ${interaction.requiredFamiliarity}">需要熟悉度 0</span>
+            </div>
+            <form th:action="@{/npcs/{npcId}/interactions/{interactionId}(npcId=${npc.id},interactionId=${interaction.id})}"
+                  method="post">
+                <button type="submit" class="paper-btn"
+                        th:disabled="${semesterOver or profile.actionPoints <= 0}">互动</button>
+            </form>
         </div>
     </section>
+
+    <!-- ========== 导航 ========== -->
+    <div class="sticky-note__actions">
+        <a href="/dashboard" class="paper-btn">回寝室</a>
+        <a href="/exploration" class="paper-btn">继续踩点</a>
+    </div>
+
 </main>
 
 <div th:replace="~{fragments/layout :: game-dock}"></div>

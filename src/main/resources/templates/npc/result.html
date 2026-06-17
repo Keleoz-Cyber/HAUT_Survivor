@@ -6,80 +6,91 @@
     <title>搭子互动结果 - HAUT Survivor</title>
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 <div th:replace="~{fragments/layout :: game-hud}"></div>
 
-<main class="vn-stage scene-library">
-    <section class="vn-result">
-        <div class="vn-result__header">
-            <span class="vn-result__eyebrow">校园搭子互动</span>
-            <h1 class="vn-result__title" th:text="${result.interaction.interactionName}">互动结果</h1>
-        </div>
+<main class="explore-page">
 
+    <!-- ========== 互动结果标题 + 文案 ========== -->
+    <section class="paper-card tilt-left">
+        <div class="vn-result__meta">
+            <span class="paper-chip paper-chip--blue">校园搭子互动</span>
+        </div>
+        <h1 class="handwrite" th:text="${result.interaction.interactionName}">互动结果</h1>
         <p class="vn-result__story" th:text="${result.resultText}">互动结果文案</p>
+    </section>
 
-        <article class="npc-story-feedback" th:if="${result.storyResult != null}">
-            <p class="npc-story-feedback__eyebrow">关系记忆推进</p>
-            <h2 th:text="${result.storyResult.title}">故事标题</h2>
-            <p th:text="${result.storyResult.description}">故事说明</p>
-            <span th:if="${result.storyResult.completed}" class="npc-story-feedback__tag">这段关系记忆已完成</span>
-        </article>
+    <!-- ========== 关系记忆推进 ========== -->
+    <section class="paper-card tilt-right" th:if="${result.storyResult != null}" style="background: var(--purple-light);">
+        <span class="paper-chip paper-chip--white">关系记忆推进</span>
+        <h2 class="handwrite" th:text="${result.storyResult.title}">故事标题</h2>
+        <p th:text="${result.storyResult.description}">故事说明</p>
+        <span th:if="${result.storyResult.completed}" class="paper-chip paper-chip--green">这段关系记忆已完成</span>
+    </section>
 
-        <div th:if="${result.attributeChange != null and result.attributeChange.hasAnyChange()}" class="vn-result__changes">
-            <p class="vn-result__changes-label">状态变化</p>
-            <div class="vn-result__changes-list">
-                <span th:if="${result.attributeChange.academicChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.academicChange > 0} ? 'vn-up' : 'vn-down'">
-                    学业 <em th:text="${result.attributeChange.academicChange > 0 ? '+' + result.attributeChange.academicChange : result.attributeChange.academicChange}">+1</em>
-                </span>
-                <span th:if="${result.attributeChange.healthChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.healthChange > 0} ? 'vn-up' : 'vn-down'">
-                    健康 <em th:text="${result.attributeChange.healthChange > 0 ? '+' + result.attributeChange.healthChange : result.attributeChange.healthChange}">+1</em>
-                </span>
-                <span th:if="${result.attributeChange.moneyChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.moneyChange > 0} ? 'vn-up' : 'vn-down'">
-                    金钱 <em th:text="${result.attributeChange.moneyChange > 0 ? '+' + result.attributeChange.moneyChange : result.attributeChange.moneyChange}">+1</em>
-                </span>
-                <span th:if="${result.attributeChange.socialChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.socialChange > 0} ? 'vn-up' : 'vn-down'">
-                    社交 <em th:text="${result.attributeChange.socialChange > 0 ? '+' + result.attributeChange.socialChange : result.attributeChange.socialChange}">+1</em>
-                </span>
-                <span th:if="${result.attributeChange.skillChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.skillChange > 0} ? 'vn-up' : 'vn-down'">
-                    技能 <em th:text="${result.attributeChange.skillChange > 0 ? '+' + result.attributeChange.skillChange : result.attributeChange.skillChange}">+1</em>
-                </span>
-                <span th:if="${result.attributeChange.pressureChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.pressureChange > 0} ? 'vn-down' : 'vn-up'">
-                    压力 <em th:text="${result.attributeChange.pressureChange > 0 ? '+' + result.attributeChange.pressureChange : result.attributeChange.pressureChange}">-1</em>
-                </span>
-                <span th:if="${result.attributeChange.disciplineChange != 0}" class="vn-result__change"
-                      th:classappend="${result.attributeChange.disciplineChange > 0} ? 'vn-up' : 'vn-down'">
-                    自律 <em th:text="${result.attributeChange.disciplineChange > 0 ? '+' + result.attributeChange.disciplineChange : result.attributeChange.disciplineChange}">+1</em>
-                </span>
-                <span th:if="${result.familiarityGain > 0}" class="vn-result__change vn-up">
-                    熟悉度 <em th:text="'+' + ${result.familiarityGain}">+4</em>
-                </span>
-            </div>
-        </div>
-
-        <div class="vn-result__stats">
-            <div><span>关系阶段</span><strong th:text="${relationSummary != null ? relationSummary.label : result.relationStage}">点头之交</strong></div>
-            <div><span>熟悉度</span><strong th:text="${result.relation.familiarity}">0</strong></div>
-            <div><span>行动点</span><strong th:text="${profile.actionPoints}">3</strong></div>
-        </div>
-
-        <div class="npc-result-relation" th:if="${relationSummary != null}">
-            <div class="npc-relation-note__bar" aria-hidden="true">
-                <span th:style="'width:' + ${relationSummary.progressPercent} + '%'"></span>
-            </div>
-            <p th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
-        </div>
-
-        <div class="vn-result__actions">
-            <a th:href="@{/npcs/{id}(id=${result.npc.id})}" class="sticky-note__btn sticky-note__btn--primary">继续找 TA</a>
-            <a href="/dashboard" class="sticky-note__btn">回寝室</a>
+    <!-- ========== 状态变化 ========== -->
+    <section class="paper-card tilt-left" th:if="${result.attributeChange != null and result.attributeChange.hasAnyChange()}">
+        <p class="handwrite">状态变化</p>
+        <div class="sticky-note__actions">
+            <span th:if="${result.attributeChange.academicChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.academicChange > 0} ? 'vn-up' : 'vn-down'">
+                学业 <em th:text="${result.attributeChange.academicChange > 0 ? '+' + result.attributeChange.academicChange : result.attributeChange.academicChange}">+1</em>
+            </span>
+            <span th:if="${result.attributeChange.healthChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.healthChange > 0} ? 'vn-up' : 'vn-down'">
+                健康 <em th:text="${result.attributeChange.healthChange > 0 ? '+' + result.attributeChange.healthChange : result.attributeChange.healthChange}">+1</em>
+            </span>
+            <span th:if="${result.attributeChange.moneyChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.moneyChange > 0} ? 'vn-up' : 'vn-down'">
+                金钱 <em th:text="${result.attributeChange.moneyChange > 0 ? '+' + result.attributeChange.moneyChange : result.attributeChange.moneyChange}">+1</em>
+            </span>
+            <span th:if="${result.attributeChange.socialChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.socialChange > 0} ? 'vn-up' : 'vn-down'">
+                社交 <em th:text="${result.attributeChange.socialChange > 0 ? '+' + result.attributeChange.socialChange : result.attributeChange.socialChange}">+1</em>
+            </span>
+            <span th:if="${result.attributeChange.skillChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.skillChange > 0} ? 'vn-up' : 'vn-down'">
+                技能 <em th:text="${result.attributeChange.skillChange > 0 ? '+' + result.attributeChange.skillChange : result.attributeChange.skillChange}">+1</em>
+            </span>
+            <span th:if="${result.attributeChange.pressureChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.pressureChange > 0} ? 'vn-down' : 'vn-up'">
+                压力 <em th:text="${result.attributeChange.pressureChange > 0 ? '+' + result.attributeChange.pressureChange : result.attributeChange.pressureChange}">-1</em>
+            </span>
+            <span th:if="${result.attributeChange.disciplineChange != 0}" class="paper-chip"
+                  th:classappend="${result.attributeChange.disciplineChange > 0} ? 'vn-up' : 'vn-down'">
+                自律 <em th:text="${result.attributeChange.disciplineChange > 0 ? '+' + result.attributeChange.disciplineChange : result.attributeChange.disciplineChange}">+1</em>
+            </span>
+            <span th:if="${result.familiarityGain > 0}" class="paper-chip paper-chip--green">
+                熟悉度 <em th:text="'+' + ${result.familiarityGain}">+4</em>
+            </span>
         </div>
     </section>
+
+    <!-- ========== 当前状态速览 ========== -->
+    <section class="paper-card tilt-right">
+        <p class="handwrite">当前状态</p>
+        <div class="sticky-note__actions">
+            <span class="paper-chip">关系阶段 <strong th:text="${relationSummary != null ? relationSummary.label : result.relationStage}">点头之交</strong></span>
+            <span class="paper-chip">熟悉度 <strong th:text="${result.relation.familiarity}">0</strong></span>
+            <span class="paper-chip paper-chip--yellow">行动点 <strong th:text="${profile.actionPoints}">3</strong></span>
+        </div>
+        <div th:if="${relationSummary != null}">
+            <div class="explore-card__progress">
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--social" th:style="'width:' + ${relationSummary.progressPercent} + '%'"></div>
+                </div>
+                <span class="explore-card__progress-label" th:text="${relationSummary.progressPercent} + '%'">0%</span>
+            </div>
+            <p class="explore-card__desc" th:text="${relationSummary.nextStageHint}">继续互动可以推进关系。</p>
+        </div>
+    </section>
+
+    <!-- ========== 后续行动 ========== -->
+    <div class="sticky-note__actions">
+        <a th:href="@{/npcs/{id}(id=${result.npc.id})}" class="paper-btn paper-btn--primary">继续找 TA</a>
+        <a href="/dashboard" class="paper-btn">回寝室</a>
+    </div>
+
 </main>
 
 <div th:replace="~{fragments/layout :: game-dock}"></div>
