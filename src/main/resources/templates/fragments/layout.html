@@ -2,77 +2,70 @@
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <body>
 
-<!-- ==================== 管理员导航（保持旧风格） ==================== -->
-<nav th:fragment="admin-nav" class="app-nav">
-    <div class="container app-nav__inner">
-        <a class="app-nav__brand" href="/dashboard">HAUT Survivor</a>
-        <div class="app-nav__links">
-            <a href="/dashboard">仪表盘</a>
-            <a href="/admin/events">事件管理</a>
-        </div>
-        <form method="post" action="/logout">
-            <button type="submit" class="btn btn-sm btn-outline-secondary">退出</button>
-        </form>
+<!-- ==================== 管理员导航 ==================== -->
+<nav th:fragment="admin-nav" class="paper-card tilt-left" style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px; padding: 10px 20px; border-radius: 16px 10px 14px 8px;">
+    <a class="handwrite" href="/dashboard" style="color: var(--ink); font-weight: 800; text-decoration: none; font-size: 1.1rem;">📒 HAUT Survivor</a>
+    <div style="display: flex; gap: 14px; flex: 1;">
+        <a href="/dashboard" style="color: var(--ink-muted); text-decoration: none; font-size: 0.9rem;">仪表盘</a>
+        <a href="/admin/events" style="color: var(--ink-muted); text-decoration: none; font-size: 0.9rem;">事件管理</a>
     </div>
+    <form method="post" action="/logout">
+        <button type="submit" class="paper-btn" style="font-size: 0.78rem; padding: 4px 12px;">退出</button>
+    </form>
 </nav>
 
 <!-- ==================== 玩家游戏 HUD ==================== -->
-<header th:fragment="game-hud" class="game-hud">
-    <div class="game-hud__inner">
-        <a class="game-hud__brand" href="/dashboard">HAUT<span class="game-hud__brand-accent">⌇</span>Survivor</a>
-        <div class="game-hud__status">
-            <span class="game-hud__chip" th:if="${profile != null}" th:text="'第 ' + ${profile.currentWeek} + ' 周'">第 1 周</span>
-            <span class="game-hud__chip game-hud__chip--ap" th:if="${profile != null}">
-                ⚡ <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
-            </span>
-            <span class="game-hud__chip" th:if="${attribute != null and attribute.pressure >= 60}"
-                  th:classappend="${attribute.pressure >= 75} ? 'game-hud__chip--pressure-danger' : 'game-hud__chip--pressure-warn'">
-                😰 <span th:text="${attribute.pressure}">30</span>
-            </span>
-        </div>
-        <form method="post" action="/logout" class="game-hud__logout">
-            <button type="submit" class="game-hud__logout-btn">离开</button>
-        </form>
+<header th:fragment="game-hud" class="paper-card tilt-left" style="border-radius: 16px 10px 14px 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; padding: 10px 16px;">
+    <a class="handwrite" href="/dashboard" style="color: var(--ink); font-weight: 800; font-size: 1.1rem; text-decoration: none; white-space: nowrap;">📒 HAUT Survivor</a>
+    <div style="flex:1; display: flex; gap: 8px; justify-content: center;">
+        <span class="paper-chip paper-chip--blue" th:if="${profile != null}" th:text="'第 ' + ${profile.currentWeek} + ' 周'">第 1 周</span>
+        <span class="paper-chip paper-chip--yellow" th:if="${profile != null}">
+            ⚡ <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
+        </span>
+        <span class="paper-chip paper-chip--pink" th:if="${attribute != null and attribute.pressure >= 60}" style="animation: pressurePulse 2s ease-in-out infinite;">
+            😰 <span th:text="${attribute.pressure}">30</span>
+        </span>
     </div>
+    <form method="post" action="/logout">
+        <button type="submit" class="paper-btn" style="font-size: 0.78rem; padding: 4px 10px;">离开</button>
+    </form>
 </header>
 
 <!-- ==================== 玩家手机底栏 Dock ==================== -->
-<nav th:fragment="game-dock" class="game-dock">
-    <a href="/dashboard" class="game-dock__item">
-        <span class="game-dock__icon">🏠</span>
-        <span class="game-dock__label">寝室</span>
+<nav th:fragment="game-dock" class="paper-card paper-dock" style="display: flex; justify-content: space-around; padding: 8px; border-radius: 14px 10px 16px 8px; position: fixed; bottom: 12px; left: 12px; right: 12px; z-index: 100; max-width: 960px; margin: 0 auto;">
+    <a href="/dashboard" style="text-align: center; padding: 4px 12px; text-decoration: none; color: var(--ink);">
+        <div style="font-size: 1.3rem;">🏠</div>
+        <div style="font-size: 0.65rem; font-weight: 700;">寝室</div>
     </a>
-    <a href="/map" class="game-dock__item">
-        <span class="game-dock__icon">🗺️</span>
-        <span class="game-dock__label">去校园</span>
+    <a href="/map" style="text-align: center; padding: 4px 12px; text-decoration: none; color: var(--ink-muted);">
+        <div style="font-size: 1.3rem;">🗺️</div>
+        <div style="font-size: 0.65rem; font-weight: 700;">去校园</div>
     </a>
-    <a href="/dungeons" class="game-dock__item">
-        <span class="game-dock__icon">⚔️</span>
-        <span class="game-dock__label">挑战</span>
+    <a href="/dungeons" style="text-align: center; padding: 4px 12px; text-decoration: none; color: var(--ink-muted);">
+        <div style="font-size: 1.3rem;">⚔️</div>
+        <div style="font-size: 0.65rem; font-weight: 700;">挑战</div>
     </a>
-    <a href="/organizations" class="game-dock__item">
-        <span class="game-dock__icon">🎉</span>
-        <span class="game-dock__label">社团</span>
+    <a href="/organizations" style="text-align: center; padding: 4px 12px; text-decoration: none; color: var(--ink-muted);">
+        <div style="font-size: 1.3rem;">🎉</div>
+        <div style="font-size: 0.65rem; font-weight: 700;">社团</div>
     </a>
 </nav>
 
-<!-- ==================== 旧导航（向后兼容，管理员页面继续使用） ==================== -->
-<nav th:fragment="nav" class="app-nav">
-    <div class="container app-nav__inner">
-        <a class="app-nav__brand" href="/dashboard">HAUT Survivor</a>
-        <div class="app-nav__links">
-            <a href="/dashboard">仪表盘</a>
-            <a href="/map">校园地图</a>
-            <a href="/dungeons">副本</a>
-            <a href="/organizations">组织</a>
-            <a href="/exploration">探索</a>
-            <a href="/tasks">任务</a>
-            <a th:if="${session.LOGIN_USER_ROLE == 'ADMIN'}" href="/admin/events">事件管理</a>
-        </div>
-        <form method="post" action="/logout">
-            <button type="submit" class="btn btn-sm btn-outline-secondary">退出</button>
-        </form>
+<!-- ==================== 旧导航（向后兼容） ==================== -->
+<nav th:fragment="nav" class="paper-card tilt-left" style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding: 10px 20px; border-radius: 16px 10px 14px 8px; flex-wrap: wrap;">
+    <a class="handwrite" href="/dashboard" style="color: var(--ink); font-weight: 800; text-decoration: none; font-size: 1.1rem;">📒 HAUT Survivor</a>
+    <div style="display: flex; gap: 12px; flex: 1; flex-wrap: wrap;">
+        <a href="/dashboard" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">仪表盘</a>
+        <a href="/map" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">校园地图</a>
+        <a href="/dungeons" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">副本</a>
+        <a href="/organizations" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">组织</a>
+        <a href="/exploration" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">探索</a>
+        <a href="/tasks" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">任务</a>
+        <a th:if="${session.LOGIN_USER_ROLE == 'ADMIN'}" href="/admin/events" style="color: var(--ink-muted); text-decoration: none; font-size: 0.88rem;">事件管理</a>
     </div>
+    <form method="post" action="/logout">
+        <button type="submit" class="paper-btn" style="font-size: 0.78rem; padding: 4px 12px;">退出</button>
+    </form>
 </nav>
 
 </body>
