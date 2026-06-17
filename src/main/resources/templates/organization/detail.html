@@ -7,89 +7,92 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
 
-<main class="org-stage" th:style="|--booth-color: ${org.themeColor}">
+<main class="vn-stage" th:style="|--booth-color: ${org.themeColor}">
     <div class="vn-result">
 
         <!-- 标题区 -->
         <div class="vn-result__header">
             <div class="vn-result__meta">
-                <span th:text="${org.orgType}">类型</span>
-                <span class="org-booth__badge" th:style="'background:' + ${org.themeColor}" th:text="${org.orgName}">组织名</span>
+                <span class="paper-chip paper-chip--yellow" th:text="${org.orgType}">类型</span>
+                <span class="paper-chip paper-chip--white" th:text="${org.orgName}">组织名</span>
             </div>
-            <h1 class="vn-result__title" th:text="${org.orgName}">组织名</h1>
+            <h1 class="vn-result__title handwrite" th:text="${org.orgName}">组织名</h1>
         </div>
 
         <!-- 氛围描述 -->
         <p class="vn-result__story" th:text="${org.description}">描述</p>
 
         <!-- 错误提示 -->
-        <div th:if="${error}" class="vn-result__unlock" style="background: rgba(239,68,68,0.1); border-color: rgba(248,113,113,0.2); color: #fca5a5;" th:text="${error}">错误</div>
+        <div th:if="${error}" class="paper-card tilt-right" style="background: var(--pink-light); padding: 10px 14px;" th:text="${error}">错误</div>
 
         <!-- 活动属性变化 -->
         <div th:if="${activityChange != null and activityChange.hasAnyChange()}" class="vn-result__changes">
             <p class="vn-result__changes-label">本次活动</p>
             <p th:if="${activityResultText}" class="vn-result__story" style="margin-bottom:8px;" th:text="${activityResultText}">活动描述</p>
             <div class="vn-result__changes-list">
-                <span th:if="${activityChange.academicChange != 0}" class="vn-result__change" th:classappend="${activityChange.academicChange > 0} ? 'vn-up' : 'vn-down'">📚 学业 <em th:text="${activityChange.academicChange > 0} ? '+' + ${activityChange.academicChange} : ${activityChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
-                <span th:if="${activityChange.healthChange != 0}" class="vn-result__change" th:classappend="${activityChange.healthChange > 0} ? 'vn-up' : 'vn-down'">💚 健康 <em th:text="${activityChange.healthChange > 0} ? '+' + ${activityChange.healthChange} : ${activityChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
-                <span th:if="${activityChange.socialChange != 0}" class="vn-result__change" th:classappend="${activityChange.socialChange > 0} ? 'vn-up' : 'vn-down'">🤝 社交 <em th:text="${activityChange.socialChange > 0} ? '+' + ${activityChange.socialChange} : ${activityChange.socialChange}">+3</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
-                <span th:if="${activityChange.skillChange != 0}" class="vn-result__change" th:classappend="${activityChange.skillChange > 0} ? 'vn-up' : 'vn-down'">🔧 技能 <em th:text="${activityChange.skillChange > 0} ? '+' + ${activityChange.skillChange} : ${activityChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
-                <span th:if="${activityChange.pressureChange != 0}" class="vn-result__change" th:classappend="${activityChange.pressureChange > 0} ? 'vn-down' : 'vn-up'">😰 压力 <em th:text="${activityChange.pressureChange > 0} ? '+' + ${activityChange.pressureChange} : ${activityChange.pressureChange}">+2</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
-                <span th:if="${activityChange.disciplineChange != 0}" class="vn-result__change" th:classappend="${activityChange.disciplineChange > 0} ? 'vn-up' : 'vn-down'">🎯 自律 <em th:text="${activityChange.disciplineChange > 0} ? '+' + ${activityChange.disciplineChange} : ${activityChange.disciplineChange}">+1</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
+                <span th:if="${activityChange.academicChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.academicChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">📚 学业 <em th:text="${activityChange.academicChange > 0} ? '+' + ${activityChange.academicChange} : ${activityChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
+                <span th:if="${activityChange.healthChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.healthChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">💚 健康 <em th:text="${activityChange.healthChange > 0} ? '+' + ${activityChange.healthChange} : ${activityChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
+                <span th:if="${activityChange.socialChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.socialChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🤝 社交 <em th:text="${activityChange.socialChange > 0} ? '+' + ${activityChange.socialChange} : ${activityChange.socialChange}">+3</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
+                <span th:if="${activityChange.skillChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.skillChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🔧 技能 <em th:text="${activityChange.skillChange > 0} ? '+' + ${activityChange.skillChange} : ${activityChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
+                <span th:if="${activityChange.pressureChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.pressureChange > 0} ? 'paper-chip--pink' : 'paper-chip--green'">😰 压力 <em th:text="${activityChange.pressureChange > 0} ? '+' + ${activityChange.pressureChange} : ${activityChange.pressureChange}">+2</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
+                <span th:if="${activityChange.disciplineChange != 0}" class="vn-result__change paper-chip" th:classappend="${activityChange.disciplineChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🎯 自律 <em th:text="${activityChange.disciplineChange > 0} ? '+' + ${activityChange.disciplineChange} : ${activityChange.disciplineChange}">+1</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
             </div>
         </div>
 
         <!-- 角色状态小条 -->
         <div class="vn-result__stats">
-            <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
-            <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
-            <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
-            <div><span>行动点</span><strong th:text="${profile.actionPoints}">4</strong></div>
+            <span class="paper-chip paper-chip--pink">社交 <strong th:text="${attribute.social}">50</strong></span>
+            <span class="paper-chip paper-chip--blue">自律 <strong th:text="${attribute.discipline}">50</strong></span>
+            <span class="paper-chip paper-chip--orange">压力 <strong th:text="${attribute.pressure}">30</strong></span>
+            <span class="paper-chip paper-chip--yellow">行动点 <strong th:text="${profile.actionPoints}">4</strong></span>
         </div>
 
         <!-- ===== 未发现 ===== -->
-        <div th:if="${relation == null}" class="org-stage__actions">
-            <div th:if="${!exploreUnlocked}" class="vn-result__unlock" style="background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); color: #fcd34d;">
+        <div th:if="${relation == null}" class="vn-result__changes">
+            <div th:if="${!exploreUnlocked}" class="paper-card tilt-left" style="background: var(--orange-light); padding: 10px 14px;">
                 🔒 探索度不足！需要先去探索对应地点，达到 <span th:text="${org.unlockExploreLevel}">20</span>% 探索度才能发现此组织。
             </div>
             <form method="post" th:action="@{/organizations/{id}/discover(id=${org.id})}">
-                <button type="submit" class="sticky-note__btn sticky-note__btn--primary" th:disabled="${!exploreUnlocked or semesterOver}">🔍 发现这个组织</button>
+                <button type="submit" class="paper-btn paper-btn--primary"
+                        th:classappend="${!exploreUnlocked or semesterOver} ? 'paper-btn--disabled'"
+                        th:disabled="${!exploreUnlocked or semesterOver}">🔍 发现这个组织</button>
             </form>
         </div>
 
         <!-- ===== 已发现未加入 ===== -->
-        <div th:if="${relation != null and relation.membershipStatus == 'discovered'}" class="org-stage__actions">
-            <p style="color:#94a3b8; margin-bottom:12px;">你已经发现了 <span th:text="${org.orgName}">组织</span>。加入需要社交值 ≥ 40。</p>
+        <div th:if="${relation != null and relation.membershipStatus == 'discovered'}" class="vn-result__changes">
+            <p class="vn-result__story" style="color: var(--ink-muted); margin-bottom:12px;">你已经发现了 <span th:text="${org.orgName}">组织</span>。加入需要社交值 ≥ 40。</p>
             <form method="post" th:action="@{/organizations/{id}/join(id=${org.id})}">
-                <button type="submit" class="sticky-note__btn sticky-note__btn--primary"
+                <button type="submit" class="paper-btn paper-btn--primary"
                         th:disabled="${semesterOver or attribute.social < 40}">✋ 申请加入</button>
             </form>
-            <span th:if="${attribute.social < 40}" style="color:#fcd34d; font-size:0.85rem; margin-top:8px; display:block;">社交不足，多参加社交活动吧！</span>
+            <span th:if="${attribute.social < 40}" class="paper-chip paper-chip--orange" style="margin-top:8px;">社交不足，多参加社交活动吧！</span>
         </div>
 
         <!-- ===== 已加入 ===== -->
-        <div th:if="${relation != null and (relation.membershipStatus == 'member' or relation.membershipStatus == 'core_member')}" class="org-stage__actions">
-            <div class="org-stage__position">
-                <span class="org-booth__tag org-booth__tag--member" th:text="${relation.positionName}">职位</span>
-                <span style="color:#94a3b8;">贡献 <span th:text="${relation.contribution}">0</span> · 声望 <span th:text="${relation.reputation}">0</span></span>
+        <div th:if="${relation != null and (relation.membershipStatus == 'member' or relation.membershipStatus == 'core_member')}" class="vn-result__changes">
+            <div class="org-stage__position" style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom: 8px;">
+                <span class="paper-chip paper-chip--green" th:text="${relation.positionName}">职位</span>
+                <span class="paper-chip paper-chip--white" th:text="'贡献 ' + ${relation.contribution}">贡献 0</span>
+                <span class="paper-chip paper-chip--white" th:text="'声望 ' + ${relation.reputation}">声望 0</span>
             </div>
-            <p style="color:#94a3b8; font-size:0.85rem; margin-bottom:12px;">参加活动消耗 1 行动点。贡献 ≥ 10 自动晋升为部长。</p>
+            <p class="vn-result__story" style="color: var(--ink-muted); font-size:0.85rem; margin-bottom:12px;">参加活动消耗 1 行动点。贡献 ≥ 10 自动晋升为部长。</p>
             <form method="post" th:action="@{/organizations/{id}/activity(id=${org.id})}">
-                <button type="submit" class="sticky-note__btn sticky-note__btn--primary"
+                <button type="submit" class="paper-btn paper-btn--success"
                         th:disabled="${semesterOver or profile.actionPoints <= 0}">🎉 参加本周活动</button>
             </form>
-            <span th:if="${profile.actionPoints <= 0 and !semesterOver}" style="color:#fcd34d; font-size:0.85rem; margin-top:8px; display:block;">⚡ 行动点不足</span>
+            <span th:if="${profile.actionPoints <= 0 and !semesterOver}" class="paper-chip paper-chip--orange" style="margin-top:8px;">⚡ 行动点不足</span>
         </div>
 
         <!-- 导航 -->
         <div class="vn-result__actions">
-            <a href="/organizations" class="sticky-note__btn">🎪 返回社团广场</a>
-            <a href="/map" class="sticky-note__btn">🗺️ 回地图</a>
+            <a href="/organizations" class="paper-btn">🎪 返回社团广场</a>
+            <a href="/map" class="paper-btn">🗺️ 回地图</a>
         </div>
 
     </div>
