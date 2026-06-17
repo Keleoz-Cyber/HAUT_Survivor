@@ -316,6 +316,60 @@ body:has(.paper-dock) {
 
 @media (max-width: 640px) { .stat-bar__grid { grid-template-columns: 1fr; } .phone-home { gap: 8px; } .achievement-shelf__grid { grid-template-columns: 1fr; } }
 
+/* ---------- 事件页 ---------- */
+.vn-stage { background: var(--paper-bg); background-image: radial-gradient(circle, rgba(45,52,54,0.04) 1px, transparent 1px); background-size: 20px 20px; padding: 24px 16px 100px; min-height: auto; }
+.vn-scene { background: #fff; border: 2.5px solid var(--border-color); border-radius: 16px 8px 14px 10px; box-shadow: 4px 4px 0 var(--shadow-color); padding: 24px; max-width: 760px; margin: 0 auto; }
+.vn-scene.scene-lab { border-top: 6px solid var(--purple-deep); }
+.vn-scene.scene-library { border-top: 6px solid var(--green-deep); }
+.vn-scene.scene-classroom { border-top: 6px solid var(--blue-deep); }
+.vn-scene.scene-dorm { border-top: 6px solid var(--purple-deep); }
+.vn-scene.scene-canteen { border-top: 6px solid var(--orange-deep); }
+.vn-scene.scene-track { border-top: 6px solid var(--green-deep); }
+.vn-scene.scene-club { border-top: 6px solid var(--orange-deep); }
+.vn-scene.scene-package { border-top: 6px solid var(--blue-deep); }
+
+.event-option { background: #fff; border: 2.5px solid var(--border-color); border-left: 6px solid var(--ink-muted); border-radius: 10px 6px 8px 12px; box-shadow: 3px 3px 0 var(--shadow-color); color: var(--ink); padding: 14px 16px; text-align: left; width: 100%; cursor: pointer; transition: all 0.1s; font-weight: 700; }
+.event-option:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--shadow-color); }
+.event-option:active { transform: translate(3px, 3px); box-shadow: 0 0 0 var(--shadow-color); }
+.event-option.risk-low { border-left-color: var(--green-deep); }
+.event-option.risk-medium { border-left-color: var(--yellow-deep); }
+.event-option.risk-high { border-left-color: var(--pink-deep); }
+
+/* 事件场景布局 */
+.vn-scene__leave-mobile { margin-bottom: 12px; }
+.vn-scene__meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+.vn-scene__title { font-size: 1.8rem; margin: 8px 0 12px; line-height: 1.25; }
+.vn-scene__story { font-size: 1rem; line-height: 1.85; color: var(--ink); margin: 8px 0 16px; }
+.vn-scene__status { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; }
+.vn-scene__status strong { margin-left: 4px; }
+.vn-scene__choices { display: flex; flex-direction: column; gap: 10px; margin: 12px 0; }
+.vn-scene__choices form { margin: 0; }
+.vn-scene__leave { margin-top: 16px; text-align: center; }
+.vn-choice__label { display: inline-block; margin-right: 6px; font-weight: 800; }
+.vn-choice__text { font-size: 1rem; }
+.vn-choice__preview { display: block; font-size: 0.82rem; color: var(--ink-muted); font-weight: 500; margin-top: 4px; }
+
+/* 事件结算 */
+.vn-result { background: #fff; border: 2.5px solid var(--border-color); border-radius: 16px 8px 14px 10px; box-shadow: 4px 4px 0 var(--shadow-color); padding: 24px; max-width: 760px; margin: 0 auto; }
+.vn-result__header { margin-bottom: 12px; }
+.vn-result__eyebrow { margin-bottom: 8px; }
+.vn-result__title { font-size: 1.8rem; margin: 8px 0 12px; line-height: 1.25; }
+.vn-result__story { font-size: 1rem; line-height: 1.85; margin: 8px 0 16px; }
+.vn-result__changes { margin: 12px 0; }
+.vn-result__changes-label { font-weight: 800; margin-bottom: 8px; }
+.vn-result__changes-list { display: flex; gap: 8px; flex-wrap: wrap; }
+.vn-result__change em { font-style: normal; font-weight: 800; margin-left: 4px; }
+.vn-result__change small { color: var(--ink-muted); font-weight: 600; margin-left: 2px; }
+.vn-result__stats { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 16px; padding: 12px; background: var(--paper-bg); border: 1.5px dashed var(--border-color); border-radius: 10px 6px 8px 12px; }
+.vn-result__stats strong { margin-left: 4px; }
+.vn-result__actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+
+@media (max-width: 640px) {
+    .vn-scene, .vn-result { padding: 16px; }
+    .vn-scene__title, .vn-result__title { font-size: 1.5rem; }
+    .vn-stage { padding: 16px 12px 90px; }
+}
+
 /* ---------- 校园地图 ---------- */
 .campus-map-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 100px; }
 .campus-map__header { text-align: center; margin-bottom: 18px; }
