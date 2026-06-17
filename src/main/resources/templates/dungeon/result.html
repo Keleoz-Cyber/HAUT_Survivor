@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
@@ -17,54 +17,68 @@
 
         <!-- 战报标题 -->
         <div class="vn-result__header">
-            <span class="vn-result__eyebrow">⚔️ 阶段战报</span>
-            <h1 class="vn-result__title" th:text="${taskRecord.evaluation}">完成评价</h1>
+            <span class="paper-chip paper-chip--yellow">⚔️ 阶段战报</span>
+            <h1 class="handwrite vn-result__title" th:text="${taskRecord.evaluation}">完成评价</h1>
         </div>
 
         <!-- 结果文字 -->
-        <p class="vn-result__story" th:text="${taskRecord.resultText}">结果</p>
+        <div class="paper-card tilt-right" style="margin:12px 0;">
+            <p class="vn-result__story" style="margin:0;" th:text="${taskRecord.resultText}">结果</p>
+        </div>
 
         <!-- 属性变化 -->
         <div th:if="${taskRecord.attributeChange != null and taskRecord.attributeChange.hasAnyChange()}" class="vn-result__changes">
-            <p class="vn-result__changes-label">状态变化</p>
+            <p class="handwrite vn-result__changes-label">📝 状态变化</p>
             <div class="vn-result__changes-list">
-                <span th:if="${taskRecord.attributeChange.academicChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.academicChange > 0} ? 'vn-up' : 'vn-down'">📚 学业 <em th:text="${taskRecord.attributeChange.academicChange > 0} ? '+' + ${taskRecord.attributeChange.academicChange} : ${taskRecord.attributeChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
-                <span th:if="${taskRecord.attributeChange.healthChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.healthChange > 0} ? 'vn-up' : 'vn-down'">💚 健康 <em th:text="${taskRecord.attributeChange.healthChange > 0} ? '+' + ${taskRecord.attributeChange.healthChange} : ${taskRecord.attributeChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
-                <span th:if="${taskRecord.attributeChange.moneyChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.moneyChange > 0} ? 'vn-up' : 'vn-down'">💰 金钱 <em th:text="${taskRecord.attributeChange.moneyChange > 0} ? '+' + ${taskRecord.attributeChange.moneyChange} : ${taskRecord.attributeChange.moneyChange}">+5</em></span>
-                <span th:if="${taskRecord.attributeChange.socialChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.socialChange > 0} ? 'vn-up' : 'vn-down'">🤝 社交 <em th:text="${taskRecord.attributeChange.socialChange > 0} ? '+' + ${taskRecord.attributeChange.socialChange} : ${taskRecord.attributeChange.socialChange}">+5</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
-                <span th:if="${taskRecord.attributeChange.skillChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.skillChange > 0} ? 'vn-up' : 'vn-down'">🔧 技能 <em th:text="${taskRecord.attributeChange.skillChange > 0} ? '+' + ${taskRecord.attributeChange.skillChange} : ${taskRecord.attributeChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
-                <span th:if="${taskRecord.attributeChange.pressureChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.pressureChange > 0} ? 'vn-down' : 'vn-up'">😰 压力 <em th:text="${taskRecord.attributeChange.pressureChange > 0} ? '+' + ${taskRecord.attributeChange.pressureChange} : ${taskRecord.attributeChange.pressureChange}">+5</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
-                <span th:if="${taskRecord.attributeChange.disciplineChange != 0}" class="vn-result__change" th:classappend="${taskRecord.attributeChange.disciplineChange > 0} ? 'vn-up' : 'vn-down'">🎯 自律 <em th:text="${taskRecord.attributeChange.disciplineChange > 0} ? '+' + ${taskRecord.attributeChange.disciplineChange} : ${taskRecord.attributeChange.disciplineChange}">+5</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.academicChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.academicChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">📚 学业 <em th:text="${taskRecord.attributeChange.academicChange > 0} ? '+' + ${taskRecord.attributeChange.academicChange} : ${taskRecord.attributeChange.academicChange}">+5</em><small th:text="'（' + ${attribute.academic} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.healthChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.healthChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">💚 健康 <em th:text="${taskRecord.attributeChange.healthChange > 0} ? '+' + ${taskRecord.attributeChange.healthChange} : ${taskRecord.attributeChange.healthChange}">+5</em><small th:text="'（' + ${attribute.health} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.moneyChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.moneyChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">💰 金钱 <em th:text="${taskRecord.attributeChange.moneyChange > 0} ? '+' + ${taskRecord.attributeChange.moneyChange} : ${taskRecord.attributeChange.moneyChange}">+5</em></span>
+                <span th:if="${taskRecord.attributeChange.socialChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.socialChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🤝 社交 <em th:text="${taskRecord.attributeChange.socialChange > 0} ? '+' + ${taskRecord.attributeChange.socialChange} : ${taskRecord.attributeChange.socialChange}">+5</em><small th:text="'（' + ${attribute.social} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.skillChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.skillChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🔧 技能 <em th:text="${taskRecord.attributeChange.skillChange > 0} ? '+' + ${taskRecord.attributeChange.skillChange} : ${taskRecord.attributeChange.skillChange}">+5</em><small th:text="'（' + ${attribute.skill} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.pressureChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.pressureChange > 0} ? 'paper-chip--pink' : 'paper-chip--green'">😰 压力 <em th:text="${taskRecord.attributeChange.pressureChange > 0} ? '+' + ${taskRecord.attributeChange.pressureChange} : ${taskRecord.attributeChange.pressureChange}">+5</em><small th:text="'（' + ${attribute.pressure} + ')'"></small></span>
+                <span th:if="${taskRecord.attributeChange.disciplineChange != 0}" class="paper-chip vn-result__change" th:classappend="${taskRecord.attributeChange.disciplineChange > 0} ? 'paper-chip--green' : 'paper-chip--pink'">🎯 自律 <em th:text="${taskRecord.attributeChange.disciplineChange > 0} ? '+' + ${taskRecord.attributeChange.disciplineChange} : ${taskRecord.attributeChange.disciplineChange}">+5</em><small th:text="'（' + ${attribute.discipline} + ')'"></small></span>
             </div>
         </div>
 
         <!-- 得分速览 -->
-        <div class="vn-result__stats">
-            <div><span>本阶段</span><strong th:text="${taskRecord.score}">0</strong></div>
-            <div><span>总分</span><strong th:text="${record.totalScore}">0</strong></div>
-            <div><span>🔧 技能</span><strong th:text="${attribute.skill}">40</strong></div>
-            <div><span>😰 压力</span><strong th:text="${attribute.pressure}">30</strong></div>
-        </div>
+        <table class="paper-table" style="margin:16px 0;">
+            <thead>
+                <tr>
+                    <th>本阶段得分</th>
+                    <th>累计总分</th>
+                    <th>🔧 技能</th>
+                    <th>😰 压力</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong th:text="${taskRecord.score}">0</strong></td>
+                    <td><strong th:text="${record.totalScore}">0</strong></td>
+                    <td><strong th:text="${attribute.skill}">40</strong></td>
+                    <td><strong th:text="${attribute.pressure}">30</strong></td>
+                </tr>
+            </tbody>
+        </table>
 
         <!-- 副本完成 -->
-        <div th:if="${record.status == 'COMPLETED'}" class="battle-report__final">
-            <p class="battle-report__eval" th:text="|最终评价：${record.finalEvaluation}|">最终评价</p>
-            <p class="battle-report__eval">过程标签</p>
-            <div th:if="${record.riskFlags != null and !record.riskFlags.isBlank()}" class="vn-result__changes-list" style="margin-bottom:16px;">
-                <span class="risk-flag" th:each="flag : ${#strings.arraySplit(record.riskFlags, ',')}"
-                      th:classappend="${flag == 'scope_sprawl' or flag == 'schema_mist' or flag == 'bug_avalanche'} ? 'flag-bad'"
+        <div th:if="${record.status == 'COMPLETED'}" class="paper-card tilt-right" style="background:var(--yellow-light);margin:16px 0;">
+            <p class="handwrite" style="font-size:1.2rem;margin:0 0 8px;" th:text="|🏆 最终评价：${record.finalEvaluation}|">最终评价</p>
+            <p class="handwrite" style="margin:8px 0 6px;font-size:0.95rem;">过程标签</p>
+            <div th:if="${record.riskFlags != null and !record.riskFlags.isBlank()}" class="vn-result__changes-list" style="margin-bottom:12px;">
+                <span class="paper-chip paper-chip--pink" th:each="flag : ${#strings.arraySplit(record.riskFlags, ',')}"
                       th:text="${flag}">标签</span>
             </div>
             <div class="vn-result__actions">
-                <a href="/dungeons" class="sticky-note__btn sticky-note__btn--primary">⚔️ 返回挑战清单</a>
-                <a href="/map" class="sticky-note__btn">🗺️ 回地图继续</a>
+                <a href="/dungeons" class="paper-btn paper-btn--primary">⚔️ 返回挑战清单</a>
+                <a href="/map" class="paper-btn">🗺️ 回地图继续</a>
             </div>
         </div>
 
         <!-- 未完成：下一阶段 -->
         <div th:unless="${record.status == 'COMPLETED'}" class="vn-result__actions">
-            <a th:href="@{/dungeons/{id}/play(id=${record.dungeonId})}" class="sticky-note__btn sticky-note__btn--primary">▶️ 进入下一阶段</a>
-            <a href="/map" class="sticky-note__btn">🗺️ 先回地图</a>
+            <a th:href="@{/dungeons/{id}/play(id=${record.dungeonId})}" class="paper-btn paper-btn--primary">▶️ 进入下一阶段</a>
+            <a href="/dungeons" class="paper-btn">📜 返回副本列表</a>
+            <a href="/map" class="paper-btn">🗺️ 先回地图</a>
         </div>
 
     </div>
