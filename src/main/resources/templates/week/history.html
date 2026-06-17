@@ -4,31 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>历史周报 - HAUT Survivor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/app.css">
 </head>
-<body class="game-shell">
+<body>
 
 <header th:replace="~{fragments/layout :: game-hud}"></header>
 
 <main class="dorm-room week-summary-page week-history-page">
-    <section class="week-summary-hero week-history-hero">
-        <span class="week-summary-hero__icon">📚</span>
-        <h1 class="week-summary-hero__title">历史周报</h1>
-        <p class="week-summary-hero__theme">这一学期留下的影响轨迹</p>
-        <p class="week-summary-hero__text">
+
+    <!-- ===== 标题 ===== -->
+    <section class="week-history-title">
+        <h1 class="handwrite">📚 历史周报</h1>
+        <p class="week-history-title__desc">
             传闻、周主题、搭子和奇遇带来的变化都会在这里按周回放。
         </p>
     </section>
 
-    <section class="week-summary-card semester-archive"
+    <!-- ===== 学期档案卡 ===== -->
+    <section class="paper-card tilt-left semester-archive"
              th:if="${archiveSummary != null}">
         <div class="semester-archive__head">
-            <div>
-                <p class="semester-archive__eyebrow">学期档案</p>
-                <h2 class="semester-archive__title"
-                    th:text="${archiveSummary.growthKeyword}">探索新生</h2>
-            </div>
-            <span class="semester-archive__source"
+            <p class="semester-archive__eyebrow">学期档案</p>
+            <h2 class="handwrite semester-archive__title"
+                th:text="${archiveSummary.growthKeyword}">探索新生</h2>
+        </div>
+
+        <div class="semester-archive__keywords">
+            <span class="paper-chip paper-chip--purple"
+                  th:text="${archiveSummary.growthKeyword}">探索新生</span>
+            <span class="paper-chip"
                   th:text="${archiveSummary.mainSourceLabel}">校园影响</span>
         </div>
 
@@ -38,82 +43,82 @@
         </p>
 
         <div class="semester-archive__stats">
-            <div class="semester-archive__stat semester-archive__stat--positive">
-                <span>正向</span>
-                <strong th:text="${archiveSummary.positiveCount}">0</strong>
-            </div>
-            <div class="semester-archive__stat semester-archive__stat--neutral">
-                <span>中性</span>
-                <strong th:text="${archiveSummary.neutralCount}">0</strong>
-            </div>
-            <div class="semester-archive__stat semester-archive__stat--negative">
-                <span>压力</span>
-                <strong th:text="${archiveSummary.negativeCount}">0</strong>
-            </div>
+            <span class="paper-chip paper-chip--green">
+                正向 <strong th:text="${archiveSummary.positiveCount}">0</strong>
+            </span>
+            <span class="paper-chip paper-chip--blue">
+                中性 <strong th:text="${archiveSummary.neutralCount}">0</strong>
+            </span>
+            <span class="paper-chip paper-chip--pink">
+                压力 <strong th:text="${archiveSummary.negativeCount}">0</strong>
+            </span>
         </div>
 
         <div class="semester-archive__snapshot">
-            <div>
-                <span>关键周</span>
+            <span class="paper-chip paper-chip--yellow">
+                关键周 ·
                 <strong th:text="${archiveSummary.keyWeekNumber != null ? '第 ' + archiveSummary.keyWeekNumber + ' 周' : '尚未形成'}">尚未形成</strong>
-            </div>
-            <div>
-                <span>关键关系</span>
+            </span>
+            <span class="paper-chip paper-chip--orange">
+                关键关系 ·
                 <strong th:text="${archiveSummary.keyNpcName != null ? archiveSummary.keyNpcName + ' · ' + archiveSummary.keyNpcStage : '暂无'}">暂无</strong>
-            </div>
+            </span>
         </div>
 
         <div class="semester-archive__highlights"
              th:if="${archiveSummary.highlights != null and !archiveSummary.highlights.isEmpty()}">
-            <article class="semester-archive__highlight"
-                     th:each="highlight : ${archiveSummary.highlights}">
-                <span th:text="${highlight.label}">成长</span>
-                <strong th:text="${highlight.title}">探索新生</strong>
-                <p th:text="${highlight.description}">档案说明</p>
-            </article>
+            <p class="semester-archive__highlights-title">📝 学期亮点</p>
+            <ul class="semester-archive__highlights-list">
+                <li class="semester-archive__highlight"
+                    th:each="highlight : ${archiveSummary.highlights}">
+                    <span class="paper-chip paper-chip--white" th:text="${highlight.label}">成长</span>
+                    <strong th:text="${highlight.title}">探索新生</strong>
+                    <span class="semester-archive__highlight-desc" th:text="${highlight.description}">档案说明</span>
+                </li>
+            </ul>
         </div>
     </section>
 
-    <section class="week-summary-card week-history-empty"
+    <!-- ===== 空态 ===== -->
+    <section class="paper-card week-history-empty"
              th:if="${historyWeeks == null or historyWeeks.isEmpty()}">
-        <p class="week-summary-card__title">还没有可复盘的影响</p>
+        <p class="handwrite week-summary-card__title">还没有可复盘的影响</p>
         <p class="week-summary-memory__none">
             去校园里踩点、触发传闻或推进奇遇后，这里会慢慢变成你的周报档案。
         </p>
     </section>
 
+    <!-- ===== 每周档案卡（堆叠交错倾斜） ===== -->
     <section class="week-history-list"
              th:if="${historyWeeks != null and !historyWeeks.isEmpty()}">
-        <article class="week-summary-card week-history-week"
+        <article class="paper-card week-history-week"
                  th:each="week : ${historyWeeks}">
             <div class="week-history-week__head">
-                <p class="week-summary-card__title"
+                <p class="handwrite week-history-week__num"
                    th:text="'第 ' + ${week.weekNumber} + ' 周'">第 2 周</p>
-                <span class="week-history-week__count"
+                <span class="paper-chip paper-chip--blue week-history-week__count"
                       th:text="${week.entries.size()} + ' 条影响'">2 条影响</span>
             </div>
 
-            <div class="week-summary-impact__list">
-                <article class="week-summary-impact__item"
-                         th:each="impact : ${week.entries}">
-                    <div class="week-summary-impact__main">
-                        <span class="week-summary-impact__type"
-                              th:text="${impact.sourceLabel}">校园传闻</span>
-                        <strong class="week-summary-impact__name"
-                                th:text="${impact.sourceName != null and !impact.sourceName.isBlank() ? impact.sourceName : '校园影响'}">校园影响</strong>
-                    </div>
-                    <p class="week-summary-impact__desc"
-                       th:text="${impact.description}">影响说明</p>
-                    <p class="week-summary-impact__change"
-                       th:text="${impact.changeText}">社交 +1</p>
-                </article>
-            </div>
+            <ul class="week-history-week__entries">
+                <li class="week-history-week__entry"
+                    th:each="impact : ${week.entries}">
+                    <span class="paper-chip" th:text="${impact.sourceLabel}">校园传闻</span>
+                    <strong class="week-history-week__entry-name"
+                            th:text="${impact.sourceName != null and !impact.sourceName.isBlank() ? impact.sourceName : '校园影响'}">校园影响</strong>
+                    <span class="week-history-week__entry-desc"
+                          th:text="${impact.description}">影响说明</span>
+                    <span class="paper-chip paper-chip--green week-history-week__entry-change"
+                          th:text="${impact.changeText}">社交 +1</span>
+                </li>
+            </ul>
         </article>
     </section>
 
+    <!-- ===== 操作区 ===== -->
     <section class="week-summary-actions week-history-actions">
-        <a href="/week/summary" class="week-summary-actions__advance">回到本周总结</a>
-        <a href="/dashboard" class="week-summary-actions__back">回寝室</a>
+        <a href="/week/summary" class="paper-btn paper-btn--primary">📖 回到本周总结</a>
+        <a href="/dashboard" class="paper-btn">🏠 回寝室</a>
     </section>
 </main>
 
