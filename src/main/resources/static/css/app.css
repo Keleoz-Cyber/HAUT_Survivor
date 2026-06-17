@@ -597,3 +597,14 @@ body:has(.paper-dock) {
     .week-summary-hero__theme-line { font-size: 1.25rem; }
     .week-history-week__entry-change { margin-left: 0; }
 }
+
+/* 学期结局奖状动画 */
+.ending-certificate {
+    animation: endingReveal 0.6s ease-out;
+}
+
+/* 评级chip颜色 */
+.rating-excellent { background: var(--green-light) !important; }
+.rating-good { background: var(--yellow-light) !important; }
+.rating-normal { background: var(--orange-light) !important; }
+.rating-poor { background: var(--pink-light) !important; }
