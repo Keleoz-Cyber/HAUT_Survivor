@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
@@ -16,38 +16,37 @@
 
     <!-- ========== 标题区 ========== -->
     <section class="dungeon-wall__header">
-        <p class="dungeon-wall__eyebrow">⚔️ 本周挑战</p>
-        <h1 class="dungeon-wall__title">选择你的战场</h1>
-        <p class="dungeon-wall__sub">每个副本都是一个完整的挑战故事，有多个阶段和不同玩法。完成副本获得丰厚奖励。</p>
+        <p class="handwrite" style="font-size:1.3rem;margin:0 0 2px;">⚔️ 本周挑战</p>
+        <h1 class="handwrite" style="font-size:2rem;margin:2px 0 4px;">选择你的战场</h1>
+        <p style="color:var(--ink-muted);font-size:0.92rem;margin:4px 0 0;line-height:1.6;">每个副本都是一个完整的挑战故事，有多个阶段和不同玩法。完成副本获得丰厚奖励。</p>
     </section>
 
     <!-- ========== 挑战海报 ========== -->
     <section class="dungeon-wall__grid">
-        <article class="dungeon-poster" th:each="dungeon : ${dungeons}"
+        <article class="paper-card" th:each="dungeon : ${dungeons}"
                  th:style="${dungeon.themeStyle == 'DDL'} ? '--poster-color:#7c3aed' : '--poster-color:#16a34a'">
-            <div class="dungeon-poster__icon">
+            <div style="font-size:2.2rem;line-height:1;margin-bottom:4px;">
                 <span th:switch="${dungeon.themeStyle}">
                     <span th:case="'DDL'">💻</span>
                     <span th:case="*">🏃</span>
                 </span>
             </div>
-            <div class="dungeon-poster__body">
-                <h2 class="dungeon-poster__name" th:text="${dungeon.dungeonName}">副本名</h2>
-                <p class="dungeon-poster__desc" th:text="${dungeon.description}">描述</p>
-                <div class="dungeon-poster__meta">
-                    <span class="dungeon-poster__tag" th:text="${dungeon.difficultyLabel}">难度</span>
-                    <span class="dungeon-poster__tag" th:text="|⏱ ${dungeon.estimatedMinutes} 分钟|">时间</span>
-                    <span class="dungeon-poster__tag" th:if="${dungeon.rewardTitle}" th:text="'🏆 ' + ${dungeon.rewardTitle}">奖励</span>
-                </div>
-                <a th:href="@{/dungeons/{id}(id=${dungeon.id})}" class="dungeon-poster__go">查看挑战</a>
+            <h2 class="handwrite" style="font-size:1.35rem;margin:4px 0;" th:text="${dungeon.dungeonName}">副本名</h2>
+            <p style="color:var(--ink-muted);font-size:0.85rem;margin:2px 0 10px;line-height:1.55;" th:text="${dungeon.description}">描述</p>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;">
+                <span class="paper-chip paper-chip--blue" th:text="${dungeon.dungeonType}">类型</span>
+                <span class="paper-chip paper-chip--pink" th:text="${dungeon.difficultyLabel}">难度</span>
+                <span class="paper-chip paper-chip--white" th:text="|⏱ ${dungeon.estimatedMinutes} 分钟|">时间</span>
+                <span class="paper-chip paper-chip--yellow" th:if="${dungeon.rewardTitle}" th:text="'🏆 ' + ${dungeon.rewardTitle}">奖励</span>
             </div>
+            <a th:href="@{/dungeons/{id}(id=${dungeon.id})}" class="paper-btn paper-btn--primary">查看挑战</a>
         </article>
     </section>
 
     <!-- ========== 导航 ========== -->
-    <div class="dungeon-wall__nav">
-        <a href="/map" class="sticky-note__btn">🗺️ 回地图</a>
-        <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
+    <div class="dungeon-wall__nav" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <a href="/map" class="paper-btn">🗺️ 回地图</a>
+        <a href="/dashboard" class="paper-btn">🏠 回寝室</a>
     </div>
 
 </main>

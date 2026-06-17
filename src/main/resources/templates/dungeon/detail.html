@@ -7,48 +7,47 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
 
-<main class="dungeon-cover-v2" th:style="${dungeon.themeStyle == 'DDL'} ? '--cover-color:#7c3aed' : '--cover-color:#16a34a'">
-    <div class="dungeon-cover-v2__content">
+<main class="dungeon-cover" th:style="${dungeon.themeStyle == 'DDL'} ? '--cover-color:#7c3aed' : '--cover-color:#16a34a'">
 
-        <!-- 封面信息 -->
-        <div class="dungeon-cover-v2__header">
-            <p class="dungeon-cover-v2__eyebrow" th:text="${dungeon.dungeonType}">类型</p>
-            <h1 class="dungeon-cover-v2__title" th:text="${dungeon.dungeonName}">副本名</h1>
-            <p class="dungeon-cover-v2__story" th:text="${dungeon.description}">副本描述</p>
-            <div class="dungeon-cover-v2__meta">
-                <span th:text="|⏱ 预计 ${dungeon.estimatedMinutes} 分钟|">时间</span>
-                <span th:text="${dungeon.difficultyLabel}">普通</span>
-                <span th:if="${dungeon.rewardTitle}" th:text="'🏆 ' + ${dungeon.rewardTitle}">奖励</span>
+    <!-- ========== 封面信息卡 ========== -->
+    <section class="paper-card tilt-left">
+        <h1 class="handwrite" style="font-size:2.4rem;margin:0 0 10px;line-height:1.2;" th:text="${dungeon.dungeonName}">副本名</h1>
+        <p style="font-size:1rem;line-height:1.75;color:var(--ink);margin:8px 0 14px;" th:text="${dungeon.description}">副本描述</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;">
+            <span class="paper-chip paper-chip--blue" th:text="${dungeon.dungeonType}">类型</span>
+            <span class="paper-chip paper-chip--white" th:text="|⏱ 预计 ${dungeon.estimatedMinutes} 分钟|">时间</span>
+            <span class="paper-chip paper-chip--pink" th:text="${dungeon.difficultyLabel}">普通</span>
+            <span class="paper-chip paper-chip--yellow" th:if="${dungeon.rewardTitle}" th:text="'🏆 ' + ${dungeon.rewardTitle}">奖励</span>
+        </div>
+        <a th:href="@{/dungeons/{id}/start(id=${dungeon.id})}" class="paper-btn paper-btn--primary" style="font-size:1rem;padding:10px 24px;">⚔️ 开始挑战</a>
+    </section>
+
+    <!-- ========== 阶段路线（手绘时间线） ========== -->
+    <section class="paper-card tilt-right">
+        <p class="handwrite" style="font-size:1.2rem;margin:0 0 14px;">🗺️ 关卡路线</p>
+        <div th:each="task, iter : ${tasks}">
+            <div class="dungeon-timeline-step">
+                <div class="dungeon-timeline-step__num" th:text="${iter.count}">1</div>
+                <div style="padding-top:5px;">
+                    <h3 class="handwrite" style="font-size:1.05rem;margin:0;" th:text="${task.taskName}">阶段名</h3>
+                    <p style="color:var(--ink-muted);font-size:0.85rem;margin:2px 0 0;line-height:1.5;" th:text="${task.targetText}">目标</p>
+                </div>
             </div>
-            <a th:href="@{/dungeons/{id}/start(id=${dungeon.id})}" class="sticky-note__btn sticky-note__btn--primary">⚔️ 开始挑战</a>
+            <div class="dungeon-timeline-connector" th:if="${not iter.last}"></div>
         </div>
+    </section>
 
-        <!-- 阶段路线 -->
-        <div class="dungeon-route">
-            <p class="dungeon-route__label">关卡路线</p>
-            <div class="dungeon-route__steps">
-                <article class="dungeon-route__step" th:each="task, iter : ${tasks}">
-                    <div class="dungeon-route__step-num" th:text="${iter.count}">1</div>
-                    <div class="dungeon-route__step-info">
-                        <h3 th:text="${task.taskName}">阶段名</h3>
-                        <p th:text="${task.targetText}">目标</p>
-                    </div>
-                </article>
-            </div>
-        </div>
-
-        <!-- 导航 -->
-        <div class="dungeon-cover-v2__nav">
-            <a href="/dungeons" class="sticky-note__btn">⚔️ 返回挑战清单</a>
-            <a href="/map" class="sticky-note__btn">🗺️ 回地图</a>
-        </div>
-
+    <!-- ========== 导航 ========== -->
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+        <a href="/dungeons" class="paper-btn">⚔️ 返回挑战清单</a>
+        <a href="/map" class="paper-btn">🗺️ 回地图</a>
     </div>
+
 </main>
 
 <!-- 手机底栏 -->
