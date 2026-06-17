@@ -315,3 +315,57 @@ body:has(.paper-dock) {
 .npc-chip__stage { color: var(--purple-deep); font-weight: 700; }
 
 @media (max-width: 640px) { .stat-bar__grid { grid-template-columns: 1fr; } .phone-home { gap: 8px; } .achievement-shelf__grid { grid-template-columns: 1fr; } }
+
+/* ---------- 校园地图 ---------- */
+.campus-map-container { max-width: 960px; margin: 0 auto; padding: 24px 16px 100px; }
+.campus-map__header { text-align: center; margin-bottom: 18px; }
+.campus-map__eyebrow { font-size: 1.6rem; margin: 0 0 4px; }
+.campus-map__title { font-size: 1.3rem; margin: 4px 0; color: var(--ink-muted); }
+.campus-map__sub { color: var(--ink); font-size: 0.95rem; margin: 4px 0 0; }
+.campus-map__sub strong { color: var(--orange-deep); font-size: 1.15rem; }
+.campus-map__msg { display: block; margin: 12px auto; max-width: fit-content; }
+
+.campus-map-photo { background: #fff; border: 2.5px solid var(--border-color); border-radius: 16px 8px 14px 10px; box-shadow: 4px 4px 0 var(--shadow-color); overflow: hidden; margin-bottom: 18px; }
+.campus-map-photo__header { padding: 10px 16px 4px; text-align: center; }
+.campus-map-photo__eyebrow { font-size: 0.85rem; color: var(--ink-muted); margin: 0; }
+.campus-map-photo__title { font-size: 1.2rem; margin: 2px 0 6px; }
+.campus-map-photo__frame { aspect-ratio: 1267 / 679; background: #0f172a; overflow: hidden; position: relative; }
+.campus-map-photo__image { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.campus-map-hotspot { background: var(--yellow-light); border: 2px solid var(--border-color); border-radius: 50% 45% 50% 40%; box-shadow: 2px 2px 0 var(--shadow-color); color: var(--ink); display: inline-flex; align-items: center; gap: 4px; left: var(--hotspot-x); max-width: 92px; padding: 4px 8px; position: absolute; top: var(--hotspot-y); text-decoration: none; transform: translate(-50%, -50%); transition: all 0.12s ease; white-space: nowrap; font-weight: 700; font-size: 0.72rem; }
+.campus-map-hotspot:hover { background: var(--green-light); transform: translate(-50%, -50%) scale(1.1); color: var(--ink); }
+.campus-map-hotspot--disabled { opacity: 0.5; pointer-events: none; }
+.campus-map-hotspot__dot { width: 6px; height: 6px; background: var(--ink); border-radius: 50%; flex-shrink: 0; }
+.campus-map-hotspot__label { line-height: 1; }
+
+.campus-map-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+@media (max-width: 640px) { .campus-map-grid { grid-template-columns: 1fr; } }
+
+/* 校园节点卡片：交替倾斜 */
+.campus-node { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; }
+.campus-map-grid .campus-node:nth-child(odd)  { transform: rotate(-0.3deg); }
+.campus-map-grid .campus-node:nth-child(even) { transform: rotate(0.3deg); }
+.campus-map-grid .campus-node:nth-child(odd):hover,
+.campus-map-grid .campus-node:nth-child(even):hover { transform: translate(-2px, -2px) rotate(0deg); }
+.campus-node__marker { font-size: 1.8rem; line-height: 1; }
+.campus-node__name { font-size: 1.1rem; margin: 0; }
+.campus-node__vibe { color: var(--ink-muted); font-size: 0.85rem; margin: 2px 0 6px; }
+.campus-node__badge--rumor { margin-bottom: 6px; }
+.campus-node__explore { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.campus-node__explore-label { font-size: 0.75rem; font-weight: 800; min-width: 4em; color: var(--ink); }
+.campus-node__cost { margin: 4px 0; }
+.campus-node__go { align-self: flex-start; margin-top: auto; }
+
+/* 副本入口 */
+.campus-map__dungeon-hook { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.campus-map__dungeon-hook-left { flex: 1; min-width: 200px; }
+.campus-map__dungeon-hook-tag { margin-bottom: 6px; }
+.campus-map__dungeon-hook h3 { font-size: 1.15rem; margin: 4px 0; }
+.campus-map__dungeon-hook p { color: var(--ink); font-size: 0.9rem; margin: 2px 0; }
+
+/* 返回导航 */
+.campus-map__back { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+
+/* 学期结束 */
+.campus-map__end { text-align: center; }
+.campus-map__end p { margin: 4px 0 12px; color: var(--ink); }
