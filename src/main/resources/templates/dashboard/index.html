@@ -7,7 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
@@ -15,40 +15,41 @@
 <main class="dorm-room">
 
     <!-- ========== 学期结束卡 ========== -->
-    <section th:if="${semesterOver}" class="dorm-semester-end">
-        <p class="dorm-semester-end__title">📚 学期结束了</p>
+    <section th:if="${semesterOver}" class="paper-card tilt-left">
+        <p class="handwrite">📚 学期结束了</p>
         <p class="dorm-semester-end__desc">这一学期已经过去，来看看你的学期回忆吧。</p>
         <div class="dorm-semester-end__actions">
-            <a href="/ending" class="sticky-note__btn sticky-note__btn--primary">📖 查看学期回忆</a>
+            <a href="/ending" class="paper-btn paper-btn--primary">📖 查看学期回忆</a>
             <form method="post" action="/ending/restart" style="display:inline">
-                <button type="submit" class="sticky-note__btn">🔄 再来一学期</button>
+                <button type="submit" class="paper-btn">🔄 再来一学期</button>
             </form>
         </div>
     </section>
 
     <!-- ========== 角色状态卡 ========== -->
-    <section class="dorm-profile">
-        <h1 class="dorm-profile__name" th:text="${profile.playerName}">角色名</h1>
+    <section class="paper-card tilt-right">
+        <h1 class="handwrite" th:text="${profile.playerName}">角色名</h1>
         <p class="dorm-profile__subtitle">
             <span th:text="${profile.currentTitle}">称号</span>
             <span> · </span>
             <span th:text="${weekPhaseLabel}">第 1 周</span>
         </p>
         <div class="dorm-profile__tags">
-            <span class="dorm-profile__tag dorm-profile__tag--route" th:text="${profile.growthRoute}">成长路线</span>
-            <span class="dorm-profile__tag">Lv.<span th:text="${profile.level}">1</span></span>
+            <span class="paper-chip paper-chip--purple" th:text="${profile.growthRoute}">成长路线</span>
+            <span class="paper-chip paper-chip--yellow">Lv.<span th:text="${profile.level}">1</span></span>
         </div>
     </section>
 
     <!-- ========== 学期阶段进度 ========== -->
-    <section th:if="${!semesterOver}" class="stage-progress">
+    <section th:if="${!semesterOver}" class="paper-card tilt-left">
         <p class="stage-progress__label">
             📅 学期第 <span th:text="${profile.currentWeek}">1</span>/<span th:text="${semesterWeeks}">16</span> 周
         </p>
         <div class="stage-progress__bar">
             <div class="stage-progress__stage"
                  th:each="stage : ${allStages}"
-                 th:classappend="${stage.stageKey == stageKey ? 'stage-progress__stage--active' : ''}">
+                 th:classappend="${stage.stageKey == stageKey ? 'stage-progress__stage--active' : ''}"
+                 th:styleappend="${stage.stageKey == stageKey ? 'background: var(--yellow-light); border-color: var(--border-color);' : ''}">
                 <span class="stage-progress__stage-icon" th:text="${stage.icon}">🎒</span>
                 <span class="stage-progress__stage-name" th:text="${stage.name}">开学适应</span>
             </div>
@@ -60,7 +61,7 @@
     </section>
 
     <!-- ========== 成长倾向 ========== -->
-    <section th:if="${!semesterOver}" class="route-tendency">
+    <section th:if="${!semesterOver}" class="paper-card tilt-right">
         <p class="route-tendency__label">
             🧭 成长倾向：<strong th:text="${routeTendencyName}">学业路线</strong>
         </p>
@@ -68,7 +69,8 @@
     </section>
 
     <!-- ========== 压力预警 ========== -->
-    <div th:if="${attribute.pressure >= 60}" class="pressure-alert"
+    <div th:if="${attribute.pressure >= 60}" class="paper-card tilt-left pressure-alert"
+         style="background: var(--pink-light); border-color: var(--border-color);"
          th:classappend="${attribute.pressure >= 75} ? 'pressure-alert--danger'">
         <span class="pressure-alert__icon" th:text="${attribute.pressure >= 75} ? '🔴' : '🟡'">🟡</span>
         <span th:if="${attribute.pressure >= 75}">压力爆表！赶紧减压，不然下周要扣健康了。</span>
@@ -76,18 +78,18 @@
     </div>
 
     <!-- ========== 本周主题 ========== -->
-    <section th:if="${weekTheme != null}" class="week-theme-card">
+    <section th:if="${weekTheme != null}" class="paper-card tilt-right">
         <span class="week-theme-card__icon" th:text="${weekTheme.icon}">🎒</span>
         <div class="week-theme-card__body">
-            <h2 class="week-theme-card__name" th:text="${weekTheme.name}">开学适应周</h2>
+            <h2 class="handwrite" th:text="${weekTheme.name}">开学适应周</h2>
             <p class="week-theme-card__desc" th:text="${weekTheme.description}">描述</p>
             <p class="week-theme-card__hint" th:text="${weekTheme.hint}">提示</p>
         </div>
     </section>
 
     <!-- ========== 本周目标 ========== -->
-    <section th:if="${!semesterOver}" class="weekly-goal-card">
-        <p class="weekly-goal-card__title">🎯 本周目标</p>
+    <section th:if="${!semesterOver}" class="paper-card tilt-left">
+        <p class="handwrite">🎯 本周目标</p>
 
         <!-- 未选择目标：显示 3 个候选 -->
         <div th:if="${currentWeeklyGoal == null and goalCandidates != null and !goalCandidates.isEmpty()}" class="goal-candidate__list">
@@ -103,7 +105,7 @@
                     </div>
                 </div>
                 <form method="post" th:action="@{/weekly-goals/{id}/choose(id=${candidate.id})}">
-                    <button type="submit" class="goal-candidate__btn">选择</button>
+                    <button type="submit" class="paper-btn paper-btn--primary">选择</button>
                 </form>
             </div>
         </div>
@@ -112,8 +114,8 @@
         <div th:if="${currentWeeklyGoal != null and currentWeeklyGoalDef != null}" class="goal-progress">
             <div class="goal-progress__header">
                 <h3 class="goal-progress__name" th:text="${currentWeeklyGoalDef.goalName}">目标名</h3>
-                <span th:if="${currentWeeklyGoal.completed == 1}" class="goal-progress__status goal-progress-status--done">✅ 已完成</span>
-                <span th:if="${currentWeeklyGoal.completed != 1}" class="goal-progress__status goal-progress-status--active">进行中</span>
+                <span th:if="${currentWeeklyGoal.completed == 1}" class="paper-chip paper-chip--green">✅ 已完成</span>
+                <span th:if="${currentWeeklyGoal.completed != 1}" class="paper-chip paper-chip--yellow">进行中</span>
             </div>
             <p class="goal-progress__desc" th:text="${currentWeeklyGoalDef.description}">描述</p>
 
@@ -141,7 +143,7 @@
                 <span class="goal-reward__attr" th:if="${currentWeeklyGoalDef.rewardAmount > 0}"
                       th:text="'+' + ${currentWeeklyGoalDef.rewardAmount} + ' ' + ${currentWeeklyGoalDef.rewardAttribute}">+5 社交</span>
                 <form method="post" action="/weekly-goals/claim" style="display:inline">
-                    <button type="submit" class="goal-progress__claim-btn">领取奖励</button>
+                    <button type="submit" class="paper-btn paper-btn--primary">领取奖励</button>
                 </form>
             </div>
             <div th:if="${currentWeeklyGoal.claimed == 1}" class="goal-reward goal-reward--claimed">
@@ -151,8 +153,8 @@
     </section>
 
     <!-- ========== 校园传闻 ========== -->
-    <section th:if="${rumors != null and !rumors.isEmpty()}" class="rumor-board">
-        <p class="rumor-board__title">📣 本周校园传闻</p>
+    <section th:if="${rumors != null and !rumors.isEmpty()}" class="paper-card tilt-right">
+        <p class="handwrite">📣 本周校园传闻</p>
         <div class="rumor-board__list">
             <article class="rumor-note" th:each="rumor : ${rumors}">
                 <span class="rumor-note__rarity" th:classappend="'rumor-note__rarity--' + ${rumor.rarity}">●</span>
@@ -166,7 +168,7 @@
     </section>
 
     <!-- ========== 周推进控制 ========== -->
-    <section th:if="${!semesterOver}" class="dorm-week-control">
+    <section th:if="${!semesterOver}" class="paper-card">
         <span class="dorm-week-control__hint"
               th:if="${profile.actionPoints == profile.maxActionPoints}">
             💡 还没行动过，先去校园逛逛吧
@@ -179,9 +181,9 @@
               th:if="${profile.actionPoints > 0 and profile.actionPoints < profile.maxActionPoints}">
             还有 <span th:text="${profile.actionPoints}">2</span> 个行动点可以用
         </span>
-        <a href="/week/summary" class="sticky-note__btn"
+        <a href="/week/summary" class="paper-btn"
                     th:disabled="${profile.actionPoints == profile.maxActionPoints}"
-                    th:classappend="${profile.actionPoints == 0} ? 'sticky-note__btn--primary' : ''">
+                    th:classappend="${profile.actionPoints == 0} ? 'paper-btn--primary' : ''">
                 🌙 查看本周回忆
             </a>
     </section>
@@ -215,55 +217,55 @@
     </div>
 
     <!-- ========== 属性条 ========== -->
-    <section class="stat-bar">
-        <p class="stat-bar__title">📊 状态</p>
+    <section class="paper-card tilt-right">
+        <p class="handwrite">📊 状态</p>
         <div class="stat-bar__grid">
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">学业</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--academic" th:style="'width:' + ${attribute.academic} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--academic" th:style="'width:' + ${attribute.academic} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.academic}">60</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">健康</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--health" th:style="'width:' + ${attribute.health} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--health" th:style="'width:' + ${attribute.health} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.health}">70</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">金钱</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--money" th:style="'width:' + ${attribute.money} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--money" th:style="'width:' + ${attribute.money} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.money}">80</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">社交</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--social" th:style="'width:' + ${attribute.social} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--social" th:style="'width:' + ${attribute.social} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.social}">50</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">技能</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--skill" th:style="'width:' + ${attribute.skill} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--skill" th:style="'width:' + ${attribute.skill} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.skill}">40</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">压力</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--pressure" th:style="'width:' + ${attribute.pressure} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--pressure" th:style="'width:' + ${attribute.pressure} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.pressure}">30</span>
             </div>
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">自律</span>
-                <div class="stat-bar__item-track">
-                    <div class="stat-bar__item-fill stat-bar__item-fill--discipline" th:style="'width:' + ${attribute.discipline} + '%'"></div>
+                <div class="stat-track">
+                    <div class="stat-fill stat-fill--discipline" th:style="'width:' + ${attribute.discipline} + '%'"></div>
                 </div>
                 <span class="stat-bar__item-value" th:text="${attribute.discipline}">50</span>
             </div>
@@ -271,19 +273,19 @@
     </section>
 
     <!-- ========== 便利贴 / 推荐行动 ========== -->
-    <section class="sticky-note" th:if="${!semesterOver}">
-        <p class="sticky-note__title">📌 本周待办</p>
+    <section class="paper-card tilt-left" th:if="${!semesterOver}" style="background: var(--yellow-light);">
+        <p class="handwrite">📌 本周待办</p>
         <div class="sticky-note__actions">
-            <a href="/map" class="sticky-note__btn sticky-note__btn--primary">🗺️ 去校园行动</a>
-            <a href="/exploration" class="sticky-note__btn">🔍 踩点探索</a>
-            <a href="/dungeons" class="sticky-note__btn">⚔️ 挑战副本</a>
-            <a href="/organizations" class="sticky-note__btn">🎉 参加社团活动</a>
+            <a href="/map" class="paper-btn paper-btn--primary">🗺️ 去校园行动</a>
+            <a href="/exploration" class="paper-btn">🔍 踩点探索</a>
+            <a href="/dungeons" class="paper-btn">⚔️ 挑战副本</a>
+            <a href="/organizations" class="paper-btn">🎉 参加社团活动</a>
         </div>
     </section>
 
     <!-- ========== 警告提示 ========== -->
     <section th:if="${!warnings.isEmpty()}" style="margin-bottom: 16px;">
-        <div th:each="warning : ${warnings}" class="pressure-alert" style="margin-bottom: 8px;"
+        <div th:each="warning : ${warnings}" class="paper-card tilt-left pressure-alert" style="margin-bottom: 8px; background: var(--pink-light); border-color: var(--border-color);"
              th:styleappend="${warning.contains('压力') ? '' : 'background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.2); color: #fcd34d;'}">
             <span class="pressure-alert__icon">⚠️</span>
             <span th:text="${warning}">警告</span>
@@ -291,8 +293,8 @@
     </section>
 
     <!-- ========== 成就称号 ========== -->
-    <section th:if="${!semesterOver}" class="achievement-shelf">
-        <p class="achievement-shelf__title">🏅 成就称号</p>
+    <section th:if="${!semesterOver}" class="paper-card tilt-left">
+        <p class="handwrite">🏅 成就称号</p>
         <div th:if="${recentAchievements != null and !recentAchievements.isEmpty()}" class="achievement-shelf__grid">
             <div class="achievement-badge" th:each="ua : ${recentAchievements}" th:if="${ua.achievement != null}">
                 <span class="achievement-badge__icon" th:text="${ua.achievement.icon}">🏆</span>
@@ -309,8 +311,8 @@
     </section>
 
     <!-- ========== 熟人列表 ========== -->
-    <section th:if="${knownNpcs != null and !knownNpcs.isEmpty()}" class="npc-strip">
-        <p class="npc-strip__title">👥 校园熟人</p>
+    <section th:if="${knownNpcs != null and !knownNpcs.isEmpty()}" class="paper-card tilt-right">
+        <p class="handwrite">👥 校园熟人</p>
         <div class="npc-strip__list">
             <a class="npc-chip npc-chip--link" th:each="rel : ${knownNpcs}" th:if="${rel.npc != null}"
                th:href="@{/npcs/{id}(id=${rel.npc.id})}">
@@ -322,7 +324,7 @@
                           th:text="${rel.familiarity >= 80 ? '铁搭子' : (rel.familiarity >= 50 ? '搭子' : (rel.familiarity >= 20 ? '熟人' : '认识'))}">
                         认识
                     </span>
-                    <span class="npc-chip__buddy"
+                    <span class="paper-chip paper-chip--green"
                           th:if="${currentBuddy != null and currentBuddy.npcId == rel.npcId}">本周搭子</span>
                 </div>
             </a>

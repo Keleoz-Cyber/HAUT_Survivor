@@ -230,3 +230,88 @@ main { animation: pageFadeIn 0.3s ease-out; }
 body:has(.paper-dock) {
     padding-bottom: 80px;
 }
+
+/* ---------- 仪表盘布局辅助 ---------- */
+.phone-home { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.phone-home__app { background: #fff; border: 2px solid var(--border-color); border-radius: 12px 6px 10px 8px; box-shadow: 2px 2px 0 var(--shadow-color); padding: 12px 6px; text-align: center; text-decoration: none; color: var(--ink); transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.phone-home__app:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--shadow-color); }
+.phone-home__app-icon { font-size: 1.5rem; line-height: 1; }
+.phone-home__app-label { font-size: 0.7rem; font-weight: 700; }
+
+.stat-bar__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.stat-bar__item { display: flex; align-items: center; gap: 8px; }
+.stat-bar__item-label { font-size: 0.75rem; font-weight: 700; color: var(--ink); min-width: 2.5em; text-align: right; }
+.stat-bar__item-value { font-size: 0.78rem; font-weight: 800; color: var(--ink); min-width: 2em; }
+
+/* 仪表盘内嵌结构 */
+.dorm-semester-end__desc { color: var(--ink-muted); font-size: 0.9rem; margin: 6px 0 10px; }
+.dorm-semester-end__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.dorm-profile__subtitle { color: var(--ink-muted); font-size: 0.9rem; margin: 4px 0 8px; }
+.dorm-profile__tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.stage-progress__label { font-weight: 700; margin-bottom: 8px; }
+.stage-progress__bar { display: flex; gap: 6px; flex-wrap: wrap; }
+.stage-progress__stage { border: 2px solid var(--border-color); border-radius: 10px 6px 8px 12px; padding: 6px 10px; background: #fff; display: flex; align-items: center; gap: 4px; font-size: 0.78rem; }
+.stage-progress__stage-icon { font-size: 1rem; }
+.stage-progress__hint { font-size: 0.82rem; color: var(--ink-muted); margin-top: 8px; }
+
+.route-tendency__label { font-weight: 700; margin-bottom: 4px; }
+.route-tendency__desc { color: var(--ink-muted); font-size: 0.88rem; }
+
+.pressure-alert { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.pressure-alert__icon { font-size: 1.2rem; }
+
+.week-theme-card__icon { font-size: 1.6rem; }
+.week-theme-card__body { margin-top: 6px; }
+.week-theme-card__desc { color: var(--ink-muted); font-size: 0.9rem; margin: 4px 0; }
+.week-theme-card__hint { font-size: 0.82rem; color: var(--ink); }
+
+.goal-candidate__list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.goal-candidate { border: 2px solid var(--border-color); border-radius: 12px 6px 10px 8px; box-shadow: 2px 2px 0 var(--shadow-color); padding: 10px 12px; background: #fff; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.goal-candidate__body { flex: 1; }
+.goal-candidate__name { font-size: 1rem; margin: 0; }
+.goal-candidate__desc { color: var(--ink-muted); font-size: 0.85rem; margin: 2px 0; }
+.goal-reward { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 4px; font-size: 0.8rem; font-weight: 700; }
+
+.goal-progress__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.goal-progress__name { font-size: 1.05rem; margin: 0; }
+.goal-progress__desc { color: var(--ink-muted); font-size: 0.88rem; margin: 6px 0; }
+.goal-progress__bar-wrap { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.goal-progress__bar { background: var(--track); border: 1.5px solid var(--border-color); border-radius: 4px; height: 8px; flex: 1; overflow: hidden; }
+.goal-progress__bar-fill { height: 100%; background: linear-gradient(90deg, #55efc4, #00b894); border-radius: 4px; }
+.goal-progress__value { font-size: 0.8rem; font-weight: 800; min-width: 3em; }
+.goal-progress__hint { font-size: 0.8rem; color: var(--ink-muted); }
+.goal-reward--claimed { font-weight: 700; color: var(--green-deep); }
+
+.rumor-board__list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.rumor-note { border: 2px solid var(--border-color); border-radius: 12px 6px 10px 8px; box-shadow: 2px 2px 0 var(--shadow-color); padding: 10px 12px; background: #fff; display: flex; gap: 8px; }
+.rumor-note__rarity { font-size: 0.9rem; }
+.rumor-note__title { font-size: 0.95rem; margin: 0; }
+.rumor-note__text { color: var(--ink-muted); font-size: 0.85rem; margin: 2px 0; }
+.rumor-note__hint { font-size: 0.78rem; color: var(--ink); }
+
+.dorm-week-control { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.dorm-week-control__hint { font-size: 0.85rem; color: var(--ink-muted); }
+.dorm-week-control__hint--urgent { color: var(--orange-deep); font-weight: 800; }
+
+.sticky-note__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+.achievement-shelf__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 8px; }
+.achievement-badge { border: 2px solid var(--border-color); border-radius: 12px 6px 10px 8px; box-shadow: 2px 2px 0 var(--shadow-color); padding: 10px; background: var(--yellow-light); display: flex; align-items: center; gap: 8px; }
+.achievement-badge__icon { font-size: 1.4rem; }
+.achievement-badge__body { display: flex; flex-direction: column; }
+.achievement-badge__title { font-weight: 800; font-size: 0.9rem; }
+.achievement-badge__reward { font-size: 0.78rem; color: var(--ink-muted); }
+.achievement-shelf__empty { color: var(--ink-muted); font-size: 0.9rem; }
+
+.npc-strip__list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.npc-chip { border: 2px solid var(--border-color); border-radius: 12px 6px 10px 8px; box-shadow: 2px 2px 0 var(--shadow-color); padding: 8px 10px; background: #fff; display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--ink); }
+.npc-chip:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--shadow-color); }
+.npc-chip__avatar { font-size: 1.4rem; }
+.npc-chip__info { display: flex; flex-direction: column; font-size: 0.78rem; }
+.npc-chip__name { font-weight: 800; }
+.npc-chip__familiarity { color: var(--ink-muted); }
+.npc-chip__stage { color: var(--purple-deep); font-weight: 700; }
+
+@media (max-width: 640px) { .stat-bar__grid { grid-template-columns: 1fr; } .phone-home { gap: 8px; } .achievement-shelf__grid { grid-template-columns: 1fr; } }
