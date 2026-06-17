@@ -286,7 +286,7 @@
     <!-- ========== 警告提示 ========== -->
     <section th:if="${!warnings.isEmpty()}" style="margin-bottom: 16px;">
         <div th:each="warning : ${warnings}" class="paper-card tilt-left pressure-alert" style="margin-bottom: 8px; background: var(--pink-light); border-color: var(--border-color);"
-             th:styleappend="${warning.contains('压力') ? '' : 'background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.2); color: #fcd34d;'}">
+             th:styleappend="${warning.contains('压力') ? '' : 'background: var(--yellow-light); border-color: var(--border-color); color: var(--ink);'}">
             <span class="pressure-alert__icon">⚠️</span>
             <span th:text="${warning}">警告</span>
         </div>
