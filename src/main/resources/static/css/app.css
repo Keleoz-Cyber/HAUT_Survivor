@@ -423,3 +423,50 @@ body:has(.paper-dock) {
 /* 学期结束 */
 .campus-map__end { text-align: center; }
 .campus-map__end p { margin: 4px 0 12px; color: var(--ink); }
+
+/* ---------- 探索页 ---------- */
+.explore-page { max-width: 960px; margin: 0 auto; padding: 0 16px 100px; }
+.explore-page__sub { color: var(--ink-muted); font-size: 0.95rem; margin: 6px 0 0; line-height: 1.6; }
+
+.explore-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+@media (max-width: 640px) { .explore-grid { grid-template-columns: 1fr; } }
+
+/* 地点卡片：交替倾斜（hover 回正） */
+.explore-grid .paper-card:nth-child(odd)  { transform: rotate(-0.3deg); }
+.explore-grid .paper-card:nth-child(even) { transform: rotate(0.3deg); }
+.explore-grid .paper-card:nth-child(odd):hover,
+.explore-grid .paper-card:nth-child(even):hover { transform: translate(-2px, -2px) rotate(0deg); }
+
+.explore-card__marker { font-size: 2rem; line-height: 1; }
+.explore-card__body h2 { margin: 4px 0; }
+.explore-card__desc { color: var(--ink-muted); font-size: 0.9rem; margin: 4px 0 8px; line-height: 1.55; }
+.explore-card__progress { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.explore-card__progress-label { font-size: 0.78rem; font-weight: 800; min-width: 4.5em; color: var(--ink); }
+.explore-card__unlock { font-size: 0.8rem; color: var(--ink); margin: 6px 0; }
+.explore-card__body form { margin-top: 10px; }
+
+/* 探索结果页 */
+.vn-result__meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 8px; }
+.result-type-icon { font-size: 2.6rem; text-align: center; line-height: 1; margin-bottom: 6px; }
+.influence-panel__list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.influence-card-mini { display: flex; gap: 10px; align-items: flex-start; border: 2px solid var(--border-color); border-radius: 10px 6px 8px 12px; padding: 8px 12px; background: #fff; box-shadow: 2px 2px 0 var(--shadow-color); }
+.influence-card-mini > div { flex: 1; }
+.influence-card-mini p { margin: 2px 0 0; color: var(--ink-muted); font-size: 0.85rem; line-height: 1.5; }
+.encounter-card__header { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+
+/* vn-up / vn-down 映射手绘配色（保留原 th:classappend 不变） */
+.vn-up { background: var(--green-light); }
+.vn-down { background: var(--pink-light); }
+
+/* 探索结果类型标签配色（保留原 th:classappend 不变） */
+.explore-card__badge--discover     { background: var(--blue-light); }
+.explore-card__badge--hidden       { background: var(--purple-light); }
+.explore-card__badge--secret       { background: var(--pink-light); }
+.explore-card__badge--legendary    { background: var(--yellow-light); }
+.explore-card__badge--social       { background: var(--green-light); }
+.explore-card__badge--skill_gain   { background: var(--purple-light); }
+.explore-card__badge--npc          { background: var(--blue-light); }
+.explore-card__badge--event_hint   { background: var(--orange-light); }
+.explore-card__badge--route_unlock { background: var(--green-light); }
+.explore-card__badge--title_hint   { background: var(--yellow-light); }
+.explore-card__badge--setback      { background: var(--pink-light); }

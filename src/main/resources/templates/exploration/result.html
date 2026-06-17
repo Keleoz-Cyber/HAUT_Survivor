@@ -7,184 +7,202 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
 </head>
-<body class="game-shell">
+<body>
 
 <!-- 游戏HUD -->
 <div th:replace="~{fragments/layout :: game-hud}"></div>
 
-<main class="vn-stage" th:style="'--scene-color: ' + ${location.themeColor}">
-    <div class="vn-result">
+<main class="explore-page" th:style="'--scene-color: ' + ${location.themeColor}">
 
-        <!-- 发现标题 -->
-        <div class="vn-result__header">
-            <div class="vn-result__meta">
-                <span th:text="${location.locationName}">📍 地点</span>
-                <span class="explore-card__badge"
-                      th:classappend="'explore-card__badge--' + ${result.resultType}"
-                      th:switch="${result.resultType}">
-                    <span th:case="discover">🔍 发现</span>
-                    <span th:case="hidden">🔮 隐藏</span>
-                    <span th:case="secret">🗝️ 秘密</span>
-                    <span th:case="legendary">⭐ 传说</span>
-                    <span th:case="social">👥 社交</span>
-                    <span th:case="skill_gain">🎯 技能</span>
-                    <span th:case="npc">💬 NPC</span>
-                    <span th:case="event_hint">💡 线索</span>
-                    <span th:case="route_unlock">🛤️ 路线</span>
-                    <span th:case="title_hint">🏅 称号</span>
-                    <span th:case="setback">⚡ 挫折</span>
-                    <span th:case="*">🌿 平淡</span>
-                </span>
-            </div>
-            <h1 class="vn-result__title">你在<span th:text="${location.locationName}">地点</span>发现了……</h1>
+    <!-- ========== 发现标题 ========== -->
+    <section class="paper-card tilt-right">
+        <div class="vn-result__meta">
+            <span class="paper-chip" th:text="${location.locationName}">📍 地点</span>
+            <span class="paper-chip"
+                  th:classappend="'explore-card__badge--' + ${result.resultType}"
+                  th:switch="${result.resultType}">
+                <span th:case="discover">🔍 发现</span>
+                <span th:case="hidden">🔮 隐藏</span>
+                <span th:case="secret">🗝️ 秘密</span>
+                <span th:case="legendary">⭐ 传说</span>
+                <span th:case="social">👥 社交</span>
+                <span th:case="skill_gain">🎯 技能</span>
+                <span th:case="npc">💬 NPC</span>
+                <span th:case="event_hint">💡 线索</span>
+                <span th:case="route_unlock">🛤️ 路线</span>
+                <span th:case="title_hint">🏅 称号</span>
+                <span th:case="setback">⚡ 挫折</span>
+                <span th:case="*">🌿 平淡</span>
+            </span>
         </div>
+        <h1 class="handwrite">你在<span th:text="${location.locationName}">地点</span>发现了……</h1>
+    </section>
 
-        <!-- 发现描述 -->
+    <!-- ========== 大图标 + 发现描述 ========== -->
+    <section class="paper-card tilt-left">
+        <div class="result-type-icon" th:switch="${result.resultType}">
+            <span th:case="discover">🔍</span>
+            <span th:case="hidden">🔮</span>
+            <span th:case="secret">🗝️</span>
+            <span th:case="legendary">⭐</span>
+            <span th:case="social">👥</span>
+            <span th:case="skill_gain">🎯</span>
+            <span th:case="npc">💬</span>
+            <span th:case="event_hint">💡</span>
+            <span th:case="route_unlock">🛤️</span>
+            <span th:case="title_hint">🏅</span>
+            <span th:case="setback">⚡</span>
+            <span th:case="*">🌿</span>
+        </div>
         <p class="vn-result__story" th:text="${result.description}">描述</p>
+    </section>
 
-        <!-- 探索度变化 -->
-        <div class="vn-result__explore-gain">
-            <div class="vn-result__explore-bar">
-                <div class="vn-result__explore-bar-track">
-                    <div class="vn-result__explore-bar-fill"
-                         th:style="'width:' + ${result.exploration.exploreLevel} + '%; background:' + ${location.themeColor}"></div>
+    <!-- ========== 探索度变化 ========== -->
+    <section class="paper-card tilt-right">
+        <p class="handwrite">🗺️ 探索度</p>
+        <div class="explore-card__progress">
+            <div class="stat-track">
+                <div class="stat-fill"
+                     th:style="'width:' + ${result.exploration.exploreLevel} + '%; background:' + ${location.themeColor}"></div>
+            </div>
+            <span class="explore-card__progress-label"
+                  th:text="'探索 ' + ${result.exploration.exploreLevel} + '%'">50%</span>
+        </div>
+        <span class="paper-chip paper-chip--green"
+              th:text="'探索度 +' + ${result.exploreLevelGain}">+10</span>
+    </section>
+
+    <!-- 解锁提示 -->
+    <div th:if="${result.exploration.exploreLevel >= 20 and result.exploration.exploreLevel - result.exploreLevelGain < 20}"
+         class="paper-card tilt-left" style="background: var(--yellow-light);">🎉 探索度达到 20%！解锁普通事件池。</div>
+    <div th:if="${result.exploration.exploreLevel >= 40 and result.exploration.exploreLevel - result.exploreLevelGain < 40}"
+         class="paper-card tilt-right" style="background: var(--yellow-light);">🎉 探索度达到 40%！解锁隐藏内容。</div>
+    <div th:if="${result.exploration.exploreLevel >= 60 and result.exploration.exploreLevel - result.exploreLevelGain < 60}"
+         class="paper-card tilt-left" style="background: var(--yellow-light);">🎉 探索度达到 60%！解锁组织入口。</div>
+    <div th:if="${result.exploration.exploreLevel >= 80 and result.exploration.exploreLevel - result.exploreLevelGain < 80}"
+         class="paper-card tilt-right" style="background: var(--yellow-light);">🎉 探索度达到 80%！解锁特殊副本。</div>
+    <div th:if="${result.exploration.exploreLevel >= 100 and result.exploration.exploreLevel - result.exploreLevelGain < 100}"
+         class="paper-card tilt-left" style="background: var(--green-light);">🏆 探索度达到 100%！你已完全探索这个地方！</div>
+
+    <!-- ========== 属性变化 ========== -->
+    <section th:if="${result != null}" class="paper-card tilt-right">
+        <p class="handwrite">本次探索</p>
+        <div class="sticky-note__actions">
+            <span class="paper-chip vn-up">
+                🗺️ 探索度 <em th:text="'+' + ${result.exploreLevelGain}">+10</em>
+            </span>
+            <span th:if="${result.academicChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.academicChange > 0} ? 'vn-up' : 'vn-down'">
+                📚 学业 <em th:text="${result.academicChange > 0} ? '+' + ${result.academicChange} : ${result.academicChange}">+5</em>
+                <small th:text="'（' + ${attribute.academic} + ')'"></small>
+            </span>
+            <span th:if="${result.healthChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.healthChange > 0} ? 'vn-up' : 'vn-down'">
+                💚 健康 <em th:text="${result.healthChange > 0} ? '+' + ${result.healthChange} : ${result.healthChange}">+5</em>
+                <small th:text="'（' + ${attribute.health} + ')'"></small>
+            </span>
+            <span th:if="${result.socialChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.socialChange > 0} ? 'vn-up' : 'vn-down'">
+                🤝 社交 <em th:text="${result.socialChange > 0} ? '+' + ${result.socialChange} : ${result.socialChange}">+5</em>
+                <small th:text="'（' + ${attribute.social} + ')'"></small>
+            </span>
+            <span th:if="${result.skillChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.skillChange > 0} ? 'vn-up' : 'vn-down'">
+                🔧 技能 <em th:text="${result.skillChange > 0} ? '+' + ${result.skillChange} : ${result.skillChange}">+5</em>
+                <small th:text="'（' + ${attribute.skill} + ')'"></small>
+            </span>
+            <span th:if="${result.pressureChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.pressureChange > 0} ? 'vn-down' : 'vn-up'">
+                😰 压力 <em th:text="${result.pressureChange > 0} ? '+' + ${result.pressureChange} : ${result.pressureChange}">+5</em>
+                <small th:text="'（' + ${attribute.pressure} + ')'"></small>
+            </span>
+            <span th:if="${result.disciplineChange != 0}"
+                  class="paper-chip"
+                  th:classappend="${result.disciplineChange > 0} ? 'vn-up' : 'vn-down'">
+                🎯 自律 <em th:text="${result.disciplineChange > 0} ? '+' + ${result.disciplineChange} : ${result.disciplineChange}">+5</em>
+                <small th:text="'（' + ${attribute.discipline} + ')'"></small>
+            </span>
+        </div>
+    </section>
+
+    <!-- ========== 影响来源面板 ========== -->
+    <section th:if="${result.influences != null and !result.influences.isEmpty()}" class="paper-card tilt-left">
+        <p class="handwrite">本次影响来源</p>
+        <div class="influence-panel__list">
+            <article class="influence-card-mini" th:each="influence : ${result.influences}">
+                <span class="paper-chip paper-chip--blue" th:switch="${influence.sourceType}">
+                    <span th:case="weekly_theme">周主题</span>
+                    <span th:case="rumor">校园传闻</span>
+                    <span th:case="story">奇遇线索</span>
+                    <span th:case="story_chain">奇遇线索</span>
+                    <span th:case="buddy">搭子加成</span>
+                    <span th:case="buddy_rescue">搭子救场</span>
+                    <span th:case="npc_buddy">搭子支援</span>
+                    <span th:case="*">现场变化</span>
+                </span>
+                <div>
+                    <strong th:text="${influence.sourceName}">来源名称</strong>
+                    <p th:text="${influence.description}">影响说明</p>
                 </div>
-                <span class="vn-result__explore-bar-label"
-                      th:text="'探索 ' + ${result.exploration.exploreLevel} + '%'">50%</span>
-            </div>
-            <span class="vn-result__explore-delta"
-                  th:text="'探索度 +' + ${result.exploreLevelGain}">+10</span>
+            </article>
         </div>
+    </section>
 
-        <!-- 解锁提示 -->
-        <div th:if="${result.exploration.exploreLevel >= 20 and result.exploration.exploreLevel - result.exploreLevelGain < 20}"
-             class="vn-result__unlock">🎉 探索度达到 20%！解锁普通事件池。</div>
-        <div th:if="${result.exploration.exploreLevel >= 40 and result.exploration.exploreLevel - result.exploreLevelGain < 40}"
-             class="vn-result__unlock">🎉 探索度达到 40%！解锁隐藏内容。</div>
-        <div th:if="${result.exploration.exploreLevel >= 60 and result.exploration.exploreLevel - result.exploreLevelGain < 60}"
-             class="vn-result__unlock">🎉 探索度达到 60%！解锁组织入口。</div>
-        <div th:if="${result.exploration.exploreLevel >= 80 and result.exploration.exploreLevel - result.exploreLevelGain < 80}"
-             class="vn-result__unlock">🎉 探索度达到 80%！解锁特殊副本。</div>
-        <div th:if="${result.exploration.exploreLevel >= 100 and result.exploration.exploreLevel - result.exploreLevelGain < 100}"
-             class="vn-result__unlock">🏆 探索度达到 100%！你已完全探索这个地方！</div>
+    <!-- ========== 探索奇遇 ========== -->
+    <section th:if="${result.storyResult != null and result.storyResult.isPresent()}" class="paper-card tilt-right" style="background: var(--purple-light);">
+        <span class="paper-chip paper-chip--white">校园奇遇</span>
+        <h2 class="handwrite" th:text="${result.storyResult.get().chain.chainName}">奇遇链</h2>
+        <p th:text="${result.storyResult.get().storyText}">奇遇内容</p>
+        <span th:if="${result.storyResult.get().completed}" class="paper-chip paper-chip--green">已完成</span>
+    </section>
 
-        <!-- 属性变化 -->
-        <div th:if="${result != null}" class="vn-result__changes">
-            <p class="vn-result__changes-label">本次探索</p>
-            <div class="vn-result__changes-list">
-                <span class="vn-result__change vn-up">
-                    🗺️ 探索度 <em th:text="'+' + ${result.exploreLevelGain}">+10</em>
-                </span>
-                <span th:if="${result.academicChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.academicChange > 0} ? 'vn-up' : 'vn-down'">
-                    📚 学业 <em th:text="${result.academicChange > 0} ? '+' + ${result.academicChange} : ${result.academicChange}">+5</em>
-                    <small th:text="'（' + ${attribute.academic} + ')'"></small>
-                </span>
-                <span th:if="${result.healthChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.healthChange > 0} ? 'vn-up' : 'vn-down'">
-                    💚 健康 <em th:text="${result.healthChange > 0} ? '+' + ${result.healthChange} : ${result.healthChange}">+5</em>
-                    <small th:text="'（' + ${attribute.health} + ')'"></small>
-                </span>
-                <span th:if="${result.socialChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.socialChange > 0} ? 'vn-up' : 'vn-down'">
-                    🤝 社交 <em th:text="${result.socialChange > 0} ? '+' + ${result.socialChange} : ${result.socialChange}">+5</em>
-                    <small th:text="'（' + ${attribute.social} + ')'"></small>
-                </span>
-                <span th:if="${result.skillChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.skillChange > 0} ? 'vn-up' : 'vn-down'">
-                    🔧 技能 <em th:text="${result.skillChange > 0} ? '+' + ${result.skillChange} : ${result.skillChange}">+5</em>
-                    <small th:text="'（' + ${attribute.skill} + ')'"></small>
-                </span>
-                <span th:if="${result.pressureChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.pressureChange > 0} ? 'vn-down' : 'vn-up'">
-                    😰 压力 <em th:text="${result.pressureChange > 0} ? '+' + ${result.pressureChange} : ${result.pressureChange}">+5</em>
-                    <small th:text="'（' + ${attribute.pressure} + ')'"></small>
-                </span>
-                <span th:if="${result.disciplineChange != 0}"
-                      class="vn-result__change"
-                      th:classappend="${result.disciplineChange > 0} ? 'vn-up' : 'vn-down'">
-                    🎯 自律 <em th:text="${result.disciplineChange > 0} ? '+' + ${result.disciplineChange} : ${result.disciplineChange}">+5</em>
-                    <small th:text="'（' + ${attribute.discipline} + ')'"></small>
-                </span>
+    <!-- ========== 当前状态速览 ========== -->
+    <section class="paper-card tilt-left">
+        <p class="handwrite">📊 当前状态</p>
+        <div class="sticky-note__actions">
+            <span class="paper-chip">学业 <strong th:text="${attribute.academic}">60</strong></span>
+            <span class="paper-chip">健康 <strong th:text="${attribute.health}">70</strong></span>
+            <span class="paper-chip">社交 <strong th:text="${attribute.social}">50</strong></span>
+            <span class="paper-chip">技能 <strong th:text="${attribute.skill}">40</strong></span>
+            <span class="paper-chip">压力 <strong th:text="${attribute.pressure}">30</strong></span>
+            <span class="paper-chip">自律 <strong th:text="${attribute.discipline}">50</strong></span>
+            <span class="paper-chip paper-chip--yellow">行动点 <strong th:text="${profile.actionPoints}">3</strong></span>
+        </div>
+    </section>
+
+    <!-- ========== NPC 遇见卡片 ========== -->
+    <section th:if="${npcEncounter != null and npcEncounter.isPresent()}" class="paper-card tilt-right">
+        <div class="encounter-card__header">
+            <span class="paper-avatar" style="width:48px;height:48px;font-size:1.6rem;" th:text="${npcEncounter.get().npc.avatarIcon}">👤</span>
+            <div>
+                <h3 class="handwrite" th:text="${npcEncounter.get().npc.npcName}">NPC名</h3>
+                <span class="paper-chip paper-chip--blue" th:text="${npcEncounter.get().npc.npcType}">类型</span>
             </div>
         </div>
-
-        <!-- 影响来源面板 -->
-        <section th:if="${result.influences != null and !result.influences.isEmpty()}" class="influence-panel">
-            <p class="influence-panel__title">本次影响来源</p>
-            <div class="influence-panel__list">
-                <article class="influence-chip" th:each="influence : ${result.influences}">
-                    <span class="influence-chip__type" th:switch="${influence.sourceType}">
-                        <span th:case="weekly_theme">周主题</span>
-                        <span th:case="rumor">校园传闻</span>
-                        <span th:case="story">奇遇线索</span>
-                        <span th:case="story_chain">奇遇线索</span>
-                        <span th:case="buddy">搭子加成</span>
-                        <span th:case="buddy_rescue">搭子救场</span>
-                        <span th:case="npc_buddy">搭子支援</span>
-                        <span th:case="*">现场变化</span>
-                    </span>
-                    <div class="influence-chip__body">
-                        <strong th:text="${influence.sourceName}">来源名称</strong>
-                        <p th:text="${influence.description}">影响说明</p>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <!-- 探索奇遇 -->
-        <section th:if="${result.storyResult != null and result.storyResult.isPresent()}" class="story-progress-card">
-            <span class="story-progress-card__eyebrow">校园奇遇</span>
-            <h2 th:text="${result.storyResult.get().chain.chainName}">奇遇链</h2>
-            <p th:text="${result.storyResult.get().storyText}">奇遇内容</p>
-            <span th:if="${result.storyResult.get().completed}" class="story-progress-card__done">已完成</span>
-        </section>
-
-        <!-- 当前状态速览 -->
-        <div class="vn-result__stats">
-            <div><span>学业</span><strong th:text="${attribute.academic}">60</strong></div>
-            <div><span>健康</span><strong th:text="${attribute.health}">70</strong></div>
-            <div><span>社交</span><strong th:text="${attribute.social}">50</strong></div>
-            <div><span>技能</span><strong th:text="${attribute.skill}">40</strong></div>
-            <div><span>压力</span><strong th:text="${attribute.pressure}">30</strong></div>
-            <div><span>自律</span><strong th:text="${attribute.discipline}">50</strong></div>
-            <div><span>行动点</span><strong th:text="${profile.actionPoints}">3</strong></div>
+        <p th:text="${npcEncounter.get().encounterText}">遇见描述</p>
+        <div class="sticky-note__actions">
+            <span th:if="${npcEncounter.get().familiarityGain > 0}" class="paper-chip paper-chip--green">
+                🤝 熟悉度 +<span th:text="${npcEncounter.get().familiarityGain}">2</span>
+                （<span th:text="${npcEncounter.get().relation.familiarity}">10</span>）
+            </span>
+            <span th:if="${npcEncounter.get().tendencyHint}" class="paper-chip paper-chip--yellow"
+                  th:text="${npcEncounter.get().tendencyHint}">倾向提示</span>
         </div>
+        <p th:if="${npcEncounter.get().npc.personality}" th:text="${npcEncounter.get().npc.personality}">性格描述</p>
+    </section>
 
-        <!-- ========== NPC 遇见卡片 ========== -->
-        <section th:if="${npcEncounter != null and npcEncounter.isPresent()}" class="encounter-card">
-            <div class="encounter-card__header">
-                <span class="encounter-card__avatar" th:text="${npcEncounter.get().npc.avatarIcon}">👤</span>
-                <div class="encounter-card__info">
-                    <h3 class="encounter-card__name" th:text="${npcEncounter.get().npc.npcName}">NPC名</h3>
-                    <span class="encounter-card__type" th:text="${npcEncounter.get().npc.npcType}">类型</span>
-                </div>
-            </div>
-            <p class="encounter-card__text" th:text="${npcEncounter.get().encounterText}">遇见描述</p>
-            <div class="encounter-card__changes">
-                <span th:if="${npcEncounter.get().familiarityGain > 0}" class="encounter-card__familiarity">
-                    🤝 熟悉度 +<span th:text="${npcEncounter.get().familiarityGain}">2</span>
-                    （<span th:text="${npcEncounter.get().relation.familiarity}">10</span>）
-                </span>
-                <span th:if="${npcEncounter.get().tendencyHint}" class="encounter-card__tendency"
-                      th:text="${npcEncounter.get().tendencyHint}">倾向提示</span>
-            </div>
-            <p class="encounter-card__personality" th:if="${npcEncounter.get().npc.personality}" th:text="${npcEncounter.get().npc.personality}">性格描述</p>
-        </section>
-
-        <!-- 后续行动 -->
-        <div class="vn-result__actions">
-            <a href="/exploration" class="sticky-note__btn sticky-note__btn--primary">🔍 继续踩点</a>
-            <a href="/map" class="sticky-note__btn">🗺️ 回地图</a>
-            <a href="/dashboard" class="sticky-note__btn">🏠 回寝室</a>
-        </div>
-
+    <!-- ========== 后续行动 ========== -->
+    <div class="sticky-note__actions">
+        <a href="/exploration" class="paper-btn paper-btn--primary">🔍 继续踩点</a>
+        <a href="/map" class="paper-btn">🗺️ 回地图</a>
+        <a href="/dashboard" class="paper-btn">🏠 回寝室</a>
     </div>
+
 </main>
 
 <!-- 手机底栏 -->
