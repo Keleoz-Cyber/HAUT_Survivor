@@ -6,6 +6,7 @@
     <title>寝室 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
+    <link href="/css/scribble.css" rel="stylesheet">
 </head>
 <body>
 
@@ -26,18 +27,23 @@
         </div>
     </section>
 
-    <!-- ========== 角色状态卡 ========== -->
-    <section class="paper-card tilt-right">
-        <h1 class="handwrite" th:text="${profile.playerName}">角色名</h1>
-        <p class="dorm-profile__subtitle">
-            <span th:text="${profile.currentTitle}">称号</span>
-            <span> · </span>
-            <span th:text="${weekPhaseLabel}">第 1 周</span>
-        </p>
-        <div class="dorm-profile__tags">
-            <span class="paper-chip paper-chip--purple" th:text="${profile.growthRoute}">成长路线</span>
-            <span class="paper-chip paper-chip--yellow">Lv.<span th:text="${profile.level}">1</span></span>
+    <!-- ========== 角色状态卡（日记本扉页风）========== -->
+    <section class="paper-card tilt-right paper-fold dashboard-hero">
+        <div class="dashboard-hero__date">
+            <span class="scribble-tag" th:text="${weekPhaseLabel}">第 1 周</span>
         </div>
+        <h1 class="handwrite--display dashboard-hero__name" th:text="${profile.playerName}">角色名</h1>
+        <p class="dashboard-hero__subtitle">
+            <span th:text="${profile.currentTitle}">称号</span>
+        </p>
+        <div class="dashboard-hero__tags">
+            <span class="paper-chip paper-chip--purple paper-chip--lg" th:text="${profile.growthRoute}">成长路线</span>
+            <span class="paper-chip paper-chip--yellow paper-chip--lg">
+                <span class="scribble-star"></span>
+                Lv.<span class="tabular-nums" th:text="${profile.level}">1</span>
+            </span>
+        </div>
+        <hr class="scribble-wave" style="margin-top: 14px; margin-bottom: 0;">
     </section>
 
     <!-- ========== 学期阶段进度 ========== -->
@@ -78,18 +84,21 @@
     </div>
 
     <!-- ========== 本周主题 ========== -->
-    <section th:if="${weekTheme != null}" class="paper-card tilt-right">
+    <section th:if="${weekTheme != null}" class="paper-card tilt-right week-theme-card">
         <span class="week-theme-card__icon" th:text="${weekTheme.icon}">🎒</span>
         <div class="week-theme-card__body">
-            <h2 class="handwrite" th:text="${weekTheme.name}">开学适应周</h2>
+            <h2 class="handwrite scribble-underline" th:text="${weekTheme.name}">开学适应周</h2>
             <p class="week-theme-card__desc" th:text="${weekTheme.description}">描述</p>
-            <p class="week-theme-card__hint" th:text="${weekTheme.hint}">提示</p>
+            <p class="week-theme-card__hint">
+                <span class="scribble-arrow-right"></span>
+                <span th:text="${weekTheme.hint}">提示</span>
+            </p>
         </div>
     </section>
 
     <!-- ========== 本周目标 ========== -->
-    <section th:if="${!semesterOver}" class="paper-card tilt-left">
-        <p class="handwrite">🎯 本周目标</p>
+    <section th:if="${!semesterOver}" class="paper-card tilt-left weekly-goal-card">
+        <h2 class="handwrite scribble-underline scribble-underline--green" style="font-size: 1.3rem; margin-bottom: 12px;">🎯 本周目标</h2>
 
         <!-- 未选择目标：显示 3 个候选 -->
         <div th:if="${currentWeeklyGoal == null and goalCandidates != null and !goalCandidates.isEmpty()}" class="goal-candidate__list">
@@ -189,36 +198,42 @@
     </section>
 
     <!-- ========== 手机桌面入口 ========== -->
-    <div class="phone-home">
-        <a href="/map" class="phone-home__app">
-            <span class="phone-home__app-icon">🗺️</span>
-            <span class="phone-home__app-label">去校园</span>
-        </a>
-        <a href="/exploration" class="phone-home__app">
-            <span class="phone-home__app-icon">🔍</span>
-            <span class="phone-home__app-label">踩点</span>
-        </a>
-        <a href="/dungeons" class="phone-home__app">
-            <span class="phone-home__app-icon">⚔️</span>
-            <span class="phone-home__app-label">挑战</span>
-        </a>
-        <a href="/organizations" class="phone-home__app">
-            <span class="phone-home__app-icon">🎉</span>
-            <span class="phone-home__app-label">社团</span>
-        </a>
-        <a href="/tasks" class="phone-home__app">
-            <span class="phone-home__app-icon">📋</span>
-            <span class="phone-home__app-label">待办</span>
-        </a>
-        <a href="/ending" class="phone-home__app" th:if="${semesterOver}">
-            <span class="phone-home__app-icon">📖</span>
-            <span class="phone-home__app-label">学期回忆</span>
-        </a>
-    </div>
+    <section class="paper-card tilt-left dashboard-apps">
+        <h2 class="handwrite" style="font-size: 1.15rem; margin-bottom: 12px;">
+            <span class="scribble-arrow-right" style="margin-right: 4px;"></span>
+            <span class="scribble-circle">去哪儿</span>
+        </h2>
+        <div class="phone-home">
+            <a href="/map" class="phone-home__app">
+                <span class="phone-home__app-icon">🗺️</span>
+                <span class="phone-home__app-label">去校园</span>
+            </a>
+            <a href="/exploration" class="phone-home__app">
+                <span class="phone-home__app-icon">🔍</span>
+                <span class="phone-home__app-label">踩点</span>
+            </a>
+            <a href="/dungeons" class="phone-home__app">
+                <span class="phone-home__app-icon">⚔️</span>
+                <span class="phone-home__app-label">挑战</span>
+            </a>
+            <a href="/organizations" class="phone-home__app">
+                <span class="phone-home__app-icon">🎉</span>
+                <span class="phone-home__app-label">社团</span>
+            </a>
+            <a href="/tasks" class="phone-home__app">
+                <span class="phone-home__app-icon">📋</span>
+                <span class="phone-home__app-label">待办</span>
+            </a>
+            <a href="/ending" class="phone-home__app" th:if="${semesterOver}">
+                <span class="phone-home__app-icon">📖</span>
+                <span class="phone-home__app-label">学期回忆</span>
+            </a>
+        </div>
+    </section>
 
     <!-- ========== 属性条 ========== -->
-    <section class="paper-card tilt-right">
-        <p class="handwrite">📊 状态</p>
+    <section class="paper-card tilt-right paper-fold">
+        <h2 class="handwrite scribble-underline scribble-underline--blue" style="font-size: 1.3rem; margin-bottom: 14px;">📊 状态</h2>
         <div class="stat-bar__grid">
             <div class="stat-bar__item">
                 <span class="stat-bar__item-label">学业</span>

@@ -6,6 +6,7 @@
     <title>学期回忆 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
+    <link href="/css/scribble.css" rel="stylesheet">
 </head>
 <body>
 
@@ -44,13 +45,18 @@
     </section>
 
     <!-- ===== 已结算：展示结局奖状 ===== -->
-    <section th:if="${hasSettled and ending != null}" class="paper-card ending-certificate" style="text-align: center; padding: 36px 28px; outline: 2px solid var(--border-color); outline-offset: 4px; box-shadow: 6px 6px 0 var(--shadow-color);">
-        <div style="font-size: 4.5rem; line-height: 1; margin: 4px 0 12px;" th:text="${ending.icon}">🏆</div>
-        <div style="margin: 8px 0 16px;">
-            <span class="paper-chip paper-chip--yellow" th:text="${ending.endingType}">类型</span>
+    <section th:if="${hasSettled and ending != null}" class="paper-card ending-certificate" style="text-align: center; padding: 40px 28px 36px; outline: 2px solid var(--border-color); outline-offset: 6px; box-shadow: 6px 6px 0 var(--shadow-color), 6px 6px 16px rgba(44, 38, 32, 0.15); position: relative;">
+        <!-- 印章（右上角） -->
+        <div class="scribble-stamp" style="position: absolute; top: 24px; right: 18px;">
+            通关<br>盖章
         </div>
-        <h1 class="handwrite" style="font-size: 3rem; margin: 12px 0; line-height: 1.15;" th:text="${ending.endingName}">结局名</h1>
-        <p style="font-style: italic; color: var(--ink); font-size: 1.05rem; line-height: 1.75; margin: 14px 0 20px;" th:text="${ending.description}">结局描述</p>
+        <div style="font-size: 5rem; line-height: 1; margin: 4px 0 14px;" th:text="${ending.icon}">🏆</div>
+        <div style="margin: 8px 0 8px;">
+            <span class="paper-chip paper-chip--yellow paper-chip--lg" th:text="${ending.endingType}">类型</span>
+        </div>
+        <h1 class="handwrite--display" style="font-size: 3.4rem; margin: 14px 0 8px; line-height: 1.1;" th:text="${ending.endingName}">结局名</h1>
+        <hr class="scribble-divider" style="max-width: 280px; margin: 12px auto 18px;">
+        <p style="font-style: italic; color: var(--ink); font-size: 1.08rem; line-height: 1.8; margin: 14px auto 22px; max-width: 540px;" th:text="${ending.description}">结局描述</p>
 
         <!-- 属性快照 -->
         <div th:if="${userEnding != null}" style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0;">
@@ -62,7 +68,8 @@
             <span class="paper-chip paper-chip--yellow">自律 <strong th:text="${userEnding.discipline}">50</strong></span>
         </div>
 
-        <p th:if="${userEnding != null}" style="margin: 12px 0 0; font-size: 0.95rem; color: var(--ink-muted);">
+        <p th:if="${userEnding != null}" style="margin: 12px 0 0; font-size: 0.95rem; color: var(--ink-muted); font-family: var(--font-handwrite);">
+            <span class="scribble-arrow-right" style="margin-right: 4px;"></span>
             成长路线：<strong style="color: var(--ink);" th:text="${userEnding.growthRoute}">路线</strong>
         </p>
     </section>

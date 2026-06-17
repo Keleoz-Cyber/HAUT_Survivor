@@ -6,6 +6,7 @@
     <title>莲花街校区 - HAUT Survivor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
+    <link href="/css/scribble.css" rel="stylesheet">
 </head>
 <body>
 
@@ -17,8 +18,10 @@
     <!-- ========== 地图标题区 ========== -->
     <section class="campus-map__header">
         <p class="campus-map__eyebrow handwrite">🗺️ 莲花街校区行动地图</p>
-        <h1 class="campus-map__title handwrite" th:if="${!semesterOver}">今晚去哪儿续命？</h1>
-        <h1 class="campus-map__title handwrite" th:if="${semesterOver}">学期已结束</h1>
+        <h1 class="campus-map__title handwrite--display" th:if="${!semesterOver}">
+            <span class="scribble-circle">今晚</span>去哪儿续命？
+        </h1>
+        <h1 class="campus-map__title handwrite--display" th:if="${semesterOver}">学期已结束</h1>
         <p class="campus-map__sub" th:if="${!semesterOver}">
             <span th:text="${profile.playerName}">玩家</span>，剩余
             <strong th:text="${profile.actionPoints}">3</strong> 次行动
@@ -52,10 +55,10 @@
     <div th:if="${message}" class="campus-map__msg paper-chip paper-chip--orange" th:text="${message}">提示</div>
 
     <!-- ========== 莲花街校区真实地图 ========== -->
-    <section class="campus-map-photo paper-card" th:if="${!semesterOver}">
+    <section class="campus-map-photo paper-card paper-fold" th:if="${!semesterOver}">
         <div class="campus-map-photo__header">
-            <p class="campus-map-photo__eyebrow handwrite">真实校区图</p>
-            <h2 class="campus-map-photo__title handwrite">莲花街校区一览</h2>
+            <p class="campus-map-photo__eyebrow handwrite">📍 真实校区图</p>
+            <h2 class="campus-map-photo__title handwrite scribble-underline scribble-underline--blue">莲花街校区一览</h2>
         </div>
         <div class="campus-map-photo__frame" aria-label="莲花街校区真实地图">
             <img src="/images/lianhuajie-campus-map.jpeg"
@@ -140,10 +143,10 @@
     </section>
 
     <!-- ========== 副本入口 ========== -->
-    <aside class="campus-map__dungeon-hook paper-card tilt-right" th:if="${!semesterOver}" style="background: var(--orange-light);">
+    <aside class="campus-map__dungeon-hook paper-card tilt-right paper-fold" th:if="${!semesterOver}" style="background: var(--orange-light);">
         <div class="campus-map__dungeon-hook-left">
-            <span class="campus-map__dungeon-hook-tag paper-chip paper-chip--orange">核心副本</span>
-            <h3 class="handwrite">Java 课设：DDL 前夜</h3>
+            <span class="campus-map__dungeon-hook-tag paper-chip paper-chip--orange">⚔️ 核心副本</span>
+            <h3 class="handwrite scribble-underline">Java 课设：DDL 前夜</h3>
             <p>实验室灯还亮着，数据库关系还没想清楚。</p>
         </div>
         <a href="/dungeons" class="paper-btn paper-btn--primary">⚔️ 查看副本</a>
