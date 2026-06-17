@@ -22,7 +22,9 @@
         <span class="paper-chip paper-chip--yellow" th:if="${profile != null}">
             ⚡ <span th:text="${profile.actionPoints}">4</span>/<span th:text="${profile.maxActionPoints}">4</span>
         </span>
-        <span class="paper-chip paper-chip--pink" th:if="${attribute != null and attribute.pressure >= 60}" style="animation: pressurePulse 2s ease-in-out infinite;">
+        <span class="paper-chip paper-chip--pink" th:if="${attribute != null and attribute.pressure >= 60}"
+              th:classappend="${attribute.pressure >= 75} ? 'pressure-danger' : 'pressure-warn'"
+              th:styleappend="${attribute.pressure >= 75} ? 'animation: pressurePulse 1s ease-in-out infinite; font-weight: 800;' : 'animation: pressurePulse 2s ease-in-out infinite;'">
             😰 <span th:text="${attribute.pressure}">30</span>
         </span>
     </div>
