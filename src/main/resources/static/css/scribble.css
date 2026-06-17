@@ -1,0 +1,123 @@
+﻿/* HAUT Survivor - Handdrawn SVG Decoration Library (Pure CSS) */
+
+/* ---------- Underline ---------- */
+.scribble-underline { position: relative; display: inline-block; padding-bottom: 6px; }
+.scribble-underline::after {
+    content: ""; position: absolute; left: -4px; right: -4px; bottom: 0; height: 8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q30 1 60 4 T120 5 T180 4 T198 6' stroke='%23f5b942' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: 100% 100%;
+}
+.scribble-underline--pink::after  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q30 1 60 4 T120 5 T180 4 T198 6' stroke='%23c93f5d' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.scribble-underline--green::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q30 1 60 4 T120 5 T180 4 T198 6' stroke='%232d9d5c' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+.scribble-underline--blue::after  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5 Q30 1 60 4 T120 5 T180 4 T198 6' stroke='%232e7da8' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); }
+
+/* ---------- Circle ---------- */
+.scribble-circle { position: relative; display: inline-block; padding: 4px 12px; }
+.scribble-circle::before {
+    content: ""; position: absolute; inset: -4px -8px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 50' preserveAspectRatio='none'%3E%3Cpath d='M52 4 Q15 6 8 25 Q5 44 50 47 Q92 46 95 27 Q96 8 60 5' stroke='%23c93f5d' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: 100% 100%; pointer-events: none;
+}
+
+/* ---------- Arrows ---------- */
+.scribble-arrow-right {
+    display: inline-block; width: 32px; height: 16px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 16'%3E%3Cpath d='M2 8 Q12 6 26 8 M20 3 L28 8 L20 13' stroke='%232c2620' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+.scribble-arrow-down {
+    display: inline-block; width: 16px; height: 32px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 32'%3E%3Cpath d='M8 2 Q6 12 8 26 M3 20 L8 28 L13 20' stroke='%232c2620' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+
+/* ---------- Check / X ---------- */
+.scribble-check {
+    display: inline-block; width: 22px; height: 22px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22'%3E%3Cpath d='M3 11 Q7 14 9 16 Q13 11 19 4' stroke='%232d9d5c' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+.scribble-x {
+    display: inline-block; width: 20px; height: 20px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4 4 Q12 11 17 17 M16 4 Q12 11 4 17' stroke='%23c93f5d' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+
+/* ---------- Star / Heart ---------- */
+.scribble-star {
+    display: inline-block; width: 22px; height: 22px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2 L14.5 9 L22 9.5 L16 14 L18 21 L12 17 L6 21 L8 14 L2 9.5 L9.5 9 Z' stroke='%23f5b942' stroke-width='2' fill='%23ffe9a3' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+.scribble-heart {
+    display: inline-block; width: 20px; height: 18px; vertical-align: middle;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 20 Q3 13 3 7 Q3 3 7 3 Q10 3 12 6 Q14 3 17 3 Q21 3 21 7 Q21 13 12 20 Z' stroke='%23c93f5d' stroke-width='2' fill='%23f5b5b0' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: contain;
+}
+
+/* ---------- Dividers ---------- */
+.scribble-divider {
+    border: none; height: 8px; margin: 16px 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4 Q15 2 30 4 T60 5 T90 4 T100 5' stroke='%232c2620' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-dasharray='3,4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: 100% 100%;
+}
+.scribble-wave {
+    border: none; height: 12px; margin: 12px 0; opacity: 0.6;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 12' preserveAspectRatio='none'%3E%3Cpath d='M0 6 Q12 0 24 6 T48 6 T72 6 T96 6 T100 6' stroke='%232c2620' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-size: 100% 100%;
+}
+
+/* ---------- Binder Holes ---------- */
+.binder-holes { position: relative; padding-left: 36px; }
+.binder-holes::before {
+    content: ""; position: absolute; left: 12px; top: 20px; bottom: 20px; width: 12px;
+    background-image: radial-gradient(circle, rgba(44, 38, 32, 0.18) 4px, transparent 5px);
+    background-size: 12px 36px; background-repeat: repeat-y;
+}
+
+/* ---------- Paper Fold ---------- */
+.paper-fold { position: relative; overflow: hidden; }
+.paper-fold::after {
+    content: ""; position: absolute; bottom: 0; right: 0; width: 28px; height: 28px; z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(135deg, transparent 50%, rgba(44, 38, 32, 0.08) 50%, var(--paper-edge) 100%);
+}
+
+/* ---------- Stamp ---------- */
+.scribble-stamp {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 70px; height: 70px;
+    border: 3px solid var(--red-deep); color: var(--red-deep);
+    border-radius: 50% 48% 52% 50%;
+    font-family: var(--font-display); font-size: 1.05rem; font-weight: 400;
+    transform: rotate(-12deg);
+    background: rgba(184, 58, 46, 0.04);
+    box-shadow: inset 0 0 0 1.5px var(--red-deep), 2px 2px 4px rgba(184, 58, 46, 0.15);
+    letter-spacing: 0.05em; text-align: center; line-height: 1.1; position: relative;
+}
+
+/* ---------- Tag (sticker, with arrow clip on left) ---------- */
+.scribble-tag {
+    display: inline-block;
+    background: var(--yellow-light); border: 2px solid var(--border-color);
+    padding: 4px 12px;
+    font-family: var(--font-handwrite); font-weight: 400; font-size: 0.85rem;
+    color: var(--ink); position: relative;
+    border-radius: 6px 4px 5px 7px;
+    box-shadow: 2px 2px 0 var(--shadow-color);
+}
+/* 显式带箭头的变体（按需使用） */
+.scribble-tag--arrow {
+    padding-left: 20px;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%);
+    border-radius: 0;
+}
+
+/* ---------- Doodle Decoration (corner sparkle) ---------- */
+.doodle-corner-tl, .doodle-corner-tr, .doodle-corner-bl, .doodle-corner-br {
+    position: absolute; pointer-events: none; opacity: 0.3;
+}
+.doodle-corner-tl { top: 6px; left: 6px; }
+.doodle-corner-tr { top: 6px; right: 6px; }
+.doodle-corner-bl { bottom: 6px; left: 6px; }
+.doodle-corner-br { bottom: 6px; right: 6px; }
