@@ -6,7 +6,8 @@ services:
       MYSQL_DATABASE: haut_survivor
       MYSQL_USER: haut
       MYSQL_PASSWORD: haut123456
-    # ports: "3306:3306" — omitted to avoid conflict with local MySQL; app uses Docker internal network
+    ports:
+      - "3307:3306"   # 暴露给外部图形化工具连接（避免和本地 3306 冲突）
     volumes:
       - haut-mysql-data:/var/lib/mysql
     healthcheck:
